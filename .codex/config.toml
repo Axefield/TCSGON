@@ -1,6 +1,5 @@
 # TCSgon — Codex CLI configuration
 
-[model]
 model = "gpt-4o"
 
 [agents.architecture]
