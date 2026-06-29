@@ -156,15 +156,15 @@ TCSgon/
 
 ```mermaid
 flowchart LR
-    A[Feature request] --> B[/plan]
-    B --> C[Architecture doc]
-    C --> D[React + TypeScript + Testing subagents]
-    D --> E[Implementation PR]
-    E --> F[/review]
-    F --> G{Approved?}
-    G -->|Yes| H[/ship]
+    A["Feature request"] --> B["/plan"]
+    B --> C["Architecture doc"]
+    C --> D["React + TypeScript + Testing subagents"]
+    D --> E["Implementation PR"]
+    E --> F["/review"]
+    F --> G{"Approved?"}
+    G -->|Yes| H["/ship"]
     G -->|No| E
-    H --> I[Merge]
+    H --> I["Merge"]
 ```
 
 ---
