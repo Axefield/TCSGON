@@ -1,0 +1,53 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(*)",
+      "Glob(*)",
+      "Grep(*)",
+      "Bash(pnpm:*)",
+      "Bash(npm:*)",
+      "Bash(git:*)",
+      "Bash(node:*)",
+      "Bash(vite:*)",
+      "Bash(tsc:*)",
+      "Bash(vitest:*)",
+      "Bash(playwright:*)",
+      "Bash(axe:*)",
+      "Edit(*)",
+      "Write(*)"
+    ],
+    "deny": [
+      "Bash(rm -rf:*)",
+      "Bash(curl:*)",
+      "Bash(wget:*)",
+      "Read(.env)",
+      "Read(.env.*)",
+      "Read(secrets/**)"
+    ]
+  },
+  "enableAllProjectMcpServers": true,
+  "mcpServers": {
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${env:GITHUB_TOKEN}"
+      }
+    },
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "."]
+    }
+  },
+  "agents": {
+    "architecture": { "file": ".claude/agents/architecture-agent.md" },
+    "react":       { "file": ".claude/agents/react-agent.md" },
+    "typescript":  { "file": ".claude/agents/typescript-agent.md" },
+    "testing":     { "file": ".claude/agents/testing-agent.md" },
+    "performance": { "file": ".claude/agents/performance-agent.md" },
+    "accessibility": { "file": ".claude/agents/accessibility-agent.md" },
+    "code-review": { "file": ".claude/agents/code-review-agent.md" },
+    "documentation": { "file": ".claude/agents/documentation-agent.md" },
+    "ai-workflow": { "file": ".claude/agents/ai-workflow-agent.md" }
+  }
+}

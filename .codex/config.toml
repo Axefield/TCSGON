@@ -1,0 +1,47 @@
+# TCSgon — Codex CLI configuration
+
+[model]
+model = "gpt-4o"
+
+[agents.architecture]
+file = ".codex/agents/architecture.md"
+
+[agents.react]
+file = ".codex/agents/react.md"
+
+[agents.typescript]
+file = ".codex/agents/typescript.md"
+
+[agents.testing]
+file = ".codex/agents/testing.md"
+
+[agents.performance]
+file = ".codex/agents/performance.md"
+
+[agents.accessibility]
+file = ".codex/agents/accessibility.md"
+
+[agents.code-review]
+file = ".codex/agents/code-review.md"
+
+[agents.documentation]
+file = ".codex/agents/documentation.md"
+
+[agents.ai-workflow]
+file = ".codex/agents/ai-workflow.md"
+
+[mcp_servers.github]
+command = "npx"
+args = ["-y", "@modelcontextprotocol/server-github"]
+env = { GITHUB_PERSONAL_ACCESS_TOKEN = "${env:GITHUB_TOKEN}" }
+
+[mcp_servers.filesystem]
+command = "npx"
+args = ["-y", "@modelcontextprotocol/server-filesystem", "."]
+
+[permissions]
+allow = ["read", "glob", "grep", "edit", "bash(pnpm:*)", "bash(npm:*)", "bash(git:*)", "bash(node:*)", "bash(vite:*)", "bash(tsc:*)", "bash(vitest:*)", "bash(playwright:*)"]
+deny  = ["bash(rm -rf:*)", "read(.env)", "read(.env.*)", "read(secrets/**)"]
+
+[memory]
+files = ["AGENTS.md", "SKILLS.md", ".codex/agents/*.md"]

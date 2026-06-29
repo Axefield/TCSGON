@@ -1,0 +1,151 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "agent": {
+    "architecture": {
+      "mode": "primary",
+      "description": "Designs scalable frontend architectures. Produces folder plans, module dependencies, state decisions, interface contracts, and risk assessments.",
+      "model": "ollama/minimax-m3:cloud",
+      "prompt": "{file:./prompts/agents/architecture.txt}",
+      "permission": {
+        "edit": "deny",
+        "bash": "deny"
+      }
+    },
+    "ai-workflow": {
+      "mode": "primary",
+      "description": "Orchestrates multi-agent tasks. Decomposes features, delegates to specialist subagents, critiques outputs, and integrates results.",
+      "model": "ollama/minimax-m3:cloud",
+      "prompt": "{file:./prompts/agents/ai-workflow.txt}",
+      "permission": {
+        "edit": "allow",
+        "bash": "allow"
+      }
+    },
+    "code-review": {
+      "mode": "primary",
+      "description": "Reviews human- and AI-generated code against AGENTS.md §6. Checks architecture, naming, types, perf, a11y, security, tests, docs, edge cases.",
+      "model": "ollama/minimax-m3:cloud",
+      "prompt": "{file:./prompts/agents/code-review.txt}",
+      "permission": {
+        "edit": "deny",
+        "bash": "allow"
+      }
+    },
+    "react": {
+      "mode": "subagent",
+      "description": "Reviews and designs React components, hooks, and state management. Enforces functional components, composition, and correct state ordering.",
+      "prompt": "{file:./prompts/agents/react.txt}",
+      "permission": {
+        "edit": "allow"
+      }
+    },
+    "typescript": {
+      "mode": "subagent",
+      "description": "Enforces strict TypeScript typing. Eliminates `any`, designs interfaces, discriminated unions, branded types, and Zod validation schemas.",
+      "prompt": "{file:./prompts/agents/typescript.txt}",
+      "permission": {
+        "edit": "allow"
+      }
+    },
+    "testing": {
+      "mode": "subagent",
+      "description": "Owns test strategy: Vitest + RTL for unit/integration, Playwright for E2E, MSW for network. Behavior assertions, coverage gates, regression discipline.",
+      "prompt": "{file:./prompts/agents/testing.txt}",
+      "permission": {
+        "bash": "allow"
+      }
+    },
+    "performance": {
+      "mode": "subagent",
+      "description": "Audits bundle size, render cost, and Core Web Vitals. Recommends scoped optimizations with measured before/after.",
+      "prompt": "{file:./prompts/agents/performance.txt}",
+      "permission": {
+        "bash": "allow"
+      }
+    },
+    "accessibility": {
+      "mode": "subagent",
+      "description": "Audits WCAG 2.2 AA compliance: semantic HTML, keyboard navigation, focus, ARIA, color contrast, motion preferences.",
+      "prompt": "{file:./prompts/agents/accessibility.txt}",
+      "permission": {
+        "edit": "allow"
+      }
+    },
+    "documentation": {
+      "mode": "subagent",
+      "description": "Produces JSDoc, ADRs, READMEs, CHANGELOG entries. Documents the why, not the what.",
+      "prompt": "{file:./prompts/agents/documentation.txt}",
+      "permission": {
+        "edit": "allow"
+      }
+    }
+  },
+  "provider": {
+    "ollama": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Ollama (local)",
+      "options": {
+        "baseURL": "http://127.0.0.1:11434/v1"
+      },
+      "models": {
+        "minimax-m3:cloud": { "name": "minimax-m3:cloud" },
+        "qwen2.5-coder:7b": { "name": "qwen2.5-coder:7b" },
+        "llama3.1:8b": { "name": "llama3.1:8b" }
+      }
+    },
+    "anthropic": {
+      "name": "Anthropic",
+      "apiKey": "${env:ANTHROPIC_API_KEY}",
+      "models": {
+        "claude-sonnet-4-20250514": { "name": "claude-sonnet-4-20250514" },
+        "claude-haiku-4-20250514": { "name": "claude-haiku-4-20250514" }
+      }
+    }
+  },
+  "model": "ollama/minimax-m3:cloud",
+  "small_model": "ollama/qwen2.5-coder:7b",
+  "permission": {
+    "edit": "allow",
+    "bash": "allow"
+  },
+  "mcp": {
+    "github": {
+      "type": "local",
+      "command": ["npx", "-y", "@modelcontextprotocol/server-github"],
+      "enabled": true,
+      "environment": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${env:GITHUB_TOKEN}"
+      }
+    },
+    "filesystem": {
+      "type": "local",
+      "command": ["npx", "-y", "@modelcontextprotocol/server-filesystem", "."],
+      "enabled": true
+    },
+    "puppeteer": {
+      "type": "local",
+      "command": ["npx", "-y", "@modelcontextprotocol/server-puppeteer"],
+      "enabled": false
+    },
+    "postgres": {
+      "type": "local",
+      "command": ["npx", "-y", "@modelcontextprotocol/server-postgres"],
+      "enabled": false,
+      "environment": {
+        "DATABASE_URI": "${env:DATABASE_URI}"
+      }
+    }
+  },
+  "instructions": [
+    "AGENTS.md",
+    ".opencode/agents/architecture.md",
+    ".opencode/agents/react.md",
+    ".opencode/agents/typescript.md",
+    ".opencode/agents/testing.md",
+    ".opencode/agents/performance.md",
+    ".opencode/agents/accessibility.md",
+    ".opencode/agents/code-review.md",
+    ".opencode/agents/documentation.md",
+    ".opencode/agents/ai-workflow.md"
+  ]
+}

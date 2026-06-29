@@ -1,0 +1,18 @@
+---
+description: Performance budgets and Core Web Vitals targets.
+globs:
+  - "src/**/*"
+  - "vite.config.*"
+alwaysApply: true
+---
+
+# Performance
+
+- Route bundle budget: 200 kB gzip warn, 350 kB gzip error.
+- Route-level code splitting mandatory.
+- Virtualize lists > 50 rows.
+- Images: AVIF first, responsive `srcset`, lazy below the fold.
+- LCP < 2.5s, INP < 200ms p75, CLS < 0.1.
+- Memoize only with measured reason.
+- Defer non-critical third-party scripts.
+See `.opencode/agents/performance.md`.

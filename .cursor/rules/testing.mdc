@@ -1,0 +1,20 @@
+---
+description: Testing conventions — Vitest, RTL, Playwright, MSW.
+globs:
+  - "src/**/__tests__/**"
+  - "src/**/*.test.{ts,tsx}"
+  - "e2e/**"
+alwaysApply: true
+---
+
+# Testing
+
+- Vitest + React Testing Library for unit + integration.
+- Playwright for E2E; one happy path per critical journey.
+- MSW for network in tests.
+- Behavior assertions, not implementation.
+- Query by role / label / text. `getByTestId` only when no semantic query exists.
+- Every bug fix ships a regression test.
+- Coverage gates: 80% lines / 75% branches / 80% functions.
+- No snapshot tests as a substitute for assertions.
+See `.opencode/agents/testing.md`.

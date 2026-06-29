@@ -1,0 +1,16 @@
+description = "Plan a feature end-to-end before any code is written."
+
+prompt = """
+You are running the /plan command for the TCSgon project.
+
+1. Read AGENTS.md and SKILLS.md.
+2. Apply the architecture → react → typescript → testing → accessibility → performance pipeline from .opencode/agents/.
+3. Produce docs/plans/<ticket>.md containing:
+   - Architecture overview
+   - Folder structure
+   - Interfaces (TypeScript shapes)
+   - State decision (with justification)
+   - Risks
+   - Verification plan
+4. Return a short summary suitable for the ticket comment.
+"""

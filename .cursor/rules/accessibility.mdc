@@ -1,0 +1,20 @@
+---
+description: Accessibility WCAG 2.2 AA rules.
+globs:
+  - "src/**/*.tsx"
+  - "src/**/*.html"
+alwaysApply: true
+---
+
+# Accessibility
+
+- WCAG 2.2 AA minimum.
+- Semantic HTML first; ARIA only when no native element exists.
+- All interactive elements keyboard-reachable with visible focus.
+- Color contrast ≥ 4.5:1 (text) / 3:1 (UI).
+- Honor `prefers-reduced-motion`.
+- Forms: labels associated, errors announced, focus moved on submit failure.
+- `aria-live` for toasts / status / errors.
+- Modals: focus trap + restore.
+- No `aria-hidden` on focusable elements.
+See `.opencode/agents/accessibility.md`.

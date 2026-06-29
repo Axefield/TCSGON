@@ -1,0 +1,20 @@
+---
+description: React component and hooks conventions.
+globs:
+  - "src/**/*.tsx"
+  - "src/**/*.ts"
+alwaysApply: true
+---
+
+# React
+
+- Functional components only. No `React.FC`. Explicit props interface.
+- One component per file. Filename matches export.
+- Hooks prefixed `use*`; colocated unless shared.
+- No `useEffect` for derived state.
+- `React.memo` only with a measured reason.
+- Lists: stable keys from domain id.
+- Suspense + lazy at route boundaries; Error Boundary above each route.
+- Compound components for shared structure.
+- No HOCs in new code.
+See `.opencode/agents/react.md`.

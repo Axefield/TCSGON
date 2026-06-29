@@ -1,0 +1,20 @@
+description = "Final pre-merge checks: lint, typecheck, tests, bundle, a11y, docs."
+
+prompt = """
+You are running the /ship command for the TCSgon project.
+
+Run the full Definition of Done checklist:
+
+- pnpm lint
+- pnpm typecheck
+- pnpm test --coverage  (gates: 80/75/80)
+- pnpm build            (route bundles within 200/350 kB gzip budget)
+- pnpm axe              (zero serious/critical)
+- CHANGELOG updated
+- JSDoc on new exports
+- ADR filed if a novel decision was made
+- Screenshots / GIFs for UI changes
+- At least one CODEOWNER approval
+
+Report each item as PASS / FAIL with details. Block merge on any FAIL.
+"""

@@ -1,0 +1,20 @@
+---
+description: TypeScript strict typing rules.
+globs:
+  - "src/**/*.ts"
+  - "src/**/*.tsx"
+  - "tsconfig*.json"
+alwaysApply: true
+---
+
+# TypeScript
+
+- `strict: true`, `noUncheckedIndexedAccess: true`, `exactOptionalPropertyTypes: true`.
+- No `any`. Use `unknown` + narrowing.
+- `interface` for object shapes; `type` for unions, intersections, utility composition.
+- Discriminated unions for variants.
+- Branded types for non-interchangeable IDs.
+- Zod schemas as source of truth for runtime validation; derive types via `z.infer`.
+- For GraphQL, use generated types — never hand-write.
+- Public APIs have explicit param + return types.
+See `.opencode/agents/typescript.md`.

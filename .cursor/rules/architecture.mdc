@@ -1,0 +1,19 @@
+---
+description: Architecture conventions — folder layout, module boundaries, state decisions.
+globs:
+  - "src/**/*"
+  - "package.json"
+  - "vite.config.*"
+alwaysApply: true
+---
+
+# Architecture
+
+- `src/features/<feature>/{components,hooks,api,types,__tests__}/`
+- `src/shared/` for cross-feature primitives only.
+- No cross-feature imports from `features/*/components` into other features.
+- One responsibility per module. Co-locate tests.
+- State: local first; React Query for server state; Redux only with justification.
+- New abstractions require justification in the PR.
+- Public seams must be typed end-to-end.
+See `.opencode/agents/architecture.md`.

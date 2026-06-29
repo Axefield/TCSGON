@@ -1,0 +1,17 @@
+---
+description: Security rules — secrets, XSS, dependency hygiene, CSP.
+globs:
+  - "**/*"
+alwaysApply: true
+---
+
+# Security
+
+- No secrets in source or commits.
+- CSP enforced; document any relaxation with a ticket.
+- `dangerouslySetInnerHTML` requires a written PR justification + sanitization.
+- User-supplied URLs validated against an allowlist before navigation.
+- Dependencies audited weekly; high/critical CVEs block release.
+- Auth tokens never in client bundle beyond in-memory + secure cookie.
+- Use `rel="noopener noreferrer"` on all `target="_blank"` links.
+See `.opencode/agents/code-review.md` §Security.

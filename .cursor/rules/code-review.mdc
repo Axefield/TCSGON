@@ -1,0 +1,18 @@
+---
+description: Code review checklist applied automatically to PR review.
+globs:
+  - "**/*"
+alwaysApply: true
+---
+
+# Code Review Checklist
+
+Apply on every change. See `.opencode/agents/code-review.md` for the full checklist.
+
+Architecture · Naming · Type safety · Performance · Accessibility · Security · Tests · Docs · Edge cases.
+
+Reject:
+- New `any` without migration plan.
+- Snapshot tests as substitute for assertions.
+- Bundle weight increases > 10% without justification.
+- Coverage drop below gate.

@@ -1,0 +1,28 @@
+{
+  "theme": "GitHub",
+  "selectedAuthType": "oauth-personal",
+  "mcpServers": {
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${env:GITHUB_TOKEN}"
+      }
+    },
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "."]
+    }
+  },
+  "agents": {
+    "architecture":   { "file": ".gemini/agents/architecture.md" },
+    "react":          { "file": ".gemini/agents/react.md" },
+    "typescript":     { "file": ".gemini/agents/typescript.md" },
+    "testing":        { "file": ".gemini/agents/testing.md" },
+    "performance":    { "file": ".gemini/agents/performance.md" },
+    "accessibility":  { "file": ".gemini/agents/accessibility.md" },
+    "code-review":    { "file": ".gemini/agents/code-review.md" },
+    "documentation":  { "file": ".gemini/agents/documentation.md" },
+    "ai-workflow":    { "file": ".gemini/agents/ai-workflow.md" }
+  }
+}

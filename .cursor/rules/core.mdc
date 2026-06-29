@@ -1,0 +1,16 @@
+---
+description: Immutable engineering principles for the TCSgon React/TypeScript project. Applies to every file.
+globs:
+  - "**/*"
+alwaysApply: true
+---
+
+# Core Rules (TCSgon)
+
+Strict TypeScript (strict + noUncheckedIndexedAccess + exactOptionalPropertyTypes).
+No `any`. No `@ts-ignore` without ticket. No class components. No `dangerouslySetInnerHTML` without justification.
+State order: local → Context → React Query → Redux Toolkit.
+Accessibility WCAG 2.2 AA. Performance budgets enforced.
+Tests required: behavior, not implementation.
+No secrets in source. CSP enforced.
+See `AGENTS.md` for the full ruleset.

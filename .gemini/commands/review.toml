@@ -1,0 +1,19 @@
+description = "Review a PR or diff against AGENTS.md §6."
+
+prompt = """
+You are running the /review command for the TCSgon project.
+
+1. Read AGENTS.md, SKILLS.md, and .opencode/agents/code-review.md.
+2. Run lint, typecheck, and tests for the affected surface.
+3. Apply the code-review checklist.
+4. Output:
+
+## Review — <PR>
+
+### Blocking
+### Non-blocking suggestions
+### Required follow-ups
+### Approval
+
+Cite file:line for every blocking item.
+"""
