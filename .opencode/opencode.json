@@ -4,7 +4,6 @@
     "architecture": {
       "mode": "primary",
       "description": "Designs scalable frontend architectures. Produces folder plans, module dependencies, state decisions, interface contracts, and risk assessments.",
-      "model": "ollama/minimax-m3:cloud",
       "prompt": "{file:./prompts/agents/architecture.txt}",
       "permission": {
         "edit": "deny",
@@ -14,7 +13,6 @@
     "ai-workflow": {
       "mode": "primary",
       "description": "Orchestrates multi-agent tasks. Decomposes features, delegates to specialist subagents, critiques outputs, and integrates results.",
-      "model": "ollama/minimax-m3:cloud",
       "prompt": "{file:./prompts/agents/ai-workflow.txt}",
       "permission": {
         "edit": "allow",
@@ -24,7 +22,6 @@
     "code-review": {
       "mode": "primary",
       "description": "Reviews human- and AI-generated code against AGENTS.md §6. Checks architecture, naming, types, perf, a11y, security, tests, docs, edge cases.",
-      "model": "ollama/minimax-m3:cloud",
       "prompt": "{file:./prompts/agents/code-review.txt}",
       "permission": {
         "edit": "deny",
@@ -102,7 +99,7 @@
       }
     }
   },
-  "model": "ollama/minimax-m3:cloud",
+  "model": "opencode/big-pickle",
   "small_model": "ollama/qwen2.5-coder:7b",
   "permission": {
     "edit": "allow",
