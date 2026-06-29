@@ -3,31 +3,31 @@
 model = "gpt-4o"
 
 [agents.architecture]
-file = ".codex/agents/architecture.md"
+file = ".codex/agents/architecture-agent.toml"
 
 [agents.react]
-file = ".codex/agents/react.md"
+file = ".codex/agents/react-agent.toml"
 
 [agents.typescript]
-file = ".codex/agents/typescript.md"
+file = ".codex/agents/typescript-agent.toml"
 
 [agents.testing]
-file = ".codex/agents/testing.md"
+file = ".codex/agents/testing-agent.toml"
 
 [agents.performance]
-file = ".codex/agents/performance.md"
+file = ".codex/agents/performance-agent.toml"
 
 [agents.accessibility]
-file = ".codex/agents/accessibility.md"
+file = ".codex/agents/accessibility-agent.toml"
 
 [agents.code-review]
-file = ".codex/agents/code-review.md"
+file = ".codex/agents/code-review-agent.toml"
 
 [agents.documentation]
-file = ".codex/agents/documentation.md"
+file = ".codex/agents/documentation-agent.toml"
 
 [agents.ai-workflow]
-file = ".codex/agents/ai-workflow.md"
+file = ".codex/agents/ai-workflow-agent.toml"
 
 [mcp_servers.github]
 command = "npx"
@@ -43,4 +43,4 @@ allow = ["read", "glob", "grep", "edit", "bash(pnpm:*)", "bash(npm:*)", "bash(gi
 deny  = ["bash(rm -rf:*)", "read(.env)", "read(.env.*)", "read(secrets/**)"]
 
 [memory]
-files = ["AGENTS.md", "SKILLS.md", ".codex/agents/*.md"]
+files = ["AGENTS.md", "SKILLS.md", ".codex/config.toml", ".codex/agents/*.toml"]
