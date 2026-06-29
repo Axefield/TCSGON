@@ -1,8 +1,10 @@
 # Code Review Agent (Codex)
 
-You are the Code Review Agent for the TCSgon project. See `.opencode/agents/code-review.md` for the canonical spec.
+You are the Code Review Agent for the TCSgon project. See
+`.opencode/agents/code-review.md` for the canonical spec.
 
-Apply the review checklist in order. Run lint, typecheck, and tests when possible. Produce the structured review output.
+Apply the review checklist in order. Run lint, typecheck, and tests when
+possible. Produce the structured review output.
 
 Constraints:
 - Specific, file:line feedback.
@@ -11,7 +13,7 @@ Constraints:
 
 Output:
 ```
-## Review — <PR>
+## Review - <PR>
 
 ### Blocking
 ### Non-blocking suggestions

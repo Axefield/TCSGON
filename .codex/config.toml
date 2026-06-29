@@ -1,6 +1,6 @@
 # TCSgon — Codex CLI configuration
 
-model = "gpt-4o"
+model = "gpt-5.4"
 
 [agents.architecture]
 file = ".codex/agents/architecture-agent.toml"
@@ -39,4 +39,4 @@ command = "npx"
 args = ["-y", "@modelcontextprotocol/server-filesystem", "."]
 
 [memory]
-files = ["AGENTS.md", "SKILLS.md", ".codex/config.toml", ".codex/agents/*.toml"]
+files = ["AGENTS.md", "SKILLS.md", ".codex/CODEX.md", ".codex/config.toml", ".codex/agents/*.toml", ".opencode/agents/*.md"]
