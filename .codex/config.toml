@@ -38,28 +38,5 @@ env = { GITHUB_PERSONAL_ACCESS_TOKEN = "${env:GITHUB_TOKEN}" }
 command = "npx"
 args = ["-y", "@modelcontextprotocol/server-filesystem", "."]
 
-[permissions]
-allow = [
-    { tool = "read" },
-    { tool = "glob" },
-    { tool = "grep" },
-    { tool = "edit" },
-    { tool = "write" },
-    { tool = "bash", command = "pnpm *" },
-    { tool = "bash", command = "npm *" },
-    { tool = "bash", command = "git *" },
-    { tool = "bash", command = "node *" },
-    { tool = "bash", command = "vite *" },
-    { tool = "bash", command = "tsc *" },
-    { tool = "bash", command = "vitest *" },
-    { tool = "bash", command = "playwright *" },
-]
-deny = [
-    { tool = "bash", command = "rm -rf *" },
-    { tool = "read", path = ".env" },
-    { tool = "read", path = ".env.*" },
-    { tool = "read", path = "secrets/**" },
-]
-
 [memory]
 files = ["AGENTS.md", "SKILLS.md", ".codex/config.toml", ".codex/agents/*.toml"]
