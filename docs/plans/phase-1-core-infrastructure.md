@@ -342,7 +342,7 @@ type ApiError =
 
 **`data-theme` set on `<html>` — three guards:**
 
-1. **Inline `<script>` in `index.html`** (no-FOUC): reads `localStorage.tcsgon:theme` first, falls back to `matchMedia('(prefers-color-scheme: dark)')`. Runs before first paint.
+1. **Inline `<script>` in `index.html`** (no-FOUC): reads `localStorage['tcsgon:theme']` first, falls back to `matchMedia('(prefers-color-scheme: dark)')`. Runs before first paint.
 
 2. **`store/index.ts` `preloadedState.ui.theme`** mirrors the inline-script decision. Slice hydration consistent.
 

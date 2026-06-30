@@ -15,7 +15,7 @@
       // Reads stored preference from localStorage, falls back to OS scheme.
       (function () {
         try {
-          var saved = JSON.parse(localStorage.getItem('tcsgon-theme') || 'null');
+          var saved = localStorage.getItem('tcsgon:theme');
           var theme = saved === 'dark' || saved === 'light' ? saved : null;
           if (!theme) {
             theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
