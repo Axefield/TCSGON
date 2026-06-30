@@ -5,6 +5,16 @@
 
 ---
 
+## Purpose
+
+TCSgon is a **production-ready React 18+ SPA** plus a **multi-agent AI system** that enforces enterprise engineering standards automatically.
+
+**The application.** A scalable, type-safe, accessible foundation for long-lived React apps — Vite, strict TypeScript, React Query, Redux Toolkit (only when justified), React Hook Form + Zod, MSW. Hard gates on lint, typecheck, coverage (80% lines / 75% branches / 80% functions), bundle size (200/350 kB gzip per route), and axe-core (zero critical/serious) make quality non-negotiable.
+
+**The agent system.** Nine specialist agents — *architecture, react, typescript, testing, performance, accessibility, code-review, documentation, ai-workflow* — wired into five CLI tools (opencode, Cursor, Claude Code, Codex CLI, Gemini CLI). They plan features (`/plan`), review PRs (`/review`), and gate merges (`/ship`). `.opencode/` is the single source of truth every tool reads.
+
+**Who it's for.** Teams building internal tools, B2B dashboards, or any React app where *maintainability, security, and accessibility* outrank day-one velocity. Use TCSgon as a starting point, or adopt just the agent system on an existing codebase.
+
 ## Quick start
 
 ```bash
@@ -61,17 +71,58 @@ All rules are codified in [`AGENTS.md`](./AGENTS.md) and enforced by the agent s
 
 Nine specialist AI agents are wired into every supported tool. Use `/plan` for new features, `/review` for PRs, `/ship` for pre-merge checks.
 
-| Agent | Mode | Purpose |
+They cluster into **three systems** by role:
+
+### 1. Planning & orchestration
+
+Owns *how work gets decomposed and delegated*. Only `primary` agents the user picks directly.
+
+| Agent | Mode | Role |
 |---|---|---|
-| `architecture` | primary | Project structure, module boundaries, state decisions |
-| `react` | subagent | Components, hooks, rendering, composition |
-| `typescript` | subagent | Types, interfaces, generics, strictness |
-| `testing` | subagent | Unit, integration, E2E, coverage |
-| `performance` | subagent | Profiling, bundle, Core Web Vitals |
-| `accessibility` | subagent | WCAG 2.2 AA, ARIA, keyboard, motion |
-| `code-review` | primary | Validates human- and AI-generated code |
-| `documentation` | subagent | API docs, ADRs, changelogs, JSDoc |
-| `ai-workflow` | primary | Plans tasks, delegates to subagents, critiques, integrates |
+| `ai-workflow` | primary | Orchestrator. Plans features, dispatches steps to subagents, critiques outputs, integrates results, runs final gates. |
+| `code-review` | primary | Read-only reviewer. Applies the AGENTS.md §6 checklist and blocks unsafe merges. |
+
+### 2. Domain specialist subagents
+
+Owned by `ai-workflow` / `code-review`. Each is the canonical authority for its slice of engineering. `architecture` is user-selectable but acts as a planner (edit=deny, bash=deny) — it hands off to the others, never executes.
+
+| Agent | Mode | Owns |
+|---|---|---|
+| `architecture` | primary (planner) | Folder structure, module boundaries, state decisions, dependency direction, interfaces, risks |
+| `react` | subagent | Components, hooks, composition, state ordering (local → Context → React Query → Redux) |
+| `typescript` | subagent | Strict types, interfaces, discriminated unions, branded IDs, Zod schemas |
+| `testing` | subagent | Vitest + RTL + MSW + Playwright. Behavior assertions, 80/75/80 coverage, regression tests |
+| `performance` | subagent | Bundle budgets (200/350 kB gzip), Core Web Vitals (LCP < 2.5s, INP < 200ms, CLS < 0.1), measured optimizations only |
+| `accessibility` | subagent | WCAG 2.2 AA, semantic HTML, keyboard, focus, contrast, motion preferences, axe-core |
+| `documentation` | subagent | JSDoc, ADRs, READMEs, CHANGELOG entries, Storybook stories |
+
+### 3. Tool wiring layer
+
+The **delivery surface** — the same nine agents available across five CLIs. `.opencode/` is the single source of truth; the others are thin adapters.
+
+| Tool | Config dir | Mechanism |
+|---|---|---|
+| **opencode** | `.opencode/` | `opencode.json` + `prompts/agents/*.txt` + `agents/*.md` + `skills/*/SKILL.md` (canonical) |
+| **Cursor** | `.cursor/` | `rules/*.mdc` (alwaysApply) + `agents/*.md` subagents |
+| **Claude Code** | `.claude/` | `CLAUDE.md` + `agents/*.md` subagents |
+| **Codex CLI** | `.codex/` | `config.toml` agent registry + `agents/*.md` |
+| **Gemini CLI** | `.gemini/` | `settings.json` agents + `commands/*.toml` |
+
+### How they connect
+
+```
+User → /plan → ai-workflow
+                  ├─ architecture (plan)
+                  ├─ react        (component shape)
+                  ├─ typescript   (type contracts)
+                  ├─ testing      (verification surface)
+                  ├─ accessibility (a11y contract)
+                  └─ performance   (budget impact)
+        → /review → code-review
+                  ├─ typescript / react / a11y / perf (deep checks)
+                  └─ documentation (doc gaps)
+        → /ship   → ai-workflow (DoD gates: lint, typecheck, tests, axe, build)
+```
 
 **Primary** agents are user-selectable. **Subagents** are invoked by primary agents at runtime.
 
