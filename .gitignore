@@ -6,6 +6,7 @@ node_modules/
 dist/
 build/
 storybook-static/
+.vite/
 
 # Environment
 .env
@@ -30,6 +31,8 @@ coverage-ts/
 # Playwright
 e2e/test-results/
 e2e/playwright-report/
+playwright-report/
+test-results/
 
 # TypeScript
 *.tsbuildinfo
@@ -46,3 +49,6 @@ temp/
 
 # Agent tools (user-level config not in repo)
 .secrets/
+
+# Prettier cache
+.prettiercache
