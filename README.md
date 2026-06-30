@@ -17,18 +17,26 @@ TCSgon is a **production-ready React 18+ SPA** plus a **multi-agent AI system** 
 
 ## Quick start
 
+**Prerequisites:** Node **>=24** (v24 "Krypton" LTS — see [`.nvmrc`](./.nvmrc)) and **pnpm >=10** (Corepack will pin via `packageManager`).
+
 ```bash
-pnpm install
-pnpm dev              # Vite HMR dev server
-pnpm lint             # ESLint (flat config)
-pnpm typecheck        # tsc --noEmit (strict mode)
-pnpm test             # Vitest + RTL
-pnpm test --coverage  # coverage gates: 80/75/80
-pnpm build            # production build + bundle analysis
-pnpm preview          # preview production build
-pnpm axe              # aXe-core a11y audit (CI gate)
-pnpm e2e              # Playwright E2E
+pnpm install         # 562 packages, ~22s
+pnpm dev             # Vite HMR dev server on :5173
+pnpm lint            # ESLint (flat config)
+pnpm lint:fix        # auto-fix safe issues
+pnpm typecheck       # tsc --noEmit (strict + noUncheckedIndexedAccess)
+pnpm test            # Vitest (watch mode)
+pnpm test:run        # Vitest (single run)
+pnpm test:coverage   # coverage gates: 80 / 75 / 80
+pnpm build           # production build (tsc -b + vite build)
+pnpm build:analyze   # same + bundle visualizer → dist/stats.html
+pnpm preview         # preview production build on :4173
+pnpm e2e             # Playwright E2E (chromium)
+pnpm axe             # a11y-only spec via @axe-core/playwright
+pnpm clean           # remove dist/, coverage/, playwright-report/, test-results/
 ```
+
+> **Phase 0 status:** every gate above passes. See [`docs/plans/phase-0-package-json.md`](./docs/plans/phase-0-package-json.md) for the full plan + verification log.
 
 ---
 
@@ -46,7 +54,7 @@ pnpm e2e              # Playwright E2E
 | **Unit / integration** | Vitest + React Testing Library |
 | **E2E** | Playwright |
 | **Network mocking** | MSW v2 |
-| **A11y audit** | axe-core (CI gate, zero serious/critical) |
+| **A11y audit** | `@axe-core/playwright` (Deque official, chainable `AxeBuilder` API) |
 | **Bundle analysis** | Vite rollup-plugin-visualizer |
 | **Package manager** | pnpm |
 
