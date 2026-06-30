@@ -1,6 +1,10 @@
-// ReactDOM entry point — Phase 0 minimal shell.
-// Per AGENTS.md §3: providers wrap in the documented order (Redux -> RQ -> Router).
-// Router is added in Phase 1; theme context in Phase 1; suspense/error boundary in Phase 1.
+/**
+ * ReactDOM entry point — Phase 1: Redux → React Query → Router.
+ *
+ * Per AGENTS.md §3: providers wrap in this order.
+ * RootErrorBoundary is inside RouterProvider (route-level),
+ * plus a top-level error boundary in AppShell to catch router + render errors.
+ */
 
 import { QueryClientProvider } from '@tanstack/react-query';
 import { StrictMode } from 'react';

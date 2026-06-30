@@ -10,6 +10,22 @@
       content="TCSgon — enterprise-grade React SPA with multi-agent AI enforcement"
     />
     <title>TCSgon</title>
+    <script>
+      // Theme flash prevention — runs before first paint.
+      // Reads stored preference from localStorage, falls back to OS scheme.
+      (function () {
+        try {
+          var saved = JSON.parse(localStorage.getItem('tcsgon-theme') || 'null');
+          var theme = saved === 'dark' || saved === 'light' ? saved : null;
+          if (!theme) {
+            theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+          }
+          document.documentElement.setAttribute('data-theme', theme);
+        } catch (e) {
+          // localStorage unavailable — no theme flash prevention.
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
