@@ -119,7 +119,6 @@ export function ProfileMenu({
           id={MENU_ID}
           ref={menuRef}
           onKeyDown={handleKeyDown}
-          role="listbox"
           style={{
             position: 'absolute',
             top: '100%',
