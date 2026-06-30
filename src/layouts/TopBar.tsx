@@ -30,6 +30,7 @@ export interface TopBarProps {
   readonly theme: Theme;
   readonly onThemeToggle: () => void;
   readonly user: User | null;
+  readonly isSidebarOpen?: boolean;
 }
 
 export function TopBar({
@@ -38,6 +39,7 @@ export function TopBar({
   theme,
   onThemeToggle,
   user,
+  isSidebarOpen = false,
 }: TopBarProps): ReactElement {
   return (
     <header className={styles.topBar}>
@@ -46,7 +48,7 @@ export function TopBar({
           type="button"
           className={styles.menuButton}
           onClick={onMenuClick}
-          aria-label="Open navigation menu"
+          aria-label={isSidebarOpen ? 'Close navigation menu' : 'Open navigation menu'}
         >
           ☰
         </button>

@@ -9,7 +9,10 @@ import { Link } from 'react-router-dom';
 export function NotFoundPage(): ReactElement {
   return (
     <section style={{ textAlign: 'center', padding: '4rem 1rem' }}>
-      <h1 style={{ fontSize: 'var(--font-size-4xl, 3rem)', margin: '0 0 0.5rem' }}>
+      <h1
+        style={{ fontSize: 'var(--font-size-4xl, 3rem)', margin: '0 0 0.5rem' }}
+        aria-label="Page not found (404)"
+      >
         404
       </h1>
       <p
@@ -19,7 +22,7 @@ export function NotFoundPage(): ReactElement {
           marginBottom: '2rem',
         }}
       >
-        This page could not be found.
+        The page you are looking for does not exist.
       </p>
       <Link
         to="/"

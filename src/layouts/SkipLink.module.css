@@ -16,7 +16,6 @@
   clip-path: inset(50%);
   white-space: nowrap;
   overflow: hidden;
-  position: absolute;
   height: 1px;
   width: 1px;
 }

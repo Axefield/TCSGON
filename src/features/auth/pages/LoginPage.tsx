@@ -25,15 +25,16 @@ export function LoginPage(): ReactElement {
   const { login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  // Derive redirect target during render so useCallback deps are stable.
+  const rawNext = searchParams.get('next');
+  const defaultNext = rawNext && isValidRedirect(rawNext) ? rawNext : '/dashboard';
 
   const handleSubmit = useCallback(
     async (input: LoginInput) => {
       await login(input);
-      const rawNext = searchParams.get('next');
-      const next = rawNext && isValidRedirect(rawNext) ? rawNext : '/dashboard';
-      navigate(next, { replace: true });
+      navigate(defaultNext, { replace: true });
     },
-    [login, navigate, searchParams],
+    [login, navigate, defaultNext],
   );
 
   // Redirect if already logged in.

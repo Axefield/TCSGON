@@ -251,6 +251,8 @@ export function createApiClient(
             return { ok: true, data: parsed.data, status: response.status };
           }
 
+          // No schema provided — return unvalidated body. Callers should always
+          // pass a Zod schema for runtime safety.
           return { ok: true, data: body as TOut, status: response.status };
         } catch (cause) {
           if (cause instanceof DOMException && cause.name === 'AbortError') {

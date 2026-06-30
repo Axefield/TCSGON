@@ -16,8 +16,8 @@ describe('NotFoundPage', () => {
         <NotFoundPage />
       </MemoryRouter>,
     );
-    expect(screen.getByRole('heading', { name: '404' })).toBeInTheDocument();
-    expect(screen.getByText(/this page could not be found/i)).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /page not found/i })).toBeInTheDocument();
+    expect(screen.getByText(/does not exist/i)).toBeInTheDocument();
   });
 
   it('renders a link to go home', () => {
