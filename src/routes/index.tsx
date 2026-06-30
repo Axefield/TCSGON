@@ -45,7 +45,7 @@ export type RoutePath = (typeof ROUTES)[keyof typeof ROUTES];
 const authedRoutes: RouteObject[] = [
   {
     path: ROUTES.dashboard,
-    lazy: () => import('@/features/auth/pages/DashboardPage').then((m) => ({ Component: m.DashboardPage })),
+    lazy: () => import('@/features/dashboard/pages/DashboardPage').then((m) => ({ Component: m.DashboardPage })),
     handle: { crumb: 'Dashboard' },
     errorElement: <RouteErrorElement />,
   },
@@ -75,7 +75,7 @@ const routes: RouteObject[] = [
       },
       {
         index: true,
-        lazy: () => import('@/features/auth/pages/DashboardPage').then((m) => ({ Component: m.DashboardPage })),
+        lazy: () => import('@/features/dashboard/pages/DashboardPage').then((m) => ({ Component: m.DashboardPage })),
       },
       {
         path: '*',

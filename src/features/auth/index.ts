@@ -17,7 +17,6 @@ export type { LoginFormProps } from './components/LoginForm';
 export { ProfileMenu } from './components/ProfileMenu';
 export type { ProfileMenuProps } from './components/ProfileMenu';
 export {
-  DashboardPage,
   LoginPage,
   NotFoundPage,
   SettingsPageStub,
