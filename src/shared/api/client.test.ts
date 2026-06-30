@@ -4,6 +4,7 @@
  * @see docs/plans/phase-1-core-infrastructure.md §51, §57
  */
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { z } from 'zod';
 
 import { createApiClient } from './client';
 
@@ -324,5 +325,320 @@ describe('createApiClient', () => {
 
     const callArgs = (globalThis.fetch as ReturnType<typeof vi.fn>).mock.calls[0]!;
     expect(callArgs[0]).toBe('https://other.com/api/data');
+  });
+
+  // ---------------------------------------------------------------------------
+  // Remediation: bring line coverage to ≥ 80%
+  // ---------------------------------------------------------------------------
+
+  it('request returns success with undefined data for 204', async () => {
+    mockFetch({
+      ok: true,
+      status: 204,
+      headers: new Headers({}),
+    });
+    const client = createApiClient({ baseUrl: 'http://test.com' });
+    const result = await client.request({ method: 'DELETE', path: '/resource/1' });
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.status).toBe(204);
+      expect(result.data).toBeUndefined();
+    }
+  });
+
+  it('request returns error for unexpected content-type on successful response', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue({
+      ok: true,
+      status: 200,
+      statusText: 'OK',
+      headers: new Headers({ 'content-type': 'text/plain' }),
+      json: () => Promise.reject(new Error('Not JSON')),
+      text: () => Promise.resolve('plain text'),
+    } as unknown as Response);
+
+    const client = createApiClient({ baseUrl: 'http://test.com' });
+    const result = await client.request({ method: 'GET', path: '/test' });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error.kind).toBe('http');
+      expect(result.error.message).toContain('content-type');
+    }
+  });
+
+  it('request returns error when JSON parsing fails on 2xx response', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue({
+      ok: true,
+      status: 200,
+      statusText: 'OK',
+      headers: new Headers({ 'content-type': 'application/json' }),
+      json: () => Promise.reject(new SyntaxError('Unexpected token')),
+      text: () => Promise.resolve('{invalid}'),
+    } as unknown as Response);
+
+    const client = createApiClient({ baseUrl: 'http://test.com' });
+    const result = await client.request({ method: 'GET', path: '/test' });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error.kind).toBe('http');
+    }
+  });
+
+  it('request retries when JSON parsing fails on retriable status', async () => {
+    const fetchMock = vi.spyOn(globalThis, 'fetch');
+    // First: 503 with broken JSON body
+    fetchMock.mockResolvedValueOnce({
+      ok: false, status: 503, statusText: 'Service Unavailable',
+      headers: new Headers({ 'content-type': 'application/json' }),
+      json: () => Promise.reject(new SyntaxError('Unexpected token')),
+    } as unknown as Response);
+    // Second: success
+    fetchMock.mockResolvedValueOnce({
+      ok: true, status: 200,
+      headers: new Headers({ 'content-type': 'application/json' }),
+      json: () => Promise.resolve({ id: 1 }),
+    } as unknown as Response);
+
+    const client = createApiClient({ baseUrl: 'http://test.com' });
+    const result = await client.request({ method: 'GET', path: '/test', retry: true });
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data).toEqual({ id: 1 });
+    }
+    expect(fetchMock.mock.calls.length).toBe(2);
+  });
+
+  it('request does not set Content-Type for FormData body', async () => {
+    mockFetch();
+    const client = createApiClient({ baseUrl: 'http://test.com' });
+    const formData = new FormData();
+    formData.append('key', 'value');
+    await client.request({ method: 'POST', path: '/upload', body: formData });
+
+    const callArgs = (globalThis.fetch as ReturnType<typeof vi.fn>).mock.calls[0]!;
+    expect(callArgs[1].headers['Content-Type']).toBeUndefined();
+  });
+
+  it('request returns validation error when schema validation fails', async () => {
+    const schema = z.object({ id: z.string() });
+    mockFetch({
+      ok: true,
+      status: 200,
+      json: () => Promise.resolve({ id: 123 }),
+    });
+    const client = createApiClient({ baseUrl: 'http://test.com' });
+    const result = await client.request({ method: 'GET', path: '/test', schema });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error.kind).toBe('validation');
+      expect((result.error as any).detail.issues).toBeDefined();
+      expect((result.error as any).detail.issues.length).toBeGreaterThan(0);
+    }
+  });
+
+  it('request returns validated data when schema validation succeeds', async () => {
+    const schema = z.object({ id: z.string(), name: z.string() });
+    mockFetch({
+      ok: true,
+      status: 200,
+      json: () => Promise.resolve({ id: '1', name: 'Test' }),
+    });
+    const client = createApiClient({ baseUrl: 'http://test.com' });
+    const result = await client.request({ method: 'GET', path: '/test', schema });
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data).toEqual({ id: '1', name: 'Test' });
+      expect(result.status).toBe(200);
+    }
+  });
+
+  it('returns timeout error when request exceeds timeoutMs', async () => {
+    vi.useFakeTimers();
+
+    vi.spyOn(globalThis, 'fetch').mockImplementation((_url, init) => {
+      return new Promise((_resolve, reject) => {
+        const signal = init?.signal as AbortSignal | undefined;
+        if (signal?.aborted) {
+          reject(new DOMException('Aborted', 'AbortError'));
+          return;
+        }
+        signal?.addEventListener('abort', () => {
+          reject(new DOMException('Aborted', 'AbortError'));
+        }, { once: true });
+      });
+    });
+
+    const client = createApiClient({ baseUrl: 'http://test.com' });
+    const promise = client.request({ method: 'GET', path: '/test', timeoutMs: 50 });
+
+    await vi.advanceTimersByTimeAsync(50);
+
+    const result = await promise;
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error.kind).toBe('timeout');
+    }
+
+    vi.useRealTimers();
+  });
+
+  it('returns aborted error when caller aborts during request', async () => {
+    const controller = new AbortController();
+
+    vi.spyOn(globalThis, 'fetch').mockImplementation((_url, init) => {
+      return new Promise((_resolve, reject) => {
+        const signal = init?.signal as AbortSignal | undefined;
+        if (signal?.aborted) {
+          reject(new DOMException('Aborted', 'AbortError'));
+          return;
+        }
+        signal?.addEventListener('abort', () => {
+          reject(new DOMException('Aborted', 'AbortError'));
+        }, { once: true });
+      });
+    });
+
+    const client = createApiClient({ baseUrl: 'http://test.com' });
+    const promise = client.request({ method: 'GET', path: '/test', signal: controller.signal });
+
+    controller.abort();
+
+    const result = await promise;
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error.kind).toBe('aborted');
+    }
+  });
+
+  it('aborts retry sleep when signal is cancelled', async () => {
+    vi.useFakeTimers();
+
+    const controller = new AbortController();
+
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue({
+      ok: false, status: 503, statusText: 'Service Unavailable',
+      headers: new Headers(), json: () => Promise.resolve({}), text: () => Promise.resolve(''),
+    } as Response);
+
+    const client = createApiClient({ baseUrl: 'http://test.com' });
+    const promise = client.request({
+      method: 'GET', path: '/test', retry: true,
+      signal: controller.signal,
+    });
+
+    // Schedule abort during the first backoff sleep
+    setTimeout(() => controller.abort(), 100);
+
+    // Advance past the first fetch + into sleep, then trigger the abort
+    await vi.advanceTimersByTimeAsync(200);
+
+    const result = await promise;
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error.kind).toBe('aborted');
+    }
+
+    vi.useRealTimers();
+  });
+
+  it('request does NOT retry on 500 (non-retriable server error) even when retry is true', async () => {
+    const mock = vi.spyOn(globalThis, 'fetch');
+    mock.mockResolvedValue({
+      ok: false, status: 500, statusText: 'Internal Server Error',
+      headers: new Headers(), json: () => Promise.resolve({}), text: () => Promise.resolve(''),
+    } as Response);
+
+    const client = createApiClient({ baseUrl: 'http://test.com' });
+    const result = await client.request({ method: 'GET', path: '/test', retry: true });
+
+    expect(result.ok).toBe(false);
+    expect(mock.mock.calls.length).toBe(1);
+  });
+
+  it('retries on timeout when retry is true', async () => {
+    vi.useFakeTimers();
+
+    const fetchMock = vi.spyOn(globalThis, 'fetch');
+    // First call: hangs then times out
+    fetchMock.mockImplementationOnce((_url, init) => {
+      return new Promise((_resolve, reject) => {
+        const signal = init?.signal as AbortSignal | undefined;
+        if (signal?.aborted) {
+          reject(new DOMException('Aborted', 'AbortError'));
+          return;
+        }
+        signal?.addEventListener('abort', () => {
+          reject(new DOMException('Aborted', 'AbortError'));
+        }, { once: true });
+      });
+    })
+    // Second call: succeeds
+    .mockImplementationOnce(() => Promise.resolve({
+      ok: true, status: 200,
+      headers: new Headers({ 'content-type': 'application/json' }),
+      json: () => Promise.resolve({ id: 1 }),
+    } as Response));
+
+    const client = createApiClient({ baseUrl: 'http://test.com' });
+    const promise = client.request({ method: 'GET', path: '/test', timeoutMs: 50, retry: true });
+
+    // Advance past first timeout (50ms) + backoff sleep (~500ms) + second request
+    await vi.advanceTimersByTimeAsync(5000);
+
+    const result = await promise;
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data).toEqual({ id: 1 });
+    }
+    expect(fetchMock.mock.calls.length).toBe(2);
+
+    vi.useRealTimers();
+  });
+
+  it('applies exponential backoff between retries', async () => {
+    vi.useFakeTimers();
+
+    const fetchMock = vi.spyOn(globalThis, 'fetch');
+    fetchMock.mockResolvedValue({
+      ok: false, status: 503, statusText: 'Service Unavailable',
+      headers: new Headers(), json: () => Promise.resolve({}), text: () => Promise.resolve(''),
+    } as Response);
+
+    const setTimeoutSpy = vi.spyOn(globalThis, 'setTimeout');
+
+    const client = createApiClient({ baseUrl: 'http://test.com' });
+    const promise = client.request({ method: 'GET', path: '/test', retry: true });
+
+    // Run all timers to completion
+    await vi.runAllTimersAsync();
+
+    const result = await promise;
+    expect(result.ok).toBe(false);
+
+    // Must have exhausted all retries
+    expect(fetchMock.mock.calls.length).toBe(4); // initial + 3 retries
+
+    // Extract the backoff sleep delays (positive delays < 10s)
+    const sleepDelays = setTimeoutSpy.mock.calls
+      .map((call) => call[1] as number)
+      .filter((delay) => delay > 0 && delay < 10_000)
+      .sort((a, b) => a - b);
+
+    // We should have at least 3 sleep calls (attempts 0, 1, 2)
+    expect(sleepDelays.length).toBeGreaterThanOrEqual(3);
+    // Exponential backoff: each delay is strictly larger than the previous
+    for (let i = 1; i < sleepDelays.length; i++) {
+      expect(sleepDelays[i]!).toBeGreaterThan(sleepDelays[i - 1]!);
+    }
+    // First retry base is 500 * 2^0 = 500 (plus jitter 0-250)
+    expect(sleepDelays[0]!).toBeGreaterThanOrEqual(500);
+    expect(sleepDelays[0]!).toBeLessThan(750);
+
+    vi.useRealTimers();
   });
 });
