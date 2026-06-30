@@ -21,6 +21,8 @@ import { useForm } from 'react-hook-form';
 
 import { LoginInputSchema, type LoginInput } from '@/shared/types/user';
 
+import styles from './LoginForm.module.css';
+
 export interface LoginFormProps {
   readonly onSubmit: (input: LoginInput) => void | Promise<void>;
   readonly initialEmail?: string;
@@ -62,30 +64,15 @@ export function LoginForm({
   const isBusy = isSubmitting || disabled;
 
   return (
-    <form noValidate onSubmit={handleFormSubmit}>
+    <form className={styles.form} noValidate onSubmit={handleFormSubmit}>
       {errors.root ? (
-        <div
-          ref={errorRef}
-          role="alert"
-          tabIndex={-1}
-          style={{
-            padding: '0.75rem',
-            marginBottom: '1rem',
-            background: 'var(--color-toast-error-border, #fecaca)',
-            borderRadius: 'var(--radius-md, 0.5rem)',
-            fontSize: 'var(--font-size-sm, 0.875rem)',
-            color: 'var(--color-danger, #dc2626)',
-          }}
-        >
+        <div ref={errorRef} role="alert" tabIndex={-1} className={styles.errorSummary}>
           {errors.root.message}
         </div>
       ) : null}
 
-      <div style={{ marginBottom: '1rem' }}>
-        <label
-          htmlFor="login-email"
-          style={{ display: 'block', marginBottom: '0.25rem', fontSize: 'var(--font-size-sm, 0.875rem)' }}
-        >
+      <div className={styles.field}>
+        <label htmlFor="login-email" className={styles.label}>
           Email
         </label>
         <input
@@ -97,25 +84,17 @@ export function LoginForm({
           aria-invalid={errors.email ? 'true' : undefined}
           aria-describedby={errors.email ? 'login-email-error' : undefined}
           {...register('email')}
-          style={{
-            width: '100%',
-            padding: '0.5rem 0.75rem',
-            border: `1px solid ${errors.email ? 'var(--color-danger, #dc2626)' : 'var(--color-border, #e2e8f0)'}`,
-            borderRadius: 'var(--radius-md, 0.5rem)',
-          }}
+          className={`${styles.input} ${errors.email ? styles.inputError : styles.inputNormal}`}
         />
         {errors.email ? (
-          <p id="login-email-error" role="alert" style={{ fontSize: '0.75rem', color: 'var(--color-danger, #dc2626)', marginTop: '0.25rem' }}>
+          <p id="login-email-error" role="alert" className={styles.errorText}>
             {errors.email.message}
           </p>
         ) : null}
       </div>
 
-      <div style={{ marginBottom: '1.5rem' }}>
-        <label
-          htmlFor="login-password"
-          style={{ display: 'block', marginBottom: '0.25rem', fontSize: 'var(--font-size-sm, 0.875rem)' }}
-        >
+      <div className={styles.field}>
+        <label htmlFor="login-password" className={styles.label}>
           Password
         </label>
         <input
@@ -126,15 +105,10 @@ export function LoginForm({
           aria-invalid={errors.password ? 'true' : undefined}
           aria-describedby={errors.password ? 'login-password-error' : undefined}
           {...register('password')}
-          style={{
-            width: '100%',
-            padding: '0.5rem 0.75rem',
-            border: `1px solid ${errors.password ? 'var(--color-danger, #dc2626)' : 'var(--color-border, #e2e8f0)'}`,
-            borderRadius: 'var(--radius-md, 0.5rem)',
-          }}
+          className={`${styles.input} ${errors.password ? styles.inputError : styles.inputNormal}`}
         />
         {errors.password ? (
-          <p id="login-password-error" role="alert" style={{ fontSize: '0.75rem', color: 'var(--color-danger, #dc2626)', marginTop: '0.25rem' }}>
+          <p id="login-password-error" role="alert" className={styles.errorText}>
             {errors.password.message}
           </p>
         ) : null}
@@ -144,17 +118,7 @@ export function LoginForm({
         type="submit"
         disabled={isBusy || (!isValid && !hasRootError)}
         aria-busy={isBusy}
-        style={{
-          width: '100%',
-          padding: '0.625rem 1rem',
-          background: isBusy ? 'var(--color-primary, #0b3d91)' : 'var(--color-primary, #0b3d91)',
-          color: '#ffffff',
-          border: 'none',
-          borderRadius: 'var(--radius-md, 0.5rem)',
-          cursor: isBusy ? 'not-allowed' : 'pointer',
-          opacity: isBusy ? 0.7 : 1,
-          fontWeight: 'var(--font-weight-medium, 500)',
-        }}
+        className={styles.submitButton}
       >
         {isBusy ? 'Signing in…' : 'Sign in'}
       </button>

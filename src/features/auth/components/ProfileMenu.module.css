@@ -1,0 +1,10 @@
+/* ProfileMenu — avatar dropdown. */
+.wrapper { position: relative; }
+.trigger { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.25rem 0.5rem; border: none; background: transparent; cursor: pointer; border-radius: var(--radius-md, 0.5rem); }
+.avatar { width: 2rem; height: 2rem; border-radius: 50%; background: var(--color-primary, #0b3d91); color: #fff; display: flex; align-items: center; justify-content: center; font-size: var(--font-size-sm, 0.875rem); font-weight: var(--font-weight-bold, 700); }
+.name { font-size: var(--font-size-sm, 0.875rem); }
+.menu { position: absolute; top: 100%; margin: 0.25rem 0 0; padding: 0.25rem 0; list-style: none; background: var(--color-bg, #ffffff); border: 1px solid var(--color-border, #e2e8f0); border-radius: var(--radius-md, 0.5rem); box-shadow: var(--shadow-lg, 0 10px 15px -3px rgba(0,0,0,0.1)); min-width: 180px; z-index: 300; }
+.menuStart { left: 0; }
+.menuEnd { right: 0; }
+.emailItem { padding: 0.5rem 1rem; font-size: 0.75rem; color: var(--color-fg-muted, #64748b); }
+.menuItem { width: 100%; padding: 0.5rem 1rem; border: none; background: transparent; cursor: pointer; text-align: left; font-size: var(--font-size-sm, 0.875rem); }

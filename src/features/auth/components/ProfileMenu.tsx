@@ -25,6 +25,8 @@ import {
 
 import type { User } from '@/shared/types/user';
 
+import styles from './ProfileMenu.module.css';
+
 export interface ProfileMenuProps {
   readonly user: User;
   readonly onSignOut: MouseEventHandler<HTMLButtonElement>;
@@ -76,7 +78,7 @@ export function ProfileMenu({
   }, [open]);
 
   return (
-    <div style={{ position: 'relative' }}>
+    <div className={styles.wrapper}>
       <button
         ref={triggerRef}
         type="button"
@@ -84,34 +86,12 @@ export function ProfileMenu({
         aria-haspopup="true"
         aria-expanded={open}
         aria-controls={MENU_ID}
-        style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: '0.5rem',
-          padding: '0.25rem 0.5rem',
-          border: 'none',
-          background: 'transparent',
-          cursor: 'pointer',
-          borderRadius: 'var(--radius-md, 0.5rem)',
-        }}
+        className={styles.trigger}
       >
-        <span
-          style={{
-            width: '2rem',
-            height: '2rem',
-            borderRadius: '50%',
-            background: 'var(--color-primary, #0b3d91)',
-            color: '#fff',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: 'var(--font-size-sm, 0.875rem)',
-            fontWeight: 'var(--font-weight-bold, 700)',
-          }}
-        >
+        <span className={styles.avatar}>
           {user.name.charAt(0).toUpperCase()}
         </span>
-        <span style={{ fontSize: 'var(--font-size-sm, 0.875rem)' }}>{user.name}</span>
+        <span className={styles.name}>{user.name}</span>
       </button>
 
       {open ? (
@@ -119,37 +99,16 @@ export function ProfileMenu({
           id={MENU_ID}
           ref={menuRef}
           onKeyDown={handleKeyDown}
-          style={{
-            position: 'absolute',
-            top: '100%',
-            [align]: 0,
-            margin: '0.25rem 0 0',
-            padding: '0.25rem 0',
-            listStyle: 'none',
-            background: 'var(--color-bg, #ffffff)',
-            border: '1px solid var(--color-border, #e2e8f0)',
-            borderRadius: 'var(--radius-md, 0.5rem)',
-            boxShadow: 'var(--shadow-lg, 0 10px 15px -3px rgba(0,0,0,0.1))',
-            minWidth: '180px',
-            zIndex: 300,
-          }}
+          className={`${styles.menu} ${align === 'start' ? styles.menuStart : styles.menuEnd}`}
         >
-          <li style={{ padding: '0.5rem 1rem', fontSize: '0.75rem', color: 'var(--color-fg-muted, #64748b)' }}>
+          <li className={styles.emailItem}>
             {user.email}
           </li>
           <li>
             <button
               type="button"
               onClick={onSignOut}
-              style={{
-                width: '100%',
-                padding: '0.5rem 1rem',
-                border: 'none',
-                background: 'transparent',
-                cursor: 'pointer',
-                textAlign: 'left',
-                fontSize: 'var(--font-size-sm, 0.875rem)',
-              }}
+              className={styles.menuItem}
             >
               Sign out
             </button>
