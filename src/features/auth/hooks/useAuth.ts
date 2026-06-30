@@ -14,6 +14,7 @@
  */
 import { useCallback } from 'react';
 
+import { useApiClient } from '@/shared/api/ApiClientContext';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import {
   authActions,
@@ -24,7 +25,6 @@ import {
 } from '@/features/auth/slice/authSlice';
 import type { AuthState } from '@/features/auth/authState';
 import type { LoginInput, Session, User } from '@/shared/types/user';
-import type { ApiClient } from '@/shared/api/client';
 
 /**
  * Minimal login function type — can be swapped to a full RQ mutation later.
@@ -45,38 +45,19 @@ export interface UseAuthResult {
   readonly refresh: RefreshFn;
 }
 
-let _apiClient: ApiClient | null = null;
-
-/**
- * Inject the API client for login/logout/refresh calls.
- * Called once at app boot from `main.tsx`.
- */
-export function injectAuthApiClient(client: ApiClient): void {
-  _apiClient = client;
-}
-
-function getClient(): ApiClient {
-  if (!_apiClient) {
-    throw new Error(
-      'injectAuthApiClient() must be called before useAuth() is invoked.',
-    );
-  }
-  return _apiClient;
-}
-
 export function useAuth(): UseAuthResult {
   const state = useAppSelector(selectAuthState);
   const user = useAppSelector(selectCurrentUser);
   const error = useAppSelector(selectAuthError);
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
   const dispatch = useAppDispatch();
+  const apiClient = useApiClient();
 
   const login = useCallback(
     async (input: LoginInput): Promise<void> => {
       dispatch(authActions.loginRequested());
       try {
-        const client = getClient();
-        const result = await client.request({
+        const result = await apiClient.request({
           method: 'POST',
           path: '/api/auth/login',
           body: input,
@@ -102,23 +83,21 @@ export function useAuth(): UseAuthResult {
         );
       }
     },
-    [dispatch],
+    [dispatch, apiClient],
   );
 
   const logout = useCallback(async (): Promise<void> => {
     try {
-      const client = getClient();
-      await client.request({ method: 'POST', path: '/api/auth/logout' });
+      await apiClient.request({ method: 'POST', path: '/api/auth/logout' });
     } catch {
       // Best-effort — clear local state regardless.
     }
     dispatch(authActions.logout());
-  }, [dispatch]);
+  }, [dispatch, apiClient]);
 
   const refresh = useCallback(async (): Promise<void> => {
     try {
-      const client = getClient();
-      const result = await client.request({ method: 'GET', path: '/api/auth/session' });
+      const result = await apiClient.request({ method: 'GET', path: '/api/auth/session' });
       if (result.ok) {
         dispatch(authActions.rehydrate(result.data as unknown as Session));
       } else if (result.error.kind === 'unauthorized') {
@@ -127,7 +106,7 @@ export function useAuth(): UseAuthResult {
     } catch {
       dispatch(authActions.sessionExpired());
     }
-  }, [dispatch]);
+  }, [dispatch, apiClient]);
 
   return {
     status: state.kind,

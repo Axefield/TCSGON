@@ -12,6 +12,8 @@ import { createRoot } from 'react-dom/client';
 import { Provider as ReduxProvider } from 'react-redux';
 
 import { App } from '@/App';
+import { ApiClientProvider } from '@/shared/api/ApiClientContext';
+import { createApiClient } from '@/shared/api/client';
 import { queryClient } from '@/shared/api/queryClient';
 import { store } from '@/store';
 
@@ -23,11 +25,17 @@ if (!rootElement) {
   throw new Error('Root element #root not found in index.html');
 }
 
+const apiClient = createApiClient({
+  baseUrl: '/api',
+});
+
 createRoot(rootElement).render(
   <StrictMode>
     <ReduxProvider store={store}>
       <QueryClientProvider client={queryClient}>
-        <App />
+        <ApiClientProvider client={apiClient}>
+          <App />
+        </ApiClientProvider>
       </QueryClientProvider>
     </ReduxProvider>
   </StrictMode>,

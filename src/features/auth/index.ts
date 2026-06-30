@@ -11,7 +11,7 @@ export type { AuthFailurePayload } from './slice/authSlice';
 
 export { loadAuth, saveAuth, clearAuth } from './slice/authPersistence';
 
-export { useAuth, injectAuthApiClient } from './hooks';
+export { useAuth } from './hooks';
 export { LoginForm } from './components/LoginForm';
 export type { LoginFormProps } from './components/LoginForm';
 export { ProfileMenu } from './components/ProfileMenu';

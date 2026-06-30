@@ -12,22 +12,28 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { Provider as ReduxProvider } from 'react-redux';
 import { describe, expect, it } from 'vitest';
 
+import { ApiClientProvider } from '@/shared/api/ApiClientContext';
+import { createApiClient } from '@/shared/api/client';
 import { store as appStore } from '@/store';
 
 import { RequireAuth } from './RequireAuth';
+
+const testApiClient = createApiClient({ baseUrl: 'http://test.local' });
 
 describe('RequireAuth', () => {
   it('redirects anonymous users to /login', () => {
     render(
       <ReduxProvider store={appStore}>
-        <MemoryRouter initialEntries={['/']}>
-          <Routes>
-            <Route element={<RequireAuth />}>
-              <Route index element={<div data-testid="protected">Secret</div>} />
-            </Route>
-            <Route path="/login" element={<div data-testid="login-page">Login</div>} />
-          </Routes>
-        </MemoryRouter>
+        <ApiClientProvider client={testApiClient}>
+          <MemoryRouter initialEntries={['/']}>
+            <Routes>
+              <Route element={<RequireAuth />}>
+                <Route index element={<div data-testid="protected">Secret</div>} />
+              </Route>
+              <Route path="/login" element={<div data-testid="login-page">Login</div>} />
+            </Routes>
+          </MemoryRouter>
+        </ApiClientProvider>
       </ReduxProvider>,
     );
 

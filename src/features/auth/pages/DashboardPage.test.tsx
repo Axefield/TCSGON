@@ -8,12 +8,20 @@ import { type ReactElement, type ReactNode } from 'react';
 import { Provider as ReduxProvider } from 'react-redux';
 import { describe, expect, it } from 'vitest';
 
+import { ApiClientProvider } from '@/shared/api/ApiClientContext';
+import { createApiClient } from '@/shared/api/client';
 import { store as appStore } from '@/store';
 
 import { DashboardPage } from './DashboardPage';
 
+const testApiClient = createApiClient({ baseUrl: 'http://test.local' });
+
 function Wrapper({ children }: { children: ReactNode }): ReactElement {
-  return <ReduxProvider store={appStore}>{children}</ReduxProvider>;
+  return (
+    <ReduxProvider store={appStore}>
+      <ApiClientProvider client={testApiClient}>{children}</ApiClientProvider>
+    </ReduxProvider>
+  );
 }
 
 describe('DashboardPage', () => {

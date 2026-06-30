@@ -9,9 +9,13 @@ import { type ReactElement } from 'react';
 import { Provider as ReduxProvider } from 'react-redux';
 import { describe, expect, it } from 'vitest';
 
+import { ApiClientProvider } from '@/shared/api/ApiClientContext';
+import { createApiClient } from '@/shared/api/client';
 import { store as appStore } from '@/store';
 
 import { LoginPage } from './LoginPage';
+
+const testApiClient = createApiClient({ baseUrl: 'http://test.local' });
 
 function Wrapper(): ReactElement {
   const router = createMemoryRouter(
@@ -30,7 +34,9 @@ function Wrapper(): ReactElement {
 
   return (
     <ReduxProvider store={appStore}>
-      <RouterProvider router={router} />
+      <ApiClientProvider client={testApiClient}>
+        <RouterProvider router={router} />
+      </ApiClientProvider>
     </ReduxProvider>
   );
 }
