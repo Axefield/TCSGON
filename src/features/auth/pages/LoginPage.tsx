@@ -16,6 +16,11 @@ import type { LoginInput } from '@/shared/types/user';
 
 import { LoginForm } from '../components/LoginForm';
 
+/** Validate a redirect target against open-redirect attacks. */
+function isValidRedirect(target: string): boolean {
+  return target.startsWith('/') && !target.startsWith('//') && !target.includes('://');
+}
+
 export function LoginPage(): ReactElement {
   const { login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
@@ -24,7 +29,8 @@ export function LoginPage(): ReactElement {
   const handleSubmit = useCallback(
     async (input: LoginInput) => {
       await login(input);
-      const next = searchParams.get('next') ?? '/dashboard';
+      const rawNext = searchParams.get('next');
+      const next = rawNext && isValidRedirect(rawNext) ? rawNext : '/dashboard';
       navigate(next, { replace: true });
     },
     [login, navigate, searchParams],
