@@ -36,7 +36,30 @@ pnpm axe             # a11y-only spec via @axe-core/playwright
 pnpm clean           # remove dist/, coverage/, playwright-report/, test-results/
 ```
 
-> **Phase 0 status:** every gate above passes. See [`docs/plans/phase-0-package-json.md`](./docs/plans/phase-0-package-json.md) for the full plan + verification log.
+> **Phase 1 status:** every gate above passes. Coverage: 97.86% lines / 87.33% branches (gates: 80%/75%). 250 tests across 35 test files. No `any`, no `@ts-ignore`, no `eslint-disable` without justification. See [`docs/plans/phase-1-core-infrastructure.md`](./docs/plans/phase-1-core-infrastructure.md) for the full plan + verification log.
+
+---
+
+## Milestones
+
+### Phase 1 — Core Infrastructure ✅ (merged)
+
+Authentication, routing, API layer, state management, and shared UI components.
+
+| Area | Delivered |
+|------|-----------|
+| **Auth** | `useAuth` hook with Zod-validated responses, `AuthState` discriminated union (4 variants), Redux slice + persistence middleware, `RequireAuth` three-state guard, `RedirectIfAuth`, `LoginPage`/`LoginForm`/`ProfileMenu` |
+| **API client** | `createApiClient` with typed requests, Zod schema validation, configurable retry, correlation IDs, timeout, `ApiClientContext` for dependency injection |
+| **Routing** | `createAppRouter` with lazy-loaded routes, `RootErrorBoundary` (render crashes), `RouteErrorElement` (loader/action errors), `RouteFallback` (hydration), breadcrumb resolution |
+| **State** | Redux store with `authSlice` and `uiSlice` (theme, sidebar, toasts, modals, reducedMotion), middleware for persistence + action logging |
+| **UI components** | `Spinner`, `Skeleton`, `Toast`/`ToastRegion` (dual live-region pattern), `SkipLink`, `Sidebar`, `TopBar`, `AppShell`, `AuthLayout` |
+| **Hooks** | `useTheme` (system preference + localStorage sync, no-flash), `usePrefersReducedMotion` (`useLayoutEffect` + `matchMedia`), `useToast` |
+| **Types** | Branded IDs (`SessionId`, `UserId`), `ApiError` with 6-variant discriminated payload, Zod `SessionSchema` |
+| **Accessibility** | WCAG 2.2 AA: semantic HTML, focus management on route errors, `aria-live` regions, skip link, reduced-motion support, color contrast ≥ 3:1 |
+| **Testing** | 250 tests across 35 files, 97.86% lines / 87.33% branches / 90.43% functions, MSW-free integration tests, React Testing Library behavioral assertions |
+| **Docs** | ADR 0001: token persistence strategy, remediation plan for code review, full coverage suite |
+
+See [`docs/plans/phase-1-core-infrastructure.md`](./docs/plans/phase-1-core-infrastructure.md) for the full plan and [`docs/adr/0001-token-persistence-strategy.md`](./docs/adr/0001-token-persistence-strategy.md) for architecture decisions.
 
 ---
 
@@ -176,14 +199,78 @@ TCSgon/
 ├── .claude/                      # Claude Code CLAUDE.md + agents
 ├── .codex/                       # Codex CLI config + agents
 ├── .gemini/                      # Gemini CLI settings + commands + agents
-├── src/                          # Application source (see roadmap)
-│   ├── main.tsx
-│   ├── App.tsx
-│   ├── routes/
-│   ├── features/
-│   ├── shared/
-│   ├── api/
-│   └── __tests__/
+├── src/                          # Application source
+│   ├── main.tsx                  # App entry: Redux + ApiClientProvider + RouterProvider
+│   ├── App.tsx                   # RootErrorBoundary wrapping createAppRouter
+│   ├── routes/                   # Router config, guards, error boundaries
+│   │   ├── index.tsx             # createAppRouter, RouteObject definitions
+│   │   ├── lazy.ts               # Lazy-loading utility
+│   │   ├── RequireAuth.tsx       # Three-state auth guard (Outlet / Spinner / redirect)
+│   │   ├── RedirectIfAuth.tsx    # Redirect authed users away from /login
+│   │   ├── RootErrorBoundary.tsx # Class-based error boundary (render crash catch)
+│   │   ├── ErrorBoundaryFallback.tsx  # Error UI extracted from boundary
+│   │   ├── RouteErrorElement.tsx # Route loader/action error display
+│   │   ├── RouteFallback.tsx     # Hydration fallback (Spinner)
+│   │   ├── breadcrumbs.ts        # Route handle crumb resolution
+│   │   └── *_test.*              # Tests for each module
+│   ├── features/                 # Feature-sliced modules
+│   │   └── auth/                 # Authentication feature
+│   │       ├── authState.ts      # Discriminated union: anonymous / authenticating / authenticated / error
+│   │       ├── authState.test.ts
+│   │       ├── slice/            # Redux slice + persistence middleware
+│   │       │   ├── authSlice.ts
+│   │       │   ├── authPersistence.ts
+│   │       │   └── *_test.*
+│   │       ├── hooks/
+│   │       │   ├── useAuth.ts    # Login / logout / refresh + Zod validation
+│   │       │   └── useAuth.test.tsx  # 25 tests, 100% coverage
+│   │       ├── components/
+│   │       │   ├── LoginForm.tsx / LoginForm.module.css
+│   │       │   ├── ProfileMenu.tsx / ProfileMenu.module.css
+│   │       │   └── *_test.*
+│   │       └── pages/
+│   │           ├── LoginPage.tsx / LoginPage.test.tsx
+│   │           ├── DashboardPage.tsx / DashboardPage.test.tsx
+│   │           ├── NotFoundPage.tsx / NotFoundPage.test.tsx
+│   │           ├── SettingsPageStub.tsx / SettingsPageStub.test.tsx
+│   │           └── index.ts
+│   ├── shared/                   # Shared infrastructure
+│   │   ├── api/                  # API client, Context, errors, schemas, queryClient
+│   │   │   ├── client.ts / client.test.ts       # Typed fetch with retry, validation, correlation IDs
+│   │   │   ├── ApiClientContext.tsx / test      # DI context for client instance
+│   │   │   ├── errors.ts / errors.test.ts       # ApiError with discriminated payload
+│   │   │   ├── schemas.ts / schemas.test.ts     # Zod schemas (SessionSchema)
+│   │   │   └── queryClient.ts / test
+│   │   ├── components/           # Shared UI: Spinner, Skeleton, Toast, ToastRegion
+│   │   │   ├── Spinner.tsx / Spinner.module.css
+│   │   │   ├── Skeleton.tsx / Skeleton.module.css
+│   │   │   ├── Toast.tsx / Toast.module.css
+│   │   │   ├── ToastRegion.tsx / ToastRegion.module.css
+│   │   │   └── *_test.*
+│   │   ├── hooks/                # Shared hooks: useTheme, useToast, usePrefersReducedMotion
+│   │   │   ├── useTheme.ts / test
+│   │   │   ├── useToast.ts / test
+│   │   │   ├── usePrefersReducedMotion.ts / test
+│   │   │   └── index.ts
+│   │   └── types/                # Branded IDs, user types, Toast/Modal types
+│   │       ├── brand.ts / brand.test.ts    # Branded type pattern (SessionId, UserId)
+│   │       ├── user.ts
+│   │       └── index.ts
+│   ├── store/                    # Redux store configuration
+│   │   ├── index.ts              # configureStore with middleware
+│   │   ├── hooks.ts              # useAppSelector / useAppDispatch
+│   │   ├── middleware.ts / test  # authPersistence + logging middleware
+│   │   └── slices/
+│   │       ├── uiSlice.ts / test # Theme, sidebar, toasts, modals, reducedMotion
+│   │       └── *_test.*
+│   ├── styles/
+│   │   └── tokens.css            # CSS custom properties (light + dark)
+│   └── layouts/                  # Layout components
+│       ├── AppShell.tsx / AppShell.module.css / test
+│       ├── AuthLayout.tsx / AuthLayout.module.css
+│       ├── Sidebar.tsx / Sidebar.module.css / test
+│       ├── TopBar.tsx / TopBar.module.css / test
+│       └── SkipLink.tsx / SkipLink.module.css / test
 ├── e2e/                          # Playwright tests
 ├── public/
 ├── docs/                         # ADRs, plans, audits
