@@ -1,0 +1,36 @@
+/* Spinner — rotation animation gated by prefers-reduced-motion. */
+
+.wrapper {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-primary, #0b3d91);
+}
+
+.spinner {
+  display: block;
+}
+
+.track {
+  opacity: 0.2;
+}
+
+.indicator {
+  animation: spin 0.8s linear infinite;
+  transform-origin: center;
+  stroke-dashoffset: 10;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Respect reduced motion — static display only */
+@media (prefers-reduced-motion: reduce) {
+  .indicator {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+}
