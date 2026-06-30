@@ -4,7 +4,7 @@
  * @see docs/plans/phase-1-core-infrastructure.md §10, §34
  */
 import { type ReactElement } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, Outlet } from 'react-router-dom';
 
 import { useAuth } from '@/features/auth/hooks/useAuth';
 
@@ -15,5 +15,5 @@ export function RedirectIfAuth(): ReactElement | null {
     return <Navigate to="/dashboard" replace />;
   }
 
-  return null;
+  return <Outlet />;
 }

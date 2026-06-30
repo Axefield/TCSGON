@@ -3,7 +3,7 @@
  *
  * @see docs/plans/phase-1-core-infrastructure.md §10, §34
  */
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { Provider as ReduxProvider } from 'react-redux';
 import { describe, expect, it } from 'vitest';
@@ -17,19 +17,21 @@ import { RedirectIfAuth } from './RedirectIfAuth';
 const testApiClient = createApiClient({ baseUrl: 'http://test.local' });
 
 describe('RedirectIfAuth', () => {
-  it('renders null when anonymous', () => {
-    const { container } = render(
+  it('renders outlet content when anonymous', () => {
+    render(
       <ReduxProvider store={appStore}>
         <ApiClientProvider client={testApiClient}>
           <MemoryRouter initialEntries={['/login']}>
             <Routes>
-              <Route path="/login" element={<RedirectIfAuth />} />
+              <Route path="/login" element={<RedirectIfAuth />}>
+                <Route index element={<div data-testid="login-content">Login Page</div>} />
+              </Route>
             </Routes>
           </MemoryRouter>
         </ApiClientProvider>
       </ReduxProvider>,
     );
-    // Anonymous users should see nothing (not redirected away)
-    expect(container.textContent).toBe('');
+    // Anonymous users should see the nested route content via Outlet
+    expect(screen.getByTestId('login-content')).toBeInTheDocument();
   });
 });
