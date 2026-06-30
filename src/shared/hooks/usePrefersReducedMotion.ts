@@ -14,7 +14,7 @@
  * <div style={{ transition: prefersReduced ? 'none' : 'width 200ms' }} />
  * ```
  */
-import { useEffect } from 'react';
+import { useLayoutEffect } from 'react';
 
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { selectReducedMotion, setReducedMotion } from '@/store/slices/uiSlice';
@@ -25,7 +25,7 @@ export function usePrefersReducedMotion(): boolean {
   const reducedMotion = useAppSelector(selectReducedMotion);
   const dispatch = useAppDispatch();
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const mql = window.matchMedia(MEDIA_QUERY);
     // Sync initial value.
     dispatch(setReducedMotion(mql.matches));
