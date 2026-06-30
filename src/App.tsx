@@ -1,24 +1,28 @@
-import { useAppSelector } from '@/store/hooks';
-
-import styles from './App.module.css';
-
 /**
- * Root application component — Phase 0 shell.
+ * Root application component — wraps RouterProvider in error boundary.
  *
- * Phase 0: renders a semantic heading and reads the theme from Redux to prove
- * the store is wired. Real router + layout + route-level Suspense land in Phase 1.
+ * @see docs/plans/phase-1-core-infrastructure.md §10, §31
  *
- * @see {@link https://www.w3.org/WAI/ARIA/apg/} for a11y patterns
+ * Top-level RootErrorBoundary catches render errors that escape React Router's
+ * route-level errorElement (i.e., errors in AppShell itself).
+ *
+ * Accepts an optional router override for testing (use `createMemoryRouter`
+ * in tests to avoid browser API dependencies).
  */
-export function App(): JSX.Element {
-  const theme = useAppSelector((state) => state.ui.theme);
+import { RouterProvider } from 'react-router-dom';
+import type { RouterProviderProps } from 'react-router-dom';
 
+import { RootErrorBoundary } from '@/routes/RootErrorBoundary';
+import { createAppRouter } from '@/routes';
+
+export interface AppProps {
+  readonly router?: RouterProviderProps['router'];
+}
+
+export function App({ router }: AppProps): JSX.Element {
   return (
-    <main className={styles.app} data-theme={theme}>
-      <h1 className={styles.heading}>TCSgon</h1>
-      <p className={styles.tagline}>
-        Enterprise React SPA scaffold — Phase 0 (project shell).
-      </p>
-    </main>
+    <RootErrorBoundary>
+      <RouterProvider router={router ?? createAppRouter()} />
+    </RootErrorBoundary>
   );
 }

@@ -1,0 +1,32 @@
+/* AuthLayout — centered card layout. */
+
+.wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: var(--space-4, 1rem);
+  background: var(--color-bg-elevated, #f8fafc);
+}
+
+.card {
+  width: 100%;
+  max-width: 24rem;
+  background: var(--color-bg, #ffffff);
+  border-radius: var(--radius-lg, 0.75rem);
+  box-shadow: var(--shadow-lg, 0 10px 15px -3px rgba(0, 0, 0, 0.1));
+  padding: var(--space-8, 2rem);
+}
+
+.heading {
+  font-size: var(--font-size-2xl, 1.5rem);
+  font-weight: var(--font-weight-bold, 700);
+  margin: 0 0 var(--space-1, 0.25rem);
+  color: var(--color-fg, #0f172a);
+}
+
+.subheading {
+  font-size: var(--font-size-sm, 0.875rem);
+  color: var(--color-fg-muted, #64748b);
+  margin: 0 0 var(--space-6, 1.5rem);
+}
