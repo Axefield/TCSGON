@@ -24,7 +24,7 @@ import {
   selectIsAuthenticated,
 } from '@/features/auth/slice/authSlice';
 import type { AuthState } from '@/features/auth/authState';
-import type { LoginInput, Session, User } from '@/shared/types/user';
+import { SessionSchema, type LoginInput, type Session, type User } from '@/shared/types/user';
 
 /**
  * Minimal login function type — can be swapped to a full RQ mutation later.
@@ -63,9 +63,17 @@ export function useAuth(): UseAuthResult {
           body: input,
         });
         if (result.ok) {
-          // `result.data` is the session from the API.
-          // A Zod schema would validate it; for now we trust the client.
-          dispatch(authActions.loginFulfilled(result.data as unknown as Session));
+          const parsed = SessionSchema.safeParse(result.data);
+          if (parsed.success) {
+            dispatch(authActions.loginFulfilled(parsed.data));
+          } else {
+            dispatch(
+              authActions.authFailed({
+                message: 'Invalid session response.',
+                user: null,
+              }),
+            );
+          }
         } else {
           dispatch(
             authActions.authFailed({
@@ -99,7 +107,12 @@ export function useAuth(): UseAuthResult {
     try {
       const result = await apiClient.request({ method: 'GET', path: '/api/auth/session' });
       if (result.ok) {
-        dispatch(authActions.rehydrate(result.data as unknown as Session));
+        const parsed = SessionSchema.safeParse(result.data);
+        if (parsed.success) {
+          dispatch(authActions.rehydrate(parsed.data));
+        } else {
+          dispatch(authActions.sessionExpired());
+        }
       } else if (result.error.kind === 'unauthorized') {
         dispatch(authActions.sessionExpired());
       }
