@@ -1,0 +1,37 @@
+/* EmptyState — centered placeholder. */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1.5rem;
+  text-align: center;
+  gap: 0.75rem;
+}
+
+.icon {
+  font-size: 2.5rem;
+  line-height: 1;
+  color: var(--color-text-muted, #64748b);
+  margin-bottom: 0.25rem;
+}
+
+.heading {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-text, #1e293b);
+}
+
+.description {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--color-text-muted, #64748b);
+  max-width: 28rem;
+  line-height: 1.5;
+}
+
+.action {
+  margin-top: 0.5rem;
+}

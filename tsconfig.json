@@ -24,11 +24,12 @@
     "noEmit": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["src/*"],
+      "@test/*": ["test/*"]
     },
     "types": ["vitest/globals", "@testing-library/jest-dom", "node"]
   },
-  "include": ["src", "e2e"],
+  "include": ["src", "e2e", "test"],
   "exclude": ["node_modules", "dist", "coverage", "playwright-report", "test-results"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

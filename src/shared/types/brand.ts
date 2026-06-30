@@ -18,6 +18,7 @@ export type UserId = Brand<string, 'UserId'>;
 export type SessionId = Brand<string, 'SessionId'>;
 export type ToastId = Brand<string, 'ToastId'>;
 export type ModalId = Brand<string, 'ModalId'>;
+export type ProjectId = Brand<string, 'ProjectId'>;
 
 export function asUserId(s: string): UserId {
   return s as UserId;
@@ -31,6 +32,9 @@ export function asToastId(s: string): ToastId {
 export function asModalId(s: string): ModalId {
   return s as ModalId;
 }
+export function asProjectId(s: string): ProjectId {
+  return s as ProjectId;
+}
 
 export function newUserId(): UserId {
   return crypto.randomUUID() as UserId;
@@ -43,4 +47,7 @@ export function newToastId(): ToastId {
 }
 export function newModalId(): ModalId {
   return crypto.randomUUID() as ModalId;
+}
+export function newProjectId(): ProjectId {
+  return crypto.randomUUID() as ProjectId;
 }
