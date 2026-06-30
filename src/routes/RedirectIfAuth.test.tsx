@@ -3,7 +3,7 @@
  *
  * @see docs/plans/phase-1-core-infrastructure.md §10, §34
  */
-import { render, screen } from '@testing-library/react';
+import { render } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { Provider as ReduxProvider } from 'react-redux';
 import { describe, expect, it } from 'vitest';
