@@ -178,6 +178,8 @@ export function createApiClient(
           }
 
           if (response.status === 204) {
+            // 204 No Content — response has no body. TOut is irrelevant at runtime.
+            // Safe: callers must check status before reading data.
             return { ok: true, data: undefined as unknown as TOut, status: 204 };
           }
 

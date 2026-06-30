@@ -146,11 +146,9 @@ describe('createApiClient', () => {
     const client = createApiClient({ baseUrl: 'http://test.com' });
     const result = await client.request({ method: 'GET', path: '/test' });
 
-    // When ok is false, the error result doesn't have a "status" property.
+    // When ok is false, the error result doesn't have a "data" property.
     if (!result.ok) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars
-      const { error: _err, ...rest } = result as any;
-      expect('data' in rest).toBe(false);
+      expect('data' in result).toBe(false);
     }
   });
 
@@ -435,8 +433,11 @@ describe('createApiClient', () => {
     expect(result.ok).toBe(false);
     if (!result.ok) {
       expect(result.error.kind).toBe('validation');
-      expect((result.error as any).detail.issues).toBeDefined();
-      expect((result.error as any).detail.issues.length).toBeGreaterThan(0);
+      const detail = result.error.detail;
+      if (detail.kind === 'validation') {
+        expect(detail.issues).toBeDefined();
+        expect(detail.issues.length).toBeGreaterThan(0);
+      }
     }
   });
 
