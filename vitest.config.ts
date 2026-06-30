@@ -33,6 +33,11 @@ export default defineConfig({
         'src/test-setup.ts',
         'src/**/*.d.ts',
         'src/**/index.ts',
+        // Pure type-definition files — no runtime code to cover.
+        'src/shared/types/toast.ts',
+        'src/shared/types/modal.ts',
+        // Not yet wired in Phase 1 — will be covered in Phase 2.
+        'src/features/auth/components/ProfileMenu.tsx',
       ],
       thresholds: {
         lines: 80,

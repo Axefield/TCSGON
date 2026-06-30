@@ -137,7 +137,7 @@ export function createApiClient(
       const shouldRetry = config.retry === true;
       const headers: Record<string, string> = {
         Accept: 'application/json',
-        'X-Request-Id': correlationId,
+        'X-Correlation-Id': correlationId,
         ...(config.headers ?? {}),
       };
       if (config.body !== undefined && !(config.body instanceof FormData)) {
