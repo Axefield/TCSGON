@@ -9,7 +9,7 @@
  *
  * Usage:
  * ```tsx
- * <Sidebar state={sidebar} onToggle={toggleSidebar} onPin={setPin}>
+ * <Sidebar state={sidebar} onToggle={toggleSidebar}>
  *   <SidebarNavItem to="/dashboard" icon={<HomeIcon />}>Dashboard</SidebarNavItem>
  * </Sidebar>
  * ```
@@ -21,7 +21,6 @@ import styles from './Sidebar.module.css';
 export interface SidebarProps {
   readonly state: 'closed' | 'open' | 'pinned';
   readonly onToggle: () => void;
-  readonly onPin: (pinned: boolean) => void;
   readonly children: ReactNode;
 }
 

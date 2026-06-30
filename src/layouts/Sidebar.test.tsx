@@ -12,7 +12,6 @@ describe('Sidebar', () => {
   const baseProps = {
     state: 'closed' as const,
     onToggle: vi.fn(),
-    onPin: vi.fn(),
     children: <nav aria-label="Main">Content</nav>,
   };
 
