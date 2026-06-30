@@ -1,0 +1,51 @@
+/*
+ * Design tokens — Phase 0 minimal set.
+ * Full token system lands in Phase 2 (Design System) per roadmap §1.4.
+ *
+ * Token categories:
+ *   - Color (light + dark via [data-theme="dark"])
+ *   - Spacing (4px base grid)
+ *   - Typography
+ *   - Radius, shadows, transitions
+ */
+
+:root {
+  /* Color — light theme (default) */
+  --color-bg: #ffffff;
+  --color-fg: #0f172a;
+  --color-fg-muted: #64748b;
+  --color-primary: #0b3d91;
+  --color-danger: #dc2626;
+
+  /* Spacing — 4px base */
+  --space-1: 0.25rem; /*  4px */
+  --space-2: 0.5rem;  /*  8px */
+  --space-3: 0.75rem; /* 12px */
+  --space-4: 1rem;    /* 16px */
+  --space-6: 1.5rem;  /* 24px */
+  --space-8: 2rem;    /* 32px */
+
+  /* Typography */
+  --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+  --font-mono: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, monospace;
+  --font-size-base: 1rem;
+  --font-size-sm: 0.875rem;
+  --font-size-lg: 1.125rem;
+  --font-size-4xl: 2.25rem;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-bold: 700;
+
+  /* Radius / shadows / transitions */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --transition-fast: 150ms ease-out;
+}
+
+[data-theme='dark'] {
+  --color-bg: #0f172a;
+  --color-fg: #f1f5f9;
+  --color-fg-muted: #94a3b8;
+  --color-primary: #60a5fa;
+}
