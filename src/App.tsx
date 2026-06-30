@@ -19,19 +19,10 @@ export interface AppProps {
   readonly router?: RouterProviderProps['router'];
 }
 
-let productionRouter: RouterProviderProps['router'] | undefined;
-
-function getDefaultRouter(): RouterProviderProps['router'] {
-  if (!productionRouter) {
-    productionRouter = createAppRouter();
-  }
-  return productionRouter;
-}
-
 export function App({ router }: AppProps): JSX.Element {
   return (
     <RootErrorBoundary>
-      <RouterProvider router={router ?? getDefaultRouter()} />
+      <RouterProvider router={router ?? createAppRouter()} />
     </RootErrorBoundary>
   );
 }
