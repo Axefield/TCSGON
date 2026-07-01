@@ -1,0 +1,32 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+}
+
+.activitySection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.activityRows {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.activityRow {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.625rem 0.75rem;
+  border: 1px solid var(--color-border, #e2e8f0);
+  border-radius: 0.375rem;
+  background: var(--color-surface, #fff);
+}

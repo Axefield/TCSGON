@@ -1,0 +1,57 @@
+.page {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.header,
+.headerStack {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.header {
+  grid-template-columns: 1fr auto;
+  align-items: end;
+}
+
+.eyebrow {
+  margin: 0;
+  color: var(--color-muted, #475569);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.75rem;
+}
+
+.title {
+  margin: 0;
+  color: var(--color-fg, #0f172a);
+}
+
+.cta {
+  border: 0;
+  border-radius: 0.75rem;
+  background: #0f172a;
+  color: #ffffff;
+  padding: 0.875rem 1.25rem;
+  font-weight: 700;
+}
+
+.toolbar {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.searchField {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.searchField input,
+.searchField select {
+  min-width: 220px;
+  border: 1px solid var(--color-border, #cbd5e1);
+  border-radius: 0.75rem;
+  padding: 0.75rem 0.875rem;
+  font: inherit;
+}

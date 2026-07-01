@@ -1,0 +1,147 @@
+/* DataTable — accessible sortable table with sticky header. */
+
+.wrapper {
+  overflow-x: auto;
+  border: 1px solid var(--color-border, #e2e8f0);
+  border-radius: 0.5rem;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+}
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--color-bg-elevated, #f8fafc);
+  border-bottom: 2px solid var(--color-border, #e2e8f0);
+}
+
+.headerCell {
+  padding: 0.75rem 1rem;
+  font-weight: 600;
+  text-align: left;
+  white-space: nowrap;
+  color: var(--color-text, #1e293b);
+}
+
+.headerCell.right {
+  text-align: right;
+}
+
+.headerCell.center {
+  text-align: center;
+}
+
+.sortButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0;
+  font: inherit;
+  font-weight: 600;
+  color: inherit;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.sortButton:hover {
+  color: var(--color-primary, #2563eb);
+}
+
+.sortButton:focus-visible {
+  outline: 2px solid var(--color-primary, #2563eb);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.sortIcon {
+  font-size: 0.6875rem;
+  line-height: 1;
+  color: var(--color-text-muted, #94a3b8);
+}
+
+.sortButton:hover .sortIcon {
+  color: var(--color-primary, #2563eb);
+}
+
+.row {
+  border-bottom: 1px solid var(--color-border, #e2e8f0);
+  transition: background-color 0.15s;
+}
+
+.row:last-child {
+  border-bottom: none;
+}
+
+.row:hover {
+  background: var(--color-bg-elevated, #f8fafc);
+}
+
+.clickable {
+  cursor: pointer;
+}
+
+.clickable:focus-visible {
+  outline: 2px solid var(--color-primary, #2563eb);
+  outline-offset: -2px;
+}
+
+.cell {
+  padding: 0.75rem 1rem;
+  vertical-align: middle;
+  color: var(--color-text, #1e293b);
+}
+
+.cell.right {
+  text-align: right;
+}
+
+.cell.center {
+  text-align: center;
+}
+
+.skeletonRow .cell {
+  padding: 0.625rem 1rem;
+}
+
+.skeleton {
+  display: inline-block;
+  background: linear-gradient(
+    90deg,
+    var(--color-bg-elevated, #f8fafc) 25%,
+    var(--color-border, #e2e8f0) 50%,
+    var(--color-bg-elevated, #f8fafc) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: 0.25rem;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .row {
+    transition: none;
+  }
+
+  .skeleton {
+    animation: none;
+    background: var(--color-bg-elevated, #f8fafc);
+  }
+}
+
+.emptyWrapper {
+  padding: 1rem;
+}

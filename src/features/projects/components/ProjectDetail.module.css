@@ -1,0 +1,79 @@
+.card {
+  display: grid;
+  gap: 1.5rem;
+  background: var(--color-surface, #ffffff);
+  border: 1px solid var(--color-border, #dbe3ef);
+  border-radius: 1rem;
+  padding: 1.5rem;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: start;
+}
+
+.eyebrow {
+  margin: 0 0 0.25rem;
+  color: var(--color-muted, #475569);
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+}
+
+.title {
+  margin: 0;
+}
+
+.actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.editLink,
+.deleteButton {
+  border-radius: 0.75rem;
+  padding: 0.75rem 1rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.editLink {
+  background: #e0f2fe;
+  color: #0f172a;
+}
+
+.deleteButton {
+  border: 1px solid #fecaca;
+  background: #fef2f2;
+  color: #991b1b;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem;
+  margin: 0;
+}
+
+.grid dt {
+  color: var(--color-muted, #475569);
+  font-size: 0.875rem;
+}
+
+.grid dd {
+  margin: 0.25rem 0 0;
+  font-weight: 600;
+}
+
+.descriptionBlock h2,
+.descriptionBlock p {
+  margin: 0;
+}
+
+.descriptionBlock {
+  display: grid;
+  gap: 0.5rem;
+}
