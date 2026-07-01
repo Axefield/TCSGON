@@ -37,6 +37,10 @@ const ROUTES = {
   root: '/',
   login: '/login',
   dashboard: '/dashboard',
+  projects: '/projects',
+  projectCreate: '/projects/new',
+  projectDetail: '/projects/:id',
+  projectEdit: '/projects/:id/edit',
   settings: '/settings',
 } as const;
 
@@ -53,6 +57,30 @@ const authedRoutes: RouteObject[] = [
     path: ROUTES.settings,
     lazy: () => import('@/features/auth/pages/SettingsPageStub').then((m) => ({ Component: m.SettingsPageStub })),
     handle: { crumb: 'Settings' },
+    errorElement: <RouteErrorElement />,
+  },
+  {
+    path: ROUTES.projects,
+    lazy: () => import('@/features/projects/pages/ProjectListPage').then((m) => ({ Component: m.ProjectListPage })),
+    handle: { crumb: 'Projects' },
+    errorElement: <RouteErrorElement />,
+  },
+  {
+    path: ROUTES.projectCreate,
+    lazy: () => import('@/features/projects/pages/ProjectCreatePage').then((m) => ({ Component: m.ProjectCreatePage })),
+    handle: { crumb: 'New Project' },
+    errorElement: <RouteErrorElement />,
+  },
+  {
+    path: ROUTES.projectDetail,
+    lazy: () => import('@/features/projects/pages/ProjectDetailPage').then((m) => ({ Component: m.ProjectDetailPage })),
+    handle: { crumb: 'Project Detail' },
+    errorElement: <RouteErrorElement />,
+  },
+  {
+    path: ROUTES.projectEdit,
+    lazy: () => import('@/features/projects/pages/ProjectEditPage').then((m) => ({ Component: m.ProjectEditPage })),
+    handle: { crumb: 'Edit Project' },
     errorElement: <RouteErrorElement />,
   },
 ];

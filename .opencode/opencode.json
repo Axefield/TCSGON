@@ -87,7 +87,8 @@
       "models": {
         "minimax-m3:cloud": { "name": "minimax-m3:cloud" },
         "qwen2.5-coder:7b": { "name": "qwen2.5-coder:7b" },
-        "llama3.1:8b": { "name": "llama3.1:8b" }
+        "llama3.1:8b": { "name": "llama3.1:8b" },
+	"gemma4:12b-it-qat": {"name" : "gemma4:12b-it-qat" }
       }
     },
     "anthropic": {
