@@ -4,7 +4,7 @@
  * @see docs/plans/phase-1-core-infrastructure.md §51, §57
  */
 import { describe, expect, it } from 'vitest';
-import { z } from 'zod';
+import { type z } from 'zod';
 
 import {
   ApiError,

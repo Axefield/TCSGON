@@ -12,8 +12,8 @@
  */
 import { createListenerMiddleware, type Middleware } from '@reduxjs/toolkit';
 
-import { authActions } from '@/features/auth/slice/authSlice';
 import { clearAuth, saveAuth } from '@/features/auth/slice/authPersistence';
+import { authActions } from '@/features/auth/slice/authSlice';
 
 // ─── localStorageSync — persists auth state ──────────────────────────────────
 

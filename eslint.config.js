@@ -129,6 +129,7 @@ export default tseslint.config(
   {
     files: [
       '*.config.{js,ts,mjs,cjs}',
+      'lighthouserc.cjs',
       'vitest.config.ts',
       'vite.config.ts',
       'playwright.config.ts',

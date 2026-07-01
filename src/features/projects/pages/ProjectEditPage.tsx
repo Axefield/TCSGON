@@ -3,10 +3,10 @@ import { Navigate, useNavigate, useParams } from 'react-router-dom';
 
 import { ProjectForm } from '@/features/projects/components/ProjectForm';
 import { useProjectDetails, useUpdateProject } from '@/features/projects/hooks/useProjects';
+import type { ProjectInput } from '@/features/projects/types';
 import { ErrorDisplay, Spinner } from '@/shared/components';
 import { useToast } from '@/shared/hooks/useToast';
 import { asProjectId } from '@/shared/types/brand';
-import type { ProjectInput } from '@/features/projects/types';
 
 import styles from './ProjectPages.module.css';
 

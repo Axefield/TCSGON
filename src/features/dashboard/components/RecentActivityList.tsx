@@ -5,8 +5,8 @@
  */
 import { type ReactElement } from 'react';
 
-import { Skeleton } from '@/shared/components/Skeleton';
 import type { RecentActivity } from '@/features/dashboard/api/dashboardApi';
+import { Skeleton } from '@/shared/components/Skeleton';
 
 import styles from './RecentActivityList.module.css';
 
@@ -56,9 +56,9 @@ export function RecentActivityList({
       ) : activities.length === 0 ? (
         <p className={styles.empty}>No recent activity.</p>
       ) : (
-        <ul className={styles.list} role="list" aria-label="Recent activity">
+        <ul className={styles.list} aria-label="Recent activity">
           {activities.map((act) => (
-            <li key={act.id} className={styles.item} role="listitem">
+            <li key={act.id} className={styles.item}>
               <span className={styles.message}>{act.message}</span>
               <span className={styles.time}>{formatRelativeTime(act.createdAt)}</span>
             </li>

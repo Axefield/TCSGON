@@ -1,7 +1,7 @@
 import { type ReactElement } from 'react';
 
-import { DataTable, Pagination } from '@/shared/components';
 import type { Project, ProjectStatus } from '@/features/projects/types';
+import { DataTable, Pagination } from '@/shared/components';
 
 import styles from './ProjectList.module.css';
 

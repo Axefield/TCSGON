@@ -4,7 +4,7 @@
  *
  * @see docs/plans/phase-1-core-infrastructure.md §6
  */
-import { z } from 'zod';
+import { type z } from 'zod';
 
 import { LoginInputSchema, SessionSchema, UserSchema } from '@/shared/types/user';
 

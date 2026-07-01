@@ -14,8 +14,7 @@
  */
 import { useCallback } from 'react';
 
-import { useApiClient } from '@/shared/api/ApiClientContext';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import type { AuthState } from '@/features/auth/authState';
 import {
   authActions,
   selectAuthError,
@@ -23,8 +22,9 @@ import {
   selectCurrentUser,
   selectIsAuthenticated,
 } from '@/features/auth/slice/authSlice';
-import type { AuthState } from '@/features/auth/authState';
+import { useApiClient } from '@/shared/api/ApiClientContext';
 import { SessionSchema, type LoginInput, type Session, type User } from '@/shared/types/user';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
 
 /**
  * Minimal login function type — can be swapped to a full RQ mutation later.

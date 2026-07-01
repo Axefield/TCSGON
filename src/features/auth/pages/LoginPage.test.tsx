@@ -3,15 +3,15 @@
  *
  * @see docs/plans/phase-1-core-infrastructure.md §51, §57
  */
-import { render, screen } from '@testing-library/react';
 import { configureStore } from '@reduxjs/toolkit';
-import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { render, screen } from '@testing-library/react';
 import { type ReactElement } from 'react';
 import { Provider as ReduxProvider } from 'react-redux';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { describe, expect, it } from 'vitest';
 
-import { authReducer } from '@/features/auth/slice/authSlice';
 import type { AuthState } from '@/features/auth/authState';
+import { authReducer } from '@/features/auth/slice/authSlice';
 import { ApiClientProvider } from '@/shared/api/ApiClientContext';
 import { createApiClient } from '@/shared/api/client';
 import { asSessionId, asUserId } from '@/shared/types/brand';

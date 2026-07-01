@@ -5,9 +5,10 @@
  */
 import { beforeEach, describe, expect, it } from 'vitest';
 
-import { loadAuth, saveAuth, clearAuth } from './authPersistence';
-import type { Session } from '@/shared/types/user';
 import { asSessionId, asUserId } from '@/shared/types/brand';
+import type { Session } from '@/shared/types/user';
+
+import { loadAuth, saveAuth, clearAuth } from './authPersistence';
 
 const validSession: Session = {
   id: asSessionId('sess-1'),

@@ -1,8 +1,8 @@
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { vi } from 'vitest';
 
-import { renderWithProviders, screen, userEvent, waitFor } from '@/test-utils';
 import { buildFetchResponse } from '@/shared/test/mockFetch';
+import { renderWithProviders, screen, userEvent, waitFor } from '@/test-utils';
 
 import { ProjectEditPage } from './ProjectEditPage';
 

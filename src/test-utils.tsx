@@ -3,9 +3,9 @@ import { render, type RenderOptions, type RenderResult } from '@testing-library/
 import { type ReactElement } from 'react';
 import { Provider as ReduxProvider } from 'react-redux';
 
-import { store } from '@/store';
 import { ApiClientProvider } from '@/shared/api/ApiClientContext';
 import { createApiClient } from '@/shared/api/client';
+import { store } from '@/store';
 
 const testApiClient = createApiClient({ baseUrl: '/api' });
 

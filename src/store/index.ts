@@ -12,9 +12,9 @@
  */
 import { configureStore } from '@reduxjs/toolkit';
 
-import { authReducer } from '@/features/auth/slice/authSlice';
-import { loadAuth } from '@/features/auth/slice/authPersistence';
 import type { AuthState } from '@/features/auth/authState';
+import { loadAuth } from '@/features/auth/slice/authPersistence';
+import { authReducer } from '@/features/auth/slice/authSlice';
 
 import { authPersistenceMiddleware, devLogger, errorReporter } from './middleware';
 import { uiReducer } from './slices/uiSlice';

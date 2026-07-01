@@ -3,9 +3,9 @@ import { useNavigate } from 'react-router-dom';
 
 import { ProjectForm } from '@/features/projects/components/ProjectForm';
 import { useCreateProject } from '@/features/projects/hooks/useProjects';
+import type { ProjectInput } from '@/features/projects/types';
 import { ErrorDisplay } from '@/shared/components';
 import { useToast } from '@/shared/hooks/useToast';
-import type { ProjectInput } from '@/features/projects/types';
 
 import styles from './ProjectPages.module.css';
 

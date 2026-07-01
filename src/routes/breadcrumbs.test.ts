@@ -3,8 +3,8 @@
  *
  * @see docs/plans/phase-1-core-infrastructure.md §10
  */
-import { describe, expect, it } from 'vitest';
 import type { UIMatch } from 'react-router-dom';
+import { describe, expect, it } from 'vitest';
 
 import { deriveBreadcrumbs, type CrumbHandle } from './breadcrumbs';
 

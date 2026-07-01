@@ -8,12 +8,12 @@
  */
 import { type ReactElement } from 'react';
 
-import { ErrorDisplay } from '@/shared/components/ErrorDisplay';
-import { useDashboard } from '@/features/dashboard/hooks/useDashboard';
 
 import { DashboardSkeleton } from '@/features/dashboard/components/DashboardSkeleton';
-import { StatGrid, type StatGridItem } from '@/features/dashboard/components/StatGrid';
 import { RecentActivityList } from '@/features/dashboard/components/RecentActivityList';
+import { StatGrid, type StatGridItem } from '@/features/dashboard/components/StatGrid';
+import { useDashboard } from '@/features/dashboard/hooks/useDashboard';
+import { ErrorDisplay } from '@/shared/components/ErrorDisplay';
 
 import styles from './DashboardPage.module.css';
 

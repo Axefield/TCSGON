@@ -11,8 +11,8 @@ import { type ReactElement } from 'react';
 
 import { Skeleton } from '@/shared/components/Skeleton';
 
-import { StatGrid } from './StatGrid';
 import styles from './DashboardSkeleton.module.css';
+import { StatGrid } from './StatGrid';
 
 /**
  * Full-page skeleton matching the dashboard layout.

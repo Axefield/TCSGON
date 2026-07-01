@@ -16,7 +16,7 @@
  * ```
  */
 import { zodResolver } from '@hookform/resolvers/zod';
-import { type ReactElement, useRef } from 'react';
+import { type ReactElement, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { LoginInputSchema, type LoginInput } from '@/shared/types/user';
@@ -41,6 +41,7 @@ export function LoginForm({
   const {
     register,
     handleSubmit,
+    setFocus,
     formState: { errors, isSubmitting, isValid },
     setError,
   } = useForm<LoginInput>({
@@ -59,6 +60,12 @@ export function LoginForm({
       errorRef.current?.focus();
     }
   });
+
+  useEffect(() => {
+    if (autoFocus) {
+      setFocus('email');
+    }
+  }, [autoFocus, setFocus]);
 
   const hasRootError = Boolean(errors.root);
   const isBusy = isSubmitting || disabled;
@@ -79,7 +86,6 @@ export function LoginForm({
           id="login-email"
           type="email"
           autoComplete="email"
-          autoFocus={autoFocus}
           aria-required="true"
           aria-invalid={errors.email ? 'true' : undefined}
           aria-describedby={errors.email ? 'login-email-error' : undefined}

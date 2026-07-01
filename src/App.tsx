@@ -12,8 +12,8 @@
 import { RouterProvider } from 'react-router-dom';
 import type { RouterProviderProps } from 'react-router-dom';
 
-import { RootErrorBoundary } from '@/routes/RootErrorBoundary';
 import { createAppRouter } from '@/routes';
+import { RootErrorBoundary } from '@/routes/RootErrorBoundary';
 
 export interface AppProps {
   readonly router?: RouterProviderProps['router'];

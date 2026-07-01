@@ -15,6 +15,7 @@
 import { useCallback } from 'react';
 
 import { newToastId } from '@/shared/types/brand';
+import type { ToastId } from '@/shared/types/brand';
 import type { ToastEntry, ToastKind } from '@/shared/types/toast';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import {
@@ -23,7 +24,6 @@ import {
   pushToast,
   selectToasts,
 } from '@/store/slices/uiSlice';
-import type { ToastId } from '@/shared/types/brand';
 
 export interface PushInput {
   readonly kind: ToastKind;

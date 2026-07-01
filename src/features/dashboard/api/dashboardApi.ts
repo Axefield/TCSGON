@@ -7,8 +7,8 @@
 import { useQuery, type UseQueryResult } from '@tanstack/react-query';
 import { z } from 'zod';
 
-import { ApiError } from '@/shared/api/errors';
 import { useApiClient } from '@/shared/api/ApiClientContext';
+import { ApiError } from '@/shared/api/errors';
 
 // ─── Zod schemas ───────────────────────────────────────────────
 

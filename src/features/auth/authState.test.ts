@@ -4,6 +4,7 @@
  * @see docs/plans/phase-1-core-infrastructure.md §4
  */
 import { describe, expect, it } from 'vitest';
+
 import type { AuthState } from './authState';
 import { authInitialState, isAuthenticated, isAuthenticating } from './authState';
 

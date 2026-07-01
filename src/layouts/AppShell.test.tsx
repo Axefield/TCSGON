@@ -4,8 +4,8 @@
  * @see docs/plans/phase-1-core-infrastructure.md §8, §10, §34
  */
 import { render, screen } from '@testing-library/react';
-import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { Provider as ReduxProvider } from 'react-redux';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { describe, expect, it } from 'vitest';
 
 import { store as appStore } from '@/store';

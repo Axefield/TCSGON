@@ -31,8 +31,8 @@ import { Outlet } from 'react-router-dom';
 
 import { ToastRegion } from '@/shared/components/ToastRegion';
 
-import { SkipLink } from './SkipLink';
 import styles from './AppShell.module.css';
+import { SkipLink } from './SkipLink';
 
 export function AppShell(): ReactElement {
   return (

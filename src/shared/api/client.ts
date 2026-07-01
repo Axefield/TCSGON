@@ -13,7 +13,7 @@
  *    React Query owns the cross-request retry policy.
  *  - AbortSignal respected on every attempt.
  */
-import { z } from 'zod';
+import { type z } from 'zod';
 
 import { ApiError, newCorrelationId } from './errors';
 
@@ -201,7 +201,7 @@ export function createApiClient(
           if (contentType.includes('application/json')) {
             try {
               body = await response.json();
-            } catch (cause) {
+            } catch {
               lastError = new ApiError({
                 kind: 'http',
                 status: response.status,

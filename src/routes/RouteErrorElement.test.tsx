@@ -16,7 +16,7 @@ import { RouteErrorElement } from './RouteErrorElement';
 
 // Mock useRouteError to return test errors without a data router.
 vi.mock('react-router-dom', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('react-router-dom')>();
+  const actual = await importOriginal<object>();
   return {
     ...actual,
     useRouteError: vi.fn(),

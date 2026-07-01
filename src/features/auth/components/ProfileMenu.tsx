@@ -98,6 +98,7 @@ export function ProfileMenu({
         <ul
           id={MENU_ID}
           ref={menuRef}
+          role="menu"
           onKeyDown={handleKeyDown}
           className={`${styles.menu} ${align === 'start' ? styles.menuStart : styles.menuEnd}`}
         >

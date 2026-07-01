@@ -8,9 +8,9 @@ import { type ReactElement, type ReactNode } from 'react';
 import { Provider as ReduxProvider } from 'react-redux';
 import { describe, expect, it, beforeEach } from 'vitest';
 
+import { newToastId } from '@/shared/types/brand';
 import { store as appStore } from '@/store';
 import { pushToast } from '@/store/slices/uiSlice';
-import { newToastId } from '@/shared/types/brand';
 
 import { ToastRegion } from './ToastRegion';
 

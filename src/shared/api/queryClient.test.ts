@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { queryClient } from './queryClient';
 import { ApiError } from './errors';
+import { queryClient } from './queryClient';
 
 describe('queryClient — Phase 0 defaults', () => {
   it('is a QueryClient instance', () => {

@@ -7,8 +7,8 @@
 import { waitFor } from '@testing-library/react';
 import { vi } from 'vitest';
 
-import { renderWithProviders, screen } from '@/test-utils';
 import { buildFetchResponse } from '@/shared/test/mockFetch';
+import { renderWithProviders, screen } from '@/test-utils';
 
 import { DashboardPage } from './DashboardPage';
 

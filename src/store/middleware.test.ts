@@ -7,9 +7,9 @@ import { configureStore, type MiddlewareAPI } from '@reduxjs/toolkit';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { authActions, authReducer } from '@/features/auth/slice/authSlice';
-import { uiReducer } from '@/store/slices/uiSlice';
 import { asSessionId, asUserId } from '@/shared/types/brand';
 import type { Session } from '@/shared/types/user';
+import { uiReducer } from '@/store/slices/uiSlice';
 
 import { authPersistenceMiddleware, devLogger, errorReporter } from './middleware';
 

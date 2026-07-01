@@ -12,12 +12,12 @@ import type { ReactElement, ReactNode } from 'react';
 import { Provider as ReduxProvider } from 'react-redux';
 import { describe, expect, it, vi } from 'vitest';
 
+import type { AuthState } from '@/features/auth/authState';
 import { authReducer } from '@/features/auth/slice/authSlice';
 import { ApiClientProvider } from '@/shared/api/ApiClientContext';
 import type { ApiClient } from '@/shared/api/client';
 import type { RequestResult } from '@/shared/api/client';
 import { ApiError } from '@/shared/api/errors';
-import type { AuthState } from '@/features/auth/authState';
 import { asSessionId, asUserId } from '@/shared/types/brand';
 import type { Session } from '@/shared/types/user';
 
@@ -174,7 +174,7 @@ describe('useAuth', () => {
 
     it('dispatches authFailed with generic message on non-Error thrown value', async () => {
       const client = mockClient(async () => {
-        // eslint-disable-next-line @typescript-eslint/only-throw-error
+         
         throw 'string error';
       });
       const wrapper = createWrapper({ client });
