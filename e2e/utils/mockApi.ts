@@ -178,7 +178,7 @@ export async function setupMockApi(page: Page, options: MockApiOptions = {}): Pr
     }
 
     // Extract project ID from path: /api/projects/<id>
-    const pathMatch = urlObj.pathname.match(/\/api\/projects\/([^\/]+)$/);
+    const pathMatch = urlObj.pathname.match(/\/api\/projects\/([^/]+)$/);
     const id = pathMatch ? pathMatch[1] : null;
 
     if (id) {
