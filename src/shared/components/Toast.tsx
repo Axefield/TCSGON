@@ -11,10 +11,11 @@
  * <Toast entry={entry} onDismiss={handleDismiss} />
  * ```
  */
-import type { ReactElement } from 'react';
+import { type ReactElement } from 'react';
 
 import type { ToastEntry } from '@/shared/types/toast';
 
+// eslint-disable-next-line import/order -- plugin bug: CSS import misclassified
 import styles from './Toast.module.css';
 
 export interface ToastProps {
