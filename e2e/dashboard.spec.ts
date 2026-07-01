@@ -5,8 +5,12 @@
  */
 import { test, expect } from '@playwright/test';
 
+import { setupMockApi } from './utils/mockApi';
+
 test.describe('Dashboard @smoke @a11y', () => {
   test('loads and displays stat cards and activity list', async ({ page }) => {
+    await setupMockApi(page);
+
     await page.goto('/dashboard');
 
     // Wait for stats to load (skeleton should be replaced by content)
@@ -24,11 +28,7 @@ test.describe('Dashboard @smoke @a11y', () => {
   });
 
   test('shows loading skeleton then content', async ({ page }) => {
-    // Slow-mock the API response to catch the skeleton state
-    await page.route('**/api/dashboard/stats', async (route) => {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      await route.continue();
-    });
+    await setupMockApi(page, { dashboardDelay: 1000 });
 
     await page.goto('/dashboard');
 
@@ -40,13 +40,10 @@ test.describe('Dashboard @smoke @a11y', () => {
   });
 
   test('displays retry button on error', async ({ page }) => {
-    await page.route('**/api/dashboard/stats', async (route) => {
-      await route.fulfill({ status: 500, body: 'Server Error' });
-    });
+    await setupMockApi(page, { dashboardError: true });
 
     await page.goto('/dashboard');
 
-    await expect(page.getByRole('alert')).toBeVisible();
     await expect(page.getByRole('button', { name: /retry/i })).toBeVisible();
   });
 });

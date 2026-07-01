@@ -1,8 +1,10 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 
+import { setupMockApi } from './utils/mockApi';
+
 /**
- * a11y audit — Phase 0.
+ * a11y audit — Phase 2.
  * Tagged @a11y so `pnpm axe` runs ONLY this spec.
  * Uses @axe-core/playwright (Deque official, chainable AxeBuilder API).
  *
@@ -10,8 +12,9 @@ import AxeBuilder from '@axe-core/playwright';
  */
 test.describe('TCSgon shell @a11y', () => {
   test('home page has no critical or serious a11y violations', async ({ page }) => {
+    await setupMockApi(page);
     await page.goto('/');
-    await page.getByRole('heading', { name: /tcsgon/i, level: 1 }).waitFor();
+    await page.getByRole('heading', { name: /dashboard/i, level: 1 }).waitFor();
 
     const results = await new AxeBuilder({ page })
       .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
@@ -22,7 +25,6 @@ test.describe('TCSgon shell @a11y', () => {
     );
 
     if (blocking.length > 0) {
-       
       console.error(
         'axe violations:',
         JSON.stringify(

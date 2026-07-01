@@ -44,6 +44,7 @@ export function ToastRegion(): ReactElement {
       {/* Polite region — non-critical notifications */}
       <div
         className={styles.region}
+        role="region"
         aria-live="polite"
         aria-relevant="additions removals"
         aria-label="Notifications"

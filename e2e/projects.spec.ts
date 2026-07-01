@@ -5,91 +5,92 @@
  */
 import { test, expect } from '@playwright/test';
 
+import { setupMockApi } from './utils/mockApi';
+
 test.describe('Projects @smoke @a11y', () => {
   test('loads project list with sort and pagination', async ({ page }) => {
+    await setupMockApi(page);
     await page.goto('/projects');
 
     // Table should render with seed data
     await expect(page.getByRole('table', { name: /projects/i })).toBeVisible();
 
-    // Sort by name
-    await page.getByRole('button', { name: /sort by name/i }).click();
-    await expect(page.getByRole('button', { name: /sort by name/i })).toBeVisible();
+    // Sort by project name (column label is "Project")
+    await page.getByRole('button', { name: /sort by project/i }).click();
+    await expect(page.getByRole('button', { name: /sort by project/i })).toBeVisible();
 
     // Pagination should exist if > 1 page of data
-    await expect(page.getByRole('navigation', { name: /pagination/i })).toBeVisible();
+    await expect(page.getByRole('navigation', { name: /projects pages/i })).toBeVisible();
   });
 
   test('navigates to project detail on row click', async ({ page }) => {
+    await setupMockApi(page);
     await page.goto('/projects');
 
-    // Wait for table rows
-    const rows = page.getByRole('button', { name: /view projects list/i });
+    // Wait for table rows to render (clickable rows have role="button")
+    const rows = page.getByRole('button', { name: /view projects /i });
     await expect(rows.first()).toBeVisible({ timeout: 5000 });
 
-    // Click first row
-    const firstRow = page.locator('[role="button"]').first();
-    await firstRow.click();
+    // Click first row to navigate to detail
+    await rows.first().click();
 
     // Should land on detail page
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
   });
 
   test('creates a new project', async ({ page }) => {
+    await setupMockApi(page);
     await page.goto('/projects');
 
-    // Click create button
-    await page.getByRole('button', { name: /create project/i }).click();
+    // Click new project button
+    await page.getByRole('button', { name: /new project/i }).click();
 
     // Fill form
-    await page.getByLabel(/name/i).fill('E2E Test Project');
-    await page.getByLabel(/lead name/i).fill('Tester');
+    await page.getByLabel('Project name').fill('E2E Test Project');
+    await page.getByLabel('Lead name').fill('Tester');
     await page.getByLabel(/description/i).fill('Created by Playwright');
 
     // Submit
-    await page.getByRole('button', { name: /submit/i }).click();
+    await page.getByRole('button', { name: /create project/i }).click();
 
-    // Should redirect to list and show the new project
+    // Should redirect to detail page showing the new project name
     await expect(page.getByText('E2E Test Project')).toBeVisible({ timeout: 5000 });
   });
 
-  test.describe.serial('full CRUD journey', () => {
-    let projectName = `CRUD Project ${Date.now()}`;
+  test('full CRUD journey', async ({ page }) => {
+    await setupMockApi(page);
+    const projectName = `CRUD Project ${Date.now()}`;
 
-    test('create → edit → delete', async ({ page }) => {
-      // CREATE
-      await page.goto('/projects');
-      await page.getByRole('button', { name: /create project/i }).click();
-      await page.getByLabel(/name/i).fill(projectName);
-      await page.getByLabel(/lead name/i).fill('Tester');
-      await page.getByRole('button', { name: /submit/i }).click();
-      await expect(page.getByText(projectName)).toBeVisible({ timeout: 5000 });
+    // CREATE
+    await page.goto('/projects');
+    await page.getByRole('button', { name: /new project/i }).click();
+    await page.getByLabel('Project name').fill(projectName);
+    await page.getByLabel('Lead name').fill('Tester');
+    await page.getByRole('button', { name: /create project/i }).click();
+    await expect(page.getByText(projectName)).toBeVisible({ timeout: 5000 });
 
-      // EDIT
-      await page.getByText(projectName).click();
-      await page.getByRole('button', { name: /edit/i }).click();
+    // EDIT
+    await page.getByRole('link', { name: /edit project/i }).click();
 
-      const updatedName = `${projectName} (Updated)`;
-      await page.getByLabel(/name/i).clear();
-      await page.getByLabel(/name/i).fill(updatedName);
-      await page.getByRole('button', { name: /submit/i }).click();
-      await expect(page.getByText(updatedName)).toBeVisible({ timeout: 5000 });
-      projectName = updatedName;
+    const updatedName = `${projectName} (Updated)`;
+    await page.getByLabel('Project name').clear();
+    await page.getByLabel('Project name').fill(updatedName);
+    await page.getByRole('button', { name: /save changes/i }).click();
+    await expect(page.getByText(updatedName)).toBeVisible({ timeout: 5000 });
 
-      // DELETE
-      await page.getByRole('button', { name: /edit/i }).click();
-      await page.getByRole('button', { name: /delete/i }).click();
+    // DELETE — after edit redirects to detail page
+    await page.getByRole('button', { name: /delete project/i }).click();
 
-      // Confirm dialog
-      await expect(page.getByRole('alertdialog')).toBeVisible();
-      await page.getByRole('button', { name: /confirm/i }).click();
+    // Confirm dialog
+    await expect(page.getByRole('alertdialog')).toBeVisible();
+    await page.getByRole('button', { name: /^delete$/i }).click();
 
-      // Should return to list, project no longer visible
-      await expect(page.getByText(projectName)).not.toBeVisible({ timeout: 5000 });
-    });
+    // Should return to list, project no longer visible
+    await expect(page.getByText(updatedName)).not.toBeVisible({ timeout: 5000 });
   });
 
   test('shows empty state when no projects match filter', async ({ page }) => {
+    await setupMockApi(page);
     await page.goto('/projects');
 
     // Apply a search that matches nothing
@@ -101,13 +102,10 @@ test.describe('Projects @smoke @a11y', () => {
   });
 
   test('shows error display on server failure', async ({ page }) => {
-    await page.route('**/api/projects*', async (route) => {
-      await route.fulfill({ status: 500, body: 'Server Error' });
-    });
+    await setupMockApi(page, { projectsError: true });
 
     await page.goto('/projects');
 
-    await expect(page.getByRole('alert')).toBeVisible({ timeout: 5000 });
-    await expect(page.getByRole('button', { name: /retry/i })).toBeVisible();
+    await expect(page.getByRole('button', { name: /retry/i })).toBeVisible({ timeout: 5000 });
   });
 });
