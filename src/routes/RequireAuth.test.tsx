@@ -8,7 +8,9 @@
  * that occurs when @remix-run/router creates Request objects internally.
  */
 import { configureStore } from '@reduxjs/toolkit';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
+import { type ReactElement } from 'react';
 import { Provider as ReduxProvider } from 'react-redux';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { describe, expect, it } from 'vitest';
@@ -23,8 +25,24 @@ import { RequireAuth } from './RequireAuth';
 
 const testApiClient = createApiClient({ baseUrl: 'http://test.local' });
 
+const queryClient = new QueryClient({
+  defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+});
+
 function createAuthStore(auth: AuthState) {
   return configureStore({ reducer: { auth: authReducer }, preloadedState: { auth } });
+}
+
+function TestWrapper({ store, children }: { store: ReturnType<typeof createAuthStore>; children: ReactElement }): ReactElement {
+  return (
+    <ReduxProvider store={store}>
+      <QueryClientProvider client={queryClient}>
+        <ApiClientProvider client={testApiClient}>
+          {children}
+        </ApiClientProvider>
+      </QueryClientProvider>
+    </ReduxProvider>
+  );
 }
 
 describe('RequireAuth', () => {
@@ -32,18 +50,16 @@ describe('RequireAuth', () => {
     const store = createAuthStore({ kind: 'anonymous' });
 
     render(
-      <ReduxProvider store={store}>
-        <ApiClientProvider client={testApiClient}>
-          <MemoryRouter initialEntries={['/']}>
-            <Routes>
-              <Route element={<RequireAuth />}>
-                <Route index element={<div data-testid="protected">Secret</div>} />
-              </Route>
-              <Route path="/login" element={<div data-testid="login-page">Login</div>} />
-            </Routes>
-          </MemoryRouter>
-        </ApiClientProvider>
-      </ReduxProvider>,
+      <TestWrapper store={store}>
+        <MemoryRouter initialEntries={['/']}>
+          <Routes>
+            <Route element={<RequireAuth />}>
+              <Route index element={<div data-testid="protected">Secret</div>} />
+            </Route>
+            <Route path="/login" element={<div data-testid="login-page">Login</div>} />
+          </Routes>
+        </MemoryRouter>
+      </TestWrapper>,
     );
 
     expect(screen.getByTestId('login-page')).toBeInTheDocument();
@@ -53,18 +69,16 @@ describe('RequireAuth', () => {
     const store = createAuthStore({ kind: 'authenticating' });
 
     render(
-      <ReduxProvider store={store}>
-        <ApiClientProvider client={testApiClient}>
-          <MemoryRouter initialEntries={['/']}>
-            <Routes>
-              <Route element={<RequireAuth />}>
-                <Route index element={<div data-testid="protected">Secret</div>} />
-              </Route>
-              <Route path="/login" element={<div data-testid="login-page">Login</div>} />
-            </Routes>
-          </MemoryRouter>
-        </ApiClientProvider>
-      </ReduxProvider>,
+      <TestWrapper store={store}>
+        <MemoryRouter initialEntries={['/']}>
+          <Routes>
+            <Route element={<RequireAuth />}>
+              <Route index element={<div data-testid="protected">Secret</div>} />
+            </Route>
+            <Route path="/login" element={<div data-testid="login-page">Login</div>} />
+          </Routes>
+        </MemoryRouter>
+      </TestWrapper>,
     );
 
     expect(screen.getByRole('status', { name: /verifying session/i })).toBeInTheDocument();
@@ -75,18 +89,16 @@ describe('RequireAuth', () => {
     const store = createAuthStore({ kind: 'error', error: 'Network error', user: null });
 
     render(
-      <ReduxProvider store={store}>
-        <ApiClientProvider client={testApiClient}>
-          <MemoryRouter initialEntries={['/']}>
-            <Routes>
-              <Route element={<RequireAuth />}>
-                <Route index element={<div data-testid="protected">Secret</div>} />
-              </Route>
-              <Route path="/login" element={<div data-testid="login-page">Login</div>} />
-            </Routes>
-          </MemoryRouter>
-        </ApiClientProvider>
-      </ReduxProvider>,
+      <TestWrapper store={store}>
+        <MemoryRouter initialEntries={['/']}>
+          <Routes>
+            <Route element={<RequireAuth />}>
+              <Route index element={<div data-testid="protected">Secret</div>} />
+            </Route>
+            <Route path="/login" element={<div data-testid="login-page">Login</div>} />
+          </Routes>
+        </MemoryRouter>
+      </TestWrapper>,
     );
 
     expect(screen.getByTestId('login-page')).toBeInTheDocument();
@@ -101,18 +113,16 @@ describe('RequireAuth', () => {
     });
 
     render(
-      <ReduxProvider store={store}>
-        <ApiClientProvider client={testApiClient}>
-          <MemoryRouter initialEntries={['/']}>
-            <Routes>
-              <Route element={<RequireAuth />}>
-                <Route index element={<div data-testid="protected">Secret</div>} />
-              </Route>
-              <Route path="/login" element={<div data-testid="login-page">Login</div>} />
-            </Routes>
-          </MemoryRouter>
-        </ApiClientProvider>
-      </ReduxProvider>,
+      <TestWrapper store={store}>
+        <MemoryRouter initialEntries={['/']}>
+          <Routes>
+            <Route element={<RequireAuth />}>
+              <Route index element={<div data-testid="protected">Secret</div>} />
+            </Route>
+            <Route path="/login" element={<div data-testid="login-page">Login</div>} />
+          </Routes>
+        </MemoryRouter>
+      </TestWrapper>,
     );
 
     expect(screen.getByTestId('protected')).toBeInTheDocument();

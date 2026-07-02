@@ -6,12 +6,17 @@
  * Route tree:
  * ```
  * <RootErrorBoundary>
- *   <AppShell>                              ← layout route
+ *   <AppShell>                              ← layout route (includes SessionCheck)
  *     <RequireAuth>                         ← auth guard
  *       /dashboard  → DashboardPage (lazy)
  *       /settings   → SettingsPageStub (lazy)
  *     </RequireAuth>
- *     /login     → LoginPage (lazy)
+ *     <RedirectIfAuth>                      ← redirects authed users away
+ *       /login           → LoginPage (lazy)
+ *       /signup          → SignupPage (lazy)
+ *       /forgot-password → ForgotPasswordPage (lazy)
+ *       /reset-password  → ResetPasswordPage (lazy)
+ *     </RedirectIfAuth>
  *     /          → redirect to /dashboard
  *     *          → NotFoundPage (lazy)
  *   </AppShell>
@@ -29,6 +34,7 @@ import { createBrowserRouter, type RouteObject } from 'react-router-dom';
 
 import { AppShell } from '@/layouts/AppShell';
 
+import { RedirectIfAuth } from './RedirectIfAuth';
 import { RequireAuth } from './RequireAuth';
 import { RouteErrorElement } from './RouteErrorElement';
 import { RouteFallback } from './RouteFallback';
@@ -36,6 +42,9 @@ import { RouteFallback } from './RouteFallback';
 const ROUTES = {
   root: '/',
   login: '/login',
+  signup: '/signup',
+  forgotPassword: '/forgot-password',
+  resetPassword: '/reset-password',
   dashboard: '/dashboard',
   projects: '/projects',
   projectCreate: '/projects/new',
@@ -55,7 +64,7 @@ const authedRoutes: RouteObject[] = [
   },
   {
     path: ROUTES.settings,
-    lazy: () => import('@/features/auth/pages/SettingsPageStub').then((m) => ({ Component: m.SettingsPageStub })),
+    lazy: () => import('@/features/auth/pages/SettingsPage').then((m) => ({ Component: m.SettingsPage })),
     handle: { crumb: 'Settings' },
     errorElement: <RouteErrorElement />,
   },
@@ -97,9 +106,29 @@ const routes: RouteObject[] = [
         children: authedRoutes,
       },
       {
-        path: ROUTES.login,
-        lazy: () => import('@/features/auth/pages/LoginPage').then((m) => ({ Component: m.LoginPage })),
-        handle: { crumb: 'Sign in' },
+        element: <RedirectIfAuth />,
+        children: [
+          {
+            path: ROUTES.login,
+            lazy: () => import('@/features/auth/pages/LoginPage').then((m) => ({ Component: m.LoginPage })),
+            handle: { crumb: 'Sign in' },
+          },
+          {
+            path: ROUTES.signup,
+            lazy: () => import('@/features/auth/pages/SignupPage').then((m) => ({ Component: m.SignupPage })),
+            handle: { crumb: 'Create account' },
+          },
+          {
+            path: ROUTES.forgotPassword,
+            lazy: () => import('@/features/auth/pages/ForgotPasswordPage').then((m) => ({ Component: m.ForgotPasswordPage })),
+            handle: { crumb: 'Forgot password' },
+          },
+          {
+            path: ROUTES.resetPassword,
+            lazy: () => import('@/features/auth/pages/ResetPasswordPage').then((m) => ({ Component: m.ResetPasswordPage })),
+            handle: { crumb: 'Reset password' },
+          },
+        ],
       },
       {
         index: true,

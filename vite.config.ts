@@ -27,6 +27,12 @@ export default defineConfig(({ mode }) => {
       port: 5173,
       strictPort: true,
       host: '127.0.0.1',
+      proxy: {
+        '/api': {
+          target: 'http://localhost:3001',
+          changeOrigin: true,
+        },
+      },
     },
     preview: {
       port: 4173,

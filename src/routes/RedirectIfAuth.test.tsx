@@ -4,7 +4,9 @@
  * @see docs/plans/phase-1-core-infrastructure.md §10, §34
  */
 import { configureStore } from '@reduxjs/toolkit';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
+import { type ReactElement } from 'react';
 import { Provider as ReduxProvider } from 'react-redux';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { describe, expect, it } from 'vitest';
@@ -19,8 +21,24 @@ import { RedirectIfAuth } from './RedirectIfAuth';
 
 const testApiClient = createApiClient({ baseUrl: 'http://test.local' });
 
+const queryClient = new QueryClient({
+  defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+});
+
 function createAuthStore(auth: AuthState) {
   return configureStore({ reducer: { auth: authReducer }, preloadedState: { auth } });
+}
+
+function TestWrapper({ store, children }: { store: ReturnType<typeof createAuthStore>; children: ReactElement }): ReactElement {
+  return (
+    <ReduxProvider store={store}>
+      <QueryClientProvider client={queryClient}>
+        <ApiClientProvider client={testApiClient}>
+          {children}
+        </ApiClientProvider>
+      </QueryClientProvider>
+    </ReduxProvider>
+  );
 }
 
 describe('RedirectIfAuth', () => {
@@ -28,17 +46,15 @@ describe('RedirectIfAuth', () => {
     const store = createAuthStore({ kind: 'anonymous' });
 
     render(
-      <ReduxProvider store={store}>
-        <ApiClientProvider client={testApiClient}>
-          <MemoryRouter initialEntries={['/login']}>
-            <Routes>
-              <Route path="/login" element={<RedirectIfAuth />}>
-                <Route index element={<div data-testid="login-content">Login Page</div>} />
-              </Route>
-            </Routes>
-          </MemoryRouter>
-        </ApiClientProvider>
-      </ReduxProvider>,
+      <TestWrapper store={store}>
+        <MemoryRouter initialEntries={['/login']}>
+          <Routes>
+            <Route path="/login" element={<RedirectIfAuth />}>
+              <Route index element={<div data-testid="login-content">Login Page</div>} />
+            </Route>
+          </Routes>
+        </MemoryRouter>
+      </TestWrapper>,
     );
     // Anonymous users should see the nested route content via Outlet
     expect(screen.getByTestId('login-content')).toBeInTheDocument();
@@ -58,18 +74,16 @@ describe('RedirectIfAuth', () => {
     });
 
     render(
-      <ReduxProvider store={store}>
-        <ApiClientProvider client={testApiClient}>
-          <MemoryRouter initialEntries={['/login']}>
-            <Routes>
-              <Route path="/login" element={<RedirectIfAuth />}>
-                <Route index element={<div data-testid="login-content">Login Page</div>} />
-              </Route>
-              <Route path="/dashboard" element={<div data-testid="dashboard-page">Dashboard</div>} />
-            </Routes>
-          </MemoryRouter>
-        </ApiClientProvider>
-      </ReduxProvider>,
+      <TestWrapper store={store}>
+        <MemoryRouter initialEntries={['/login']}>
+          <Routes>
+            <Route path="/login" element={<RedirectIfAuth />}>
+              <Route index element={<div data-testid="login-content">Login Page</div>} />
+            </Route>
+            <Route path="/dashboard" element={<div data-testid="dashboard-page">Dashboard</div>} />
+          </Routes>
+        </MemoryRouter>
+      </TestWrapper>,
     );
     expect(screen.getByTestId('dashboard-page')).toBeInTheDocument();
     expect(screen.queryByTestId('login-content')).not.toBeInTheDocument();

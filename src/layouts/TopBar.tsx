@@ -1,53 +1,65 @@
 /**
- * TopBar — top navigation bar with theme toggle and user menu slot.
+ * TopBar — top navigation bar with theme toggle and ProfileMenu.
  *
  * @see docs/plans/phase-1-core-infrastructure.md §10, §34, §35
  *
- * Semantics: `<header>` with theme toggle (`aria-pressed`), profile menu
- * trigger (`aria-haspopup`), and breadcrumbs slot.
+ * Semantics: `<header>` with theme toggle, breadcrumbs slot, and ProfileMenu
+ * for authenticated users. Reads auth state from `useAuth` internally.
  *
  * Usage:
  * ```tsx
- * <TopBar
- *   title="Dashboard"
- *   onMenuClick={handleMenuClick}
- *   theme="light"
- *   onThemeToggle={handleThemeToggle}
- *   user={currentUser}
- * />
+ * <TopBar />
  * ```
  */
-import { type MouseEventHandler, type ReactElement } from 'react';
+import { type MouseEventHandler, type ReactElement, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 
-import type { User } from '@/shared/types/user';
+import { ProfileMenu } from '@/features/auth/components/ProfileMenu';
+import { useAuth } from '@/features/auth/hooks/useAuth';
 import type { Theme } from '@/store/slices/uiSlice';
 
 import styles from './TopBar.module.css';
 
 export interface TopBarProps {
-  readonly title: string;
-  readonly onMenuClick: MouseEventHandler<HTMLButtonElement>;
-  readonly theme: Theme;
-  readonly onThemeToggle: () => void;
-  readonly user: User | null;
+  /** Page title shown in the top bar. Default: 'TCSgon'. */
+  readonly title?: string;
+  /** Theme override (default: 'light'). */
+  readonly theme?: Theme;
+  /** Sidebar toggle state. Default: false. */
   readonly isSidebarOpen?: boolean;
+  /** Called when the sidebar menu button is clicked. */
+  readonly onMenuClick?: MouseEventHandler<HTMLButtonElement>;
+  /** Called when the theme toggle is clicked. */
+  readonly onThemeToggle?: () => void;
 }
 
 export function TopBar({
-  title,
-  onMenuClick,
-  theme,
-  onThemeToggle,
-  user,
+  title = 'TCSgon',
+  theme = 'light',
   isSidebarOpen = false,
+  onMenuClick,
+  onThemeToggle,
 }: TopBarProps): ReactElement {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const [localTheme, setLocalTheme] = useState<Theme>(theme);
+
+  const effectiveTheme = theme ?? localTheme;
+  const handleThemeToggle = onThemeToggle ?? (() => {
+    setLocalTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
+  });
+
+  const effectiveMenuClick = onMenuClick ?? (() => {
+    // Default: no sidebar toggle wired yet.
+  });
+
   return (
     <header className={styles.topBar}>
       <div className={styles.left}>
         <button
           type="button"
           className={styles.menuButton}
-          onClick={onMenuClick}
+          onClick={effectiveMenuClick}
           aria-label={isSidebarOpen ? 'Close navigation menu' : 'Open navigation menu'}
         >
           ☰
@@ -59,17 +71,23 @@ export function TopBar({
         <button
           type="button"
           className={styles.themeToggle}
-          onClick={onThemeToggle}
-          aria-pressed={theme === 'dark'}
-          aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`}
+          onClick={handleThemeToggle}
+          aria-pressed={effectiveTheme === 'dark'}
+          aria-label={`Switch to ${effectiveTheme === 'dark' ? 'light' : 'dark'} theme`}
         >
-          {theme === 'dark' ? '☀️' : '🌙'}
+          {effectiveTheme === 'dark' ? '☀️' : '🌙'}
         </button>
 
         {user ? (
-          <span className={styles.userName}>{user.name}</span>
+          <ProfileMenu
+            user={user}
+            onSettings={() => navigate('/settings')}
+            onSignOut={() => logout.mutate()}
+          />
         ) : (
-          <span className={styles.userName}>Sign in</span>
+          <Link to="/login" className={styles.signInLink}>
+            Sign in
+          </Link>
         )}
       </div>
     </header>

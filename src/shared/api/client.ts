@@ -27,7 +27,10 @@ export interface RequestConfig<TIn, TOut> {
   readonly headers?: Readonly<Record<string, string>>;
   readonly signal?: AbortSignal;
   readonly skipAuth?: boolean;
-  readonly schema?: z.ZodType<TOut>;
+  /** Schema used for runtime response validation. The type parameter only
+   *  constrains the *output* shape; input type is widened to `any` so that
+   *  schemas with `.transform()` (which change the type) are accepted. */
+  readonly schema?: z.ZodType<TOut, any, any>;
   readonly timeoutMs?: number;
   /** When true, the client retries on `network`/`timeout`/5xx (per retry policy). */
   readonly retry?: boolean;

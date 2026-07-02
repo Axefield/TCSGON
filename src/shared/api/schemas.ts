@@ -6,7 +6,15 @@
  */
 import { type z } from 'zod';
 
-import { LoginInputSchema, SessionSchema, UserSchema } from '@/shared/types/user';
+import {
+  ForgotPasswordInputSchema,
+  ForgotPasswordResponseSchema,
+  LoginInputSchema,
+  ResetPasswordInputSchema,
+  SessionSchema,
+  SignupInputSchema,
+  UserSchema,
+} from '@/shared/types/user';
 
 export interface NamedSchema<T> {
   readonly name: string;
@@ -21,6 +29,10 @@ export const Schemas = {
   user: defineSchema('user', UserSchema),
   session: defineSchema('session', SessionSchema),
   loginInput: defineSchema('loginInput', LoginInputSchema),
+  signupInput: defineSchema('signupInput', SignupInputSchema),
+  forgotPasswordInput: defineSchema('forgotPasswordInput', ForgotPasswordInputSchema),
+  resetPasswordInput: defineSchema('resetPasswordInput', ResetPasswordInputSchema),
+  forgotPasswordResponse: defineSchema('forgotPasswordResponse', ForgotPasswordResponseSchema),
 } as const;
 
 export type SchemaName = keyof typeof Schemas;
