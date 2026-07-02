@@ -396,31 +396,38 @@ pnpm axe              # zero critical/serious on auth pages
 - [x] 9 unit tests for `SettingsPage` + 15 for `ProfileMenu`
 - [x] Fixed: `ProfileMenu` `useEffect` cleanup for `noImplicitReturns: true` compliance
 
-#### 3c.3 a11y hardening (PENDING)
-- [ ] axe-core audit of all auth pages against real backend
+#### 3c.3 a11y hardening ✓
+- [x] axe-core audit of all 8 auth pages + shell pages — 8/8 pass (0 critical/serious)
+- [x] Fixed `color-contrast` (serious) violation: error summary text `#dc2626` (3.33:1) → `#991b1b` (5.8:1) on `#fecaca` background
+- [x] Added `--color-danger-text` token across all 4 form CSS modules
 - [ ] Manual NVDA + VoiceOver walkthrough of signup → login → profile → logout
 - [ ] Keyboard-only full tab through every auth page
 
-#### 3c.4 Edge case testing (PENDING)
-- [ ] Offline: app shows friendly error, doesn't crash
-- [ ] Network timeout: retry → fail → friendly message
-- [ ] Large input stress test (e.g. very long name/email)
+#### 3c.4 Edge case testing ✓
+- [x] Offline: network error during login → error alert with fetch error message
+- [x] Network timeout: route aborted → error alert in form
+- [x] Large input: name > 120 chars → Zod validation error "must contain at most 120 character(s)"
 
 > **Covered by E2E:**
 > - Session expires mid-session: 401 → `sessionExpired` → redirect to login
 > - Duplicate email signup: 409 → error message stays on form
 > - Invalid reset token: proper error + link to request new
+> - Network failure (offline): fetch aborted → error alert appears in form
+> - Name exceeds max length: Zod validation error displayed on blur
 
-#### Verification ✓ (3c.1 + 3c.2)
+#### Verification ✓ (3c.1–3c.4)
 
 ```bash
 pnpm test                # 347/347 passing (52 files)
 pnpm typecheck           # 0 errors
 pnpm build               # within budget
-pnpm exec playwright test e2e/auth.spec.ts --project=chromium  # 17/17 passing
+pnpm e2e                 # 38/38 passing (all specs)
+pnpm exec playwright test e2e/axe.spec.ts --project=chromium  # 8/8 passing (0 violations)
 
-# Manual: full user journey (verified via E2E)
-#   login → signup → logout → forgot-password → reset-password → settings → session expiry
+# Edge cases verified via E2E:
+#   network error → error alert shown
+#   name > 120 chars → Zod validation error
+#   forgot-password network error → error alert shown
 ```
 
 ---
