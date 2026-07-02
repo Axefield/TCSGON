@@ -225,4 +225,46 @@ test.describe('Auth flows @smoke', () => {
     // Should redirect to /projects (the ?next= target), not /dashboard
     await expect(page).toHaveURL(/\/projects/, { timeout: 10_000 });
   });
+
+  // ── Edge cases (Phase 3c.4) ──────────────────────────────────────────
+
+  test('shows offline error on network failure during login', async ({ page }) => {
+    await setupMockApi(page, { authenticated: false, authNetworkError: true });
+    await page.goto('/login');
+
+    await page.getByLabel(/email/i).fill('admin@tcsgon.dev');
+    await page.getByLabel(/password/i).fill(VALID_PASSWORD);
+    await page.getByRole('button', { name: /sign in/i }).click();
+
+    // The form's catch block displays the ApiError's message from rejected fetch.
+    // The exact message may vary by browser ("Failed to fetch" / "Load failed") —
+    // the critical assertion is that the error alert appears and contains text.
+    // The error summary has tabindex="-1" to distinguish from the toast container.
+    await expect(page.locator('[role="alert"][tabindex="-1"]')).toBeVisible({ timeout: 10_000 });
+  });
+
+  test('shows validation error for name exceeding max length on signup', async ({ page }) => {
+    await setupMockApi(page, { authenticated: false });
+    await page.goto('/signup');
+
+    // Enter name exceeding Zod max(120) limit
+    await page.getByLabel(/name/i).fill('A'.repeat(121));
+
+    // Tab to email field → blur triggers client-side validation (mode: onTouched)
+    await page.getByLabel(/^email$/i).focus();
+
+    // Zod default message for .max(120) — "String must contain at most 120 character(s)"
+    await expect(page.getByText(/120 character/i)).toBeVisible();
+  });
+
+  test('handles network error on forgot password gracefully', async ({ page }) => {
+    await setupMockApi(page, { authenticated: false, authNetworkError: true });
+    await page.goto('/forgot-password');
+
+    await page.getByLabel(/email/i).fill('admin@tcsgon.dev');
+    await page.getByRole('button', { name: /send reset link/i }).click();
+
+    // Mutation error is caught — show error summary alert (with tabindex="-1")
+    await expect(page.locator('[role="alert"][tabindex="-1"]')).toBeVisible({ timeout: 10_000 });
+  });
 });

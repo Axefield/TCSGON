@@ -159,6 +159,8 @@ export interface MockApiOptions {
    * - `'conflict'` — signup returns 409 (duplicate email)
    */
   readonly authError?: 'invalid' | 'expired' | 'conflict';
+  /** When true, auth endpoints abort with a network error (simulates offline). */
+  readonly authNetworkError?: boolean;
 }
 
 /**
@@ -193,6 +195,10 @@ export async function setupMockApi(page: Page, options: MockApiOptions = {}): Pr
   await page.route('**/api/auth/login', async (route) => {
     if (route.request().method() !== 'POST') {
       await route.fallback();
+      return;
+    }
+    if (options.authNetworkError) {
+      await route.abort();
       return;
     }
     if (options.authError === 'invalid') {
@@ -317,6 +323,10 @@ export async function setupMockApi(page: Page, options: MockApiOptions = {}): Pr
   await page.route('**/api/auth/forgot-password', async (route) => {
     if (route.request().method() !== 'POST') {
       await route.fallback();
+      return;
+    }
+    if (options.authNetworkError) {
+      await route.abort();
       return;
     }
     const body = route.request().postDataJSON();

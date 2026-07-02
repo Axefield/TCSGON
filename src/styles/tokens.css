@@ -23,6 +23,7 @@
   --color-fg-inverse: #ffffff;
   --color-primary: #0b3d91;
   --color-danger: #dc2626;
+  --color-danger-text: #991b1b;  /* darker red for text on .errorSummary bg */
   --color-success: #16a34a;
   --color-warning: #d97706;
   --color-border: #e2e8f0;
@@ -114,6 +115,7 @@
   --color-fg-inverse: #0f172a;
   --color-primary: #60a5fa;
   --color-danger: #fca5a5;       /* WCAG 1.4.3: 8.6:1 against dark bg */
+  --color-danger-text: #fca5a5;
   --color-success: #4ade80;
   --color-warning: #fbbf24;
   --color-border: #334155;
