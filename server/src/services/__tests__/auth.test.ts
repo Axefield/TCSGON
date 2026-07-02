@@ -1,8 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import * as authService from '../auth.js';
-import * as userService from '../user.js';
 import { prisma } from '../../lib/prisma.js';
-import { generateToken } from '../../lib/crypto.js';
 
 beforeEach(async () => {
   await prisma.passwordResetToken.deleteMany();

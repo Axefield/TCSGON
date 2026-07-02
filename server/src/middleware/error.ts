@@ -13,6 +13,8 @@ export function errorHandler(
   res: Response,
   _next: NextFunction,
 ): void {
+  void _next;
+
   // Zod validation errors → 400
   if (err instanceof ZodError) {
     const details: Record<string, string[]> = {};

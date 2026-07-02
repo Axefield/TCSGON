@@ -10,9 +10,9 @@ import { Provider as ReduxProvider } from 'react-redux';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { describe, expect, it } from 'vitest';
 
-import { store as appStore } from '@/store';
 import { ApiClientProvider } from '@/shared/api/ApiClientContext';
 import { createApiClient } from '@/shared/api/client';
+import { store as appStore } from '@/store';
 
 import { AppShell } from './AppShell';
 

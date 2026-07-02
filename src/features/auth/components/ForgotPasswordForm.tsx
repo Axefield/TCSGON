@@ -72,7 +72,7 @@ export function ForgotPasswordForm({
       <div className={styles.successWrapper} role="status" aria-live="polite">
         <p className={styles.successTitle}>Check your email</p>
         <p className={styles.successMessage}>
-          If an account exists with this email, we've sent a password reset link.
+          If an account exists with this email, we&apos;ve sent a password reset link.
         </p>
         <Link to="/login" className={styles.backLink}>
           Back to sign in

@@ -11,12 +11,11 @@
  *  - `useChangePassword` is a one-shot mutation — no Redux state changes.
  */
 import { useMutation, useQuery } from '@tanstack/react-query';
-
 import type { UseMutationResult } from '@tanstack/react-query';
 
+import { authActions } from '@/features/auth/slice/authSlice';
 import { useApiClient } from '@/shared/api/ApiClientContext';
 import { ApiError } from '@/shared/api/errors';
-import { authActions } from '@/features/auth/slice/authSlice';
 import type {
   ChangePasswordInput,
   ChangePasswordResponse,

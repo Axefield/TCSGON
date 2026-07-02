@@ -20,11 +20,11 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import type { AuthState } from '@/features/auth/authState';
 import { authReducer } from '@/features/auth/slice/authSlice';
-import { uiReducer } from '@/store/slices/uiSlice';
 import { ApiClientProvider } from '@/shared/api/ApiClientContext';
 import { createApiClient } from '@/shared/api/client';
 import { buildFetchResponse } from '@/shared/test/mockFetch';
 import { asSessionId, asUserId } from '@/shared/types/brand';
+import { uiReducer } from '@/store/slices/uiSlice';
 
 import { SettingsPage } from './SettingsPage';
 

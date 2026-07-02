@@ -116,5 +116,6 @@ export async function updatePasswordHash(userId: string, passwordHash: string): 
  */
 export function sanitizeUser(user: User): Omit<User, 'passwordHash'> {
   const { passwordHash: _, ...safe } = user;
+  void _;
   return safe;
 }

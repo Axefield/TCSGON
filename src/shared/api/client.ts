@@ -30,7 +30,7 @@ export interface RequestConfig<TIn, TOut> {
   /** Schema used for runtime response validation. The type parameter only
    *  constrains the *output* shape; input type is widened to `any` so that
    *  schemas with `.transform()` (which change the type) are accepted. */
-  readonly schema?: z.ZodType<TOut, any, any>;
+  readonly schema?: z.ZodType<TOut, z.ZodTypeDef, unknown>;
   readonly timeoutMs?: number;
   /** When true, the client retries on `network`/`timeout`/5xx (per retry policy). */
   readonly retry?: boolean;

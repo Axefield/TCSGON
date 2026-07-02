@@ -22,11 +22,11 @@
  * ```
  */
 import { useCallback, useRef } from 'react';
-import { z } from 'zod';
+import { type z } from 'zod';
 
-import type { AuthState } from '@/features/auth/authState';
 import { useForgotPassword, useLogin, useLogout, useResetPassword, useSignup } from '@/features/auth/api/authApi';
 import type { UseForgotPasswordResult, UseLoginResult, UseLogoutResult, UseResetPasswordResult, UseSignupResult } from '@/features/auth/api/authApi';
+import type { AuthState } from '@/features/auth/authState';
 import {
   authActions,
   selectAuthError,

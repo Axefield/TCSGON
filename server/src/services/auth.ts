@@ -1,10 +1,10 @@
-import type { User, Session, PasswordResetToken } from '@prisma/client';
+import type { User } from '@prisma/client';
 import { prisma } from '../lib/prisma.js';
 import { generateToken, hashToken, expiryDate, comparePassword } from '../lib/crypto.js';
 import { AppError } from '../types/index.js';
 import * as userService from './user.js';
 import * as sessionService from './session.js';
-import type { CreateSessionResult } from './session.js';
+
 
 export interface SignupInput {
   name: string;

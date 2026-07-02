@@ -12,15 +12,15 @@
  *    query-level side-effect callbacks).
  */
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useEffect } from 'react';
-import { z } from 'zod';
-
 import type { UseMutationResult } from '@tanstack/react-query';
+import { useEffect } from 'react';
+import { type z } from 'zod';
 
+
+import { clearAuth, saveAuth } from '@/features/auth/slice/authPersistence';
+import { authActions } from '@/features/auth/slice/authSlice';
 import { useApiClient } from '@/shared/api/ApiClientContext';
 import { ApiError, apiErrorMessage } from '@/shared/api/errors';
-import { authActions } from '@/features/auth/slice/authSlice';
-import { clearAuth, saveAuth } from '@/features/auth/slice/authPersistence';
 import type {
   ForgotPasswordInput,
   ForgotPasswordResponse,
@@ -114,6 +114,7 @@ export function useLogin(): UseLoginResult {
         path: '/api/auth/login',
         body: input,
         schema: AuthResponseSchema,
+        skipAuth: true,
       });
       if (!result.ok) throw result.error;
       return result.data;
@@ -156,6 +157,7 @@ export function useSignup(): UseSignupResult {
         path: '/api/auth/signup',
         body: input,
         schema: AuthResponseSchema,
+        skipAuth: true,
       });
       if (!result.ok) throw result.error;
       return result.data;
@@ -201,7 +203,7 @@ export function useLogout(): UseLogoutResult {
         });
         if (!result.ok) {
           // Log but don't throw — local state is cleared regardless.
-          // eslint-disable-next-line no-console
+           
           console.warn('Logout API returned error:', result.error.message);
         }
       } catch {
@@ -236,6 +238,7 @@ export function useResetPassword(): UseResetPasswordResult {
         path: '/api/auth/reset-password',
         body: input,
         schema: AuthResponseSchema,
+        skipAuth: true,
       });
       if (!result.ok) throw result.error;
       return result.data;
@@ -273,6 +276,7 @@ export function useForgotPassword(): UseForgotPasswordResult {
         path: '/api/auth/forgot-password',
         body: input,
         schema: ForgotPasswordResponseSchema,
+        skipAuth: true,
       });
       if (!result.ok) throw result.error;
       return result.data;
