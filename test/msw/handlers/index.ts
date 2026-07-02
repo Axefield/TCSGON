@@ -12,13 +12,16 @@
 import { authHandlers } from './auth';
 import { dashboardHandlers } from './dashboard';
 import { projectHandlers } from './projects';
+import { userHandlers } from './user';
 
 export const handlers = [
   ...authHandlers,
   ...dashboardHandlers,
   ...projectHandlers,
+  ...userHandlers,
 ];
 
 export { authHandlers } from './auth';
 export { dashboardHandlers } from './dashboard';
 export { projectHandlers, resetProjectStore } from './projects';
+export { userHandlers, resetProfile } from './user';

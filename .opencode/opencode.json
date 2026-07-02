@@ -127,11 +127,8 @@
     },
     "postgres": {
       "type": "local",
-      "command": ["npx", "-y", "@modelcontextprotocol/server-postgres"],
-      "enabled": false,
-      "environment": {
-        "DATABASE_URI": "${env:DATABASE_URI}"
-      }
+      "command": ["npx", "-y", "@modelcontextprotocol/server-postgres", "postgresql://postgres:postgres@localhost:5242/tcsgon"],
+      "enabled": true
     }
   },
   "instructions": [

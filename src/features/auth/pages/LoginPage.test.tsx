@@ -4,6 +4,7 @@
  * @see docs/plans/phase-1-core-infrastructure.md §51, §57
  */
 import { configureStore } from '@reduxjs/toolkit';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
 import { type ReactElement } from 'react';
 import { Provider as ReduxProvider } from 'react-redux';
@@ -20,6 +21,10 @@ import { LoginPage } from './LoginPage';
 
 const testApiClient = createApiClient({ baseUrl: 'http://test.local' });
 
+const queryClient = new QueryClient({
+  defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+});
+
 function createAuthStore(auth: AuthState) {
   return configureStore({ reducer: { auth: authReducer }, preloadedState: { auth } });
 }
@@ -34,14 +39,16 @@ const authedStore = createAuthStore({
 function Wrapper({ store }: { store?: ReturnType<typeof createAuthStore> }): ReactElement {
   return (
     <ReduxProvider store={store ?? createAuthStore({ kind: 'anonymous' })}>
-      <ApiClientProvider client={testApiClient}>
-        <MemoryRouter initialEntries={['/login']}>
-          <Routes>
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/dashboard" element={<div>Dashboard</div>} />
-          </Routes>
-        </MemoryRouter>
-      </ApiClientProvider>
+      <QueryClientProvider client={queryClient}>
+        <ApiClientProvider client={testApiClient}>
+          <MemoryRouter initialEntries={['/login']}>
+            <Routes>
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/dashboard" element={<div>Dashboard</div>} />
+            </Routes>
+          </MemoryRouter>
+        </ApiClientProvider>
+      </QueryClientProvider>
     </ReduxProvider>
   );
 }

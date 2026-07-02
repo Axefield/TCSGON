@@ -17,7 +17,7 @@ export default defineConfig({
     setupFiles: ['./src/test-setup.ts'],
     css: true,
     include: ['src/**/*.{test,spec}.{ts,tsx}'],
-    exclude: ['node_modules', 'dist', 'e2e', '**/*.axe.test.ts'],
+    exclude: ['node_modules', 'dist', 'e2e', 'server', '**/*.axe.test.ts'],
     // AGENTS.md §3: coverage gates 80% lines / 75% branches / 80% functions.
     // Enforced from Phase 0; smoke test (App.test.tsx) must exercise every
     // provider so coverage is real, not stub-zero.

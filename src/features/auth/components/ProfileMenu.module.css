@@ -7,5 +7,6 @@
 .menuStart { left: 0; }
 .menuEnd { right: 0; }
 .emailItem { padding: 0.5rem 1rem; font-size: 0.75rem; color: var(--color-fg-muted, #64748b); }
+.separator { margin: 0.25rem 0.5rem; border: none; border-top: 1px solid var(--color-border, #e2e8f0); }
 .menuItem { width: 100%; padding: 0.5rem 1rem; border: none; background: transparent; cursor: pointer; text-align: left; font-size: var(--font-size-sm, 0.875rem); }
 .menuItem:focus-visible { outline: 2px solid var(--color-focus, #2563eb); outline-offset: 1px; }

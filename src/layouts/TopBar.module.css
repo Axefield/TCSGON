@@ -77,8 +77,12 @@
   outline-offset: 1px;
 }
 
-.userName {
+.signInLink {
   font-size: var(--font-size-sm, 0.875rem);
-  color: var(--color-fg-muted, #64748b);
+  color: var(--color-primary, #0b3d91);
+  text-decoration: none;
   white-space: nowrap;
+}
+.signInLink:hover {
+  text-decoration: underline;
 }

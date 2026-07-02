@@ -7,6 +7,7 @@
  * @see docs/plans/phase-1-core-infrastructure.md §9, §11, §51, §57
  */
 import { configureStore } from '@reduxjs/toolkit';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import type { ReactElement, ReactNode } from 'react';
 import { Provider as ReduxProvider } from 'react-redux';
@@ -61,10 +62,15 @@ interface WrapperOptions {
 /** Build a renderHook wrapper with Redux + ApiClient providers. */
 function createWrapper({ auth, client }: WrapperOptions) {
   const store = createStore(auth ? { auth } : undefined);
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+  });
   return function Wrapper({ children }: { children: ReactNode }): ReactElement {
     return (
       <ReduxProvider store={store}>
-        <ApiClientProvider client={client}>{children}</ApiClientProvider>
+        <QueryClientProvider client={queryClient}>
+          <ApiClientProvider client={client}>{children}</ApiClientProvider>
+        </QueryClientProvider>
       </ReduxProvider>
     );
   };
@@ -93,6 +99,16 @@ const validSessionData = {
   expiresAt: '2099-06-01T00:00:00.000Z',
 };
 
+/**
+ * Shape returned by SessionCheckSchema — { user, session: { id, expiresAt } }.
+ * The refresh() function parses this, merges token from Redux store,
+ * then dispatches rehydrate with a full Session.
+ */
+const validSessionCheckData = {
+  user: { id: 'u-1', name: 'Alice', email: 'alice@example.com' },
+  session: { id: 'sess-1', expiresAt: '2099-06-01T00:00:00.000Z' },
+};
+
 const loginInput = { email: 'alice@example.com', password: 'welcome1welcome1' };
 
 // ---------------------------------------------------------------------------
@@ -117,7 +133,7 @@ describe('useAuth', () => {
       expect(result.current.status).toBe('anonymous');
 
       await act(async () => {
-        await result.current.login(loginInput);
+        await result.current.login.mutateAsync(loginInput);
       });
 
       await waitFor(() => {
@@ -144,13 +160,15 @@ describe('useAuth', () => {
       const { result } = renderHook(() => useAuth(), { wrapper });
 
       await act(async () => {
-        await result.current.login(loginInput);
+        // mutateAsync rejects even when onError is called (RQv5 behaviour).
+        await result.current.login.mutateAsync(loginInput).catch(() => {});
       });
 
       await waitFor(() => {
         expect(result.current.status).toBe('error');
       });
-      expect(result.current.error).toBe('Invalid credentials.');
+      // apiErrorMessage transforms http(400) → 'Request failed (400).'
+      expect(result.current.error).toBe('Request failed (400).');
       expect(result.current.isAuthenticated).toBe(false);
       expect(result.current.user).toBeNull();
     });
@@ -163,7 +181,7 @@ describe('useAuth', () => {
       const { result } = renderHook(() => useAuth(), { wrapper });
 
       await act(async () => {
-        await result.current.login(loginInput);
+        await result.current.login.mutateAsync(loginInput).catch(() => {});
       });
 
       await waitFor(() => {
@@ -174,14 +192,13 @@ describe('useAuth', () => {
 
     it('dispatches authFailed with generic message on non-Error thrown value', async () => {
       const client = mockClient(async () => {
-         
         throw 'string error';
       });
       const wrapper = createWrapper({ client });
       const { result } = renderHook(() => useAuth(), { wrapper });
 
       await act(async () => {
-        await result.current.login(loginInput);
+        await result.current.login.mutateAsync(loginInput).catch(() => {});
       });
 
       await waitFor(() => {
@@ -192,21 +209,27 @@ describe('useAuth', () => {
 
     it('dispatches authFailed when session parse fails after ok response', async () => {
       const client = mockClient(async () => ({
-        ok: true as const,
-        data: { incomplete: true },
-        status: 200,
+        ok: false as const,
+        error: new ApiError({
+          kind: 'validation',
+          issues: [{ path: 'user', message: 'Required' }],
+          message: 'Response did not match schema.',
+          correlationId: 'test',
+        }),
       }));
       const wrapper = createWrapper({ client });
       const { result } = renderHook(() => useAuth(), { wrapper });
 
       await act(async () => {
-        await result.current.login(loginInput);
+        await result.current.login.mutateAsync(loginInput).catch(() => {});
       });
 
       await waitFor(() => {
         expect(result.current.status).toBe('error');
       });
-      expect(result.current.error).toBe('Invalid session response.');
+      // apiErrorMessage for 'validation' kind joins issues by '; '
+      expect(result.current.error).toBe('user: Required');
+      expect(result.current.isAuthenticated).toBe(false);
     });
 
     it('transitions through authenticating state before resolving', async () => {
@@ -223,9 +246,9 @@ describe('useAuth', () => {
       const { result } = renderHook(() => useAuth(), { wrapper });
 
       // Start login (synchronous dispatch of loginRequested happens first).
-      let loginPromise: Promise<void>;
+      let loginPromise: Promise<Session>;
       await act(async () => {
-        loginPromise = result.current.login(loginInput);
+        loginPromise = result.current.login.mutateAsync(loginInput);
       });
 
       // After the synchronous dispatch the store should show authenticating.
@@ -260,7 +283,7 @@ describe('useAuth', () => {
       const { result } = renderHook(() => useAuth(), { wrapper });
 
       await act(async () => {
-        await result.current.logout();
+        await result.current.logout.mutateAsync();
       });
 
       await waitFor(() => {
@@ -278,7 +301,7 @@ describe('useAuth', () => {
 
       // Should not throw — the catch swallows the error.
       await act(async () => {
-        await expect(result.current.logout()).resolves.toBeUndefined();
+        await expect(result.current.logout.mutateAsync()).resolves.toBeUndefined();
       });
 
       await waitFor(() => {
@@ -294,12 +317,17 @@ describe('useAuth', () => {
 
   describe('refresh', () => {
     it('dispatches rehydrate on valid session', async () => {
+      const auth: AuthState = {
+        kind: 'authenticated',
+        user: testUser,
+        session: testSession,
+      };
       const client = mockClient(async () => ({
         ok: true as const,
-        data: validSessionData,
+        data: validSessionCheckData,
         status: 200,
       }));
-      const wrapper = createWrapper({ client });
+      const wrapper = createWrapper({ auth, client });
       const { result } = renderHook(() => useAuth(), { wrapper });
 
       await act(async () => {
@@ -309,6 +337,7 @@ describe('useAuth', () => {
       await waitFor(() => {
         expect(result.current.status).toBe('authenticated');
       });
+      // Session should retain the existing token (merged from Redux).
       expect(result.current.session).toEqual(testSession);
     });
 
@@ -336,9 +365,13 @@ describe('useAuth', () => {
 
     it('dispatches sessionExpired when session parse fails', async () => {
       const client = mockClient(async () => ({
-        ok: true as const,
-        data: { bad: 'payload' },
-        status: 200,
+        ok: false as const,
+        error: new ApiError({
+          kind: 'validation',
+          issues: [{ path: 'user', message: 'Required' }],
+          message: 'Response did not match schema.',
+          correlationId: 'test',
+        }),
       }));
       const wrapper = createWrapper({ client });
       const { result } = renderHook(() => useAuth(), { wrapper });

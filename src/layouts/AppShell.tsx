@@ -5,10 +5,13 @@
  *
  * Semantic structure:
  *  <SkipLink />
+ *  <SessionCheck />
  *  <div class="shell">
  *    <aside>  ← Sidebar
  *    <div class="main-area">
- *      <header> ← TopBar
+ *      <TopBar>
+ *        <ProfileMenu />  ← inside TopBar
+ *      </TopBar>
  *      <main id="main-content" tabindex="-1"> ← child route content via Outlet
  *    </div>
  *    <ToastRegion />
@@ -29,23 +32,24 @@
 import { type ReactElement } from 'react';
 import { Outlet } from 'react-router-dom';
 
+import { SessionCheck } from '@/features/auth/components/SessionCheck';
 import { ToastRegion } from '@/shared/components/ToastRegion';
 
 import styles from './AppShell.module.css';
 import { SkipLink } from './SkipLink';
+import { TopBar } from './TopBar';
 
 export function AppShell(): ReactElement {
   return (
     <>
       <SkipLink targetId="main-content" />
+      <SessionCheck />
       <div className={styles.shell}>
         <aside className={styles.sidebar}>
           {/* Sidebar content wired via feature composition in Phase 2 */}
         </aside>
         <div className={styles.mainArea}>
-          <div className={styles.topBar}>
-            {/* TopBar content wired via feature composition in Phase 2 */}
-          </div>
+          <TopBar />
           <main id="main-content" tabIndex={-1} className={styles.content}>
             <Outlet />
           </main>

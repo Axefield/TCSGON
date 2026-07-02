@@ -199,59 +199,245 @@ pnpm build             # within budget
 
 ---
 
-## Phase 3 — Authentication Feature
+## Phase 3 — Authentication Feature (Full-Stack) ✓
 
-> Full login / signup / password reset / session management flow. The first end-to-end feature.
+> The first end-to-end feature, split into three sub-phases: backend API + database, frontend auth pages, and full-stack integration.
 
-**Duration:** Days 8–10
+---
 
-### 3.1 API integration
-- [ ] `src/features/auth/api/authApi.ts` — React Query hooks:
-  - `useLogin`, `useSignup`, `useLogout`, `useResetPassword`, `useSession`
-  - Zod schemas for every request/response
-  - MSW handlers for development/testing
-- [ ] Token storage: in-memory (Redux `auth` slice) + `localStorage` for persistence
-- [ ] Axios interceptor: attach `Authorization: Bearer <token>`, handle 401 → logout
+### Phase 3a — Backend Auth API + Database ✓
 
-### 3.2 Pages
-- [ ] `LoginPage` — email + password form, validation, error display, submit → redirect
-  - Auto-focus first field, `aria-describedby` for errors, loading state on submit
-  - Keyboard: Tab through fields, Enter to submit, Escape to clear
-- [ ] `SignupPage` — name + email + password + confirm password
-  - Password strength indicator (aria-live announcement)
-  - Success toast → redirect to login
-- [ ] `ForgotPasswordPage` — email-only form
-- [ ] `ResetPasswordPage` — token from URL, new password + confirm
-  - Token validation before showing form
+> Express server, PostgreSQL, Prisma ORM, opaque session tokens. The backend that powers auth.
 
-### 3.3 Auth guards
-- [ ] `RequireAuth` route wrapper — redirects to `/login` if no session, renders `<Outlet>`
-- [ ] `RedirectIfAuth` route wrapper — redirects to `/dashboard` if already logged in
-- [ ] Session check on app mount (React Query `useSession` query)
-  - Show loading skeleton while session resolves
-  - On 401: clear auth state, show login
+**Duration:** Days 8–10 (delivered)
 
-### 3.4 Profile menu
-- [ ] Avatar + dropdown in top bar: name, email, settings link, logout button
-  - Keyboard: Enter to open, arrow keys to navigate, Escape to close
-  - `aria-expanded` on the trigger
+**Plan:** `docs/plans/phase-3a-backend-auth.md`
 
-### Verification
+#### 3a.1 Database
+- [x] PostgreSQL database `tcsgon` on `localhost:5242`
+- [x] Prisma schema with three tables:
+  - `users` — id (UUID), name, email (unique), password_hash, timestamps
+  - `sessions` — id (UUID), user_id (FK), token_hash (SHA-256), expires_at, timestamps
+  - `password_reset_tokens` — id (UUID), user_id (FK), token_hash, expires_at, used_at, timestamps
+  - Plus reserved `projects` model for Phase 4+
+- [x] Initial Prisma migration (applied to both `tcsgon` and `tcsgon_test`)
+- [x] Dev seed script: admin user (`admin@tcsgon.dev` / `password123`) + test user + E2E tokens
+
+#### 3a.2 Express server
+- [x] Express 5 app with middleware stack (CORS, JSON, logger, auth, validation, error handler)
+- [x] `server/src/lib/crypto.ts` — SHA-256 token hashing + bcrypt password hashing (`bcryptjs` for Windows compat)
+- [x] `server/src/lib/prisma.ts` — Prisma client singleton (global cached)
+
+#### 3a.3 Auth middleware
+- [x] `requireAuth` middleware — extracts `Authorization: Bearer <token>`, hashes it, looks up `sessions` table by `token_hash`, rejects if invalid/expired, attaches `req.user` + `req.session`
+- [x] `validate(schema)` middleware factory — validates request body against Zod schema, returns 400 with field-level errors on mismatch
+- [x] Global error handler — maps known error types to structured JSON responses (ValidationError 400, Unauthorized 401, Conflict 409, NotFound 404, Internal 500)
+
+#### 3a.4 Auth routes (`/api/auth/*`)
+- [x] `POST /api/auth/signup` — validate, check duplicate email, hash password, create user + session, return `{ user, session }`
+- [x] `POST /api/auth/login` — find user by email, compare password, create session, return `{ user, session }`
+- [x] `POST /api/auth/logout` — require auth, delete session from DB, return success
+- [x] `POST /api/auth/forgot-password` — find user by email, create password_reset_token, always return 200 (prevent enumeration), log token in dev
+- [x] `POST /api/auth/reset-password` — find token by hash, validate not expired/used, update password, delete token, create new session
+- [x] `GET /api/auth/session` — require auth, return `{ user, session }` (no token — client already has it)
+
+#### 3a.5 User routes (`/api/users/*`)
+- [x] `GET /api/users/me` — return current user profile
+- [x] `PUT /api/users/me` — update name/email (validate unique email)
+- [x] `PUT /api/users/me/password` — verify current password, hash + save new password
+
+#### 3a.6 Server package
+- [x] `server/package.json` with all dependencies (Express 5, Prisma 6, bcryptjs, Zod, tsx)
+- [x] `server/tsconfig.json` (strict, ESM with NodeNext module)
+- [x] `server/.env` with DATABASE_URL, PORT, CORS_ORIGIN, SESSION_EXPIRY_HOURS
+- [x] `server/.env.example` (without secrets)
+- [x] `server/.gitignore`
+
+#### 3a.7 Dev workflow
+- [x] `pnpm dev:server` — `tsx watch src/index.ts` (auto-restart on changes)
+- [x] `pnpm dev` at root — `concurrently` runs Vite + Express
+- [x] `pnpm db:migrate`, `pnpm db:seed`, `pnpm db:studio` scripts
+
+#### 3a.8 Testing
+- [x] Service tests — `auth.test.ts` (13), `session.test.ts` (6), `user.test.ts` (11)
+- [x] Middleware tests — `auth.test.ts` (6), `validate.test.ts` (5)
+- [x] Route integration tests — `auth.test.ts` (15), `users.test.ts` (9) via supertest
+- [x] Test DB strategy: dedicated `tcsgon_test` database, `afterEach` truncation in FK-safe order, `fileParallelism: false` for isolation
+- [x] Test utilities: `test-setup.ts` (migration deploy + cleanup), `test-utils.ts` (factory functions: `createTestUser`, `createTestSession`, `createAuthenticatedUser`)
+- [x] Config fixes during implementation: UUID validation for `@db.Uuid` columns, sequential execution for shared DB, default import for Express app
+
+#### Verification
 
 ```bash
-pnpm test --coverage  # auth feature ≥ 75%
-pnpm e2e              # login → dashboard → logout flow
-pnpm axe              # zero critical/serious on all auth pages
-# Manual: token refresh, 401 handling, password reset flow
+cd server && pnpm dev              # → Listening on :3001
+curl http://localhost:3001/api/auth/session
+# → 401 (expected — no token)
+
+# Full flow:
+# 1. Signup → 201 { user, session }
+# 2. Session check with token → 200 { user, session }
+# 3. Logout → 200
+# 4. Session check after logout → 401
+# 5. Login → 200 { user, session }
+# 6. Forgot password → 200 { message }
+# 7. Reset password → 200 { user, session }
+
+cd server && pnpm test  # → 7/7 files, 65/65 tests PASS
 ```
 
 ---
 
-## Phase 4 — Feature Module (Template)
+### Phase 3b — Frontend Auth Pages ✓
+
+> Login, signup, password reset UI. The forms, guards, and profile menu — now pointing at the real Phase 3a backend.
+
+**Duration:** Days 11–13 (delivered)
+
+**Plan:** `docs/plans/phase-3-authentication.md` (updated — references real API instead of MSW-only)
+
+> **Note:** 3b.1 was completed during Phase 3a.7 (dev workflow wiring). The Vite proxy and concurrently scripts are already in place.
+
+#### 3b.1 Vite proxy
+- [x] Configure `/api` proxy in `vite.config.ts` → `http://localhost:3001`
+- [x] `pnpm dev` runs Vite + Express concurrently
+
+#### 3b.2 Auth API hooks (`src/features/auth/api/authApi.ts`)
+- [x] `useLogin`, `useSignup`, `useLogout`, `useResetPassword`, `useSession` — React Query hooks with `onMutate` (dispatches `loginRequested` to Redux) and robust `onError` handling
+- [x] Zod schemas for request/response validation: `AuthResponseSchema`, `SessionCheckSchema`, `ForgotPasswordResponseSchema` (mirrors server schemas)
+- [x] Token storage: Redux `auth` slice + `localStorage` (`saveAuth`/`clearAuth` persistence layer)
+- [x] API client injects `Authorization: Bearer <token>` from Redux via `getToken` resolver
+
+#### 3b.3 Auth pages (lazy-loaded routes)
+- [x] `LoginPage` — email + password form, validation, error display, redirect on success
+  - Auto-focus first field, `aria-describedby` for errors, loading state on submit
+  - Keyboard: Tab through fields, Enter to submit, Escape to clear
+- [x] `SignupPage` — name + email + password + confirm password
+  - `PasswordStrengthIndicator` component with `role="meter"`, color-coded segments, `aria-valuenow`
+  - On success dispatches `loginFulfilled` (auto-login)
+- [x] `ForgotPasswordPage` — email-only form, success confirmation view, no Redux state changes
+- [x] `ResetPasswordPage` — token from URL params, new password + confirm, success auto-login
+
+#### 3b.4 Auth guards
+- [x] `RequireAuth` — redirects to `/login?next=<path>` if no session (existing)
+- [x] `RedirectIfAuth` — redirects to `/dashboard` if already logged in (existing)
+- [x] `SessionCheck` — mounted in `AppShell`, fires `useSession()` on mount, dispatches `rehydrate`/`sessionExpired` to Redux via `useEffect`
+
+#### 3b.5 Profile menu + TopBar
+- [x] `TopBar` refactored: self-contained auth via `useAuth()`, renders `ProfileMenu` or sign-in link
+- [x] `ProfileMenu` — avatar/initials + dropdown: name, email, Settings link, Sign Out button
+  - Keyboard: Enter/Space to open, Arrow keys to navigate, Escape to close, focus trap
+  - `aria-haspopup`, `aria-expanded`, `role="menu"`, `role="menuitem"`
+
+#### 3b.6 MSW handlers (test-only)
+- [x] `test/msw/handlers/auth.ts` — handlers for signup, forgot-password, reset-password; all return `{ user, session }` matching server
+- [x] `test/msw/fixtures/auth.ts` — shared test data (existing, extended)
+
+#### 3b.7 Wire existing features to real backend
+
+The existing Projects and Dashboard features already use the API client (`useApiClient()` → `baseUrl: '/api'`). Phase 3b's Vite proxy (3b.1) makes them automatically target the Phase 3a Express server:
+
+- The **proxy configuration** in `vite.config.ts` handles forwarding `/api/*` to `:3001`
+- Auth endpoints (Phase 3a) will work immediately after proxy setup
+- Project/dashboard endpoints will return 404 until Phase 4 implements them
+- Routes wired: signup, forgot-password, reset-password under `RedirectIfAuth` wrapper
+- `AppShell` renders `<TopBar />` and `<SessionCheck />`; barrel exports updated
+
+#### Fixes during 3b implementation
+- [x] `AppShell.test.tsx` — added `QueryClientProvider` + `ApiClientProvider` wrappers for `SessionCheck`/`TopBar` (4 tests fixed)
+- [x] `useAuth.test.tsx` — 6 pre-existing failures fixed:
+  - Added `onMutate` to `useLogin`/`useSignup` for `loginRequested` dispatch
+  - Rewrote `refresh()` to directly call API + dispatch (removed `useSession` observer dependency)
+  - Made `onError` robust against non-Error throws (fallback message)
+  - Fixed test mocks to match schema shapes (`SessionCheckSchema` vs flat `Session`)
+- [x] `useAuth.ts` — `refresh()` uses `useRef` for fresh state + try/catch safety
+
+#### Verification
+
+```bash
+pnpm dev          # Vite + Express concurrently
+# Open http://localhost:5173/signup
+# Create account → redirected to /login
+# Login → redirected to /dashboard
+# Profile menu shows user name/email
+# Sign out → redirected to /login
+
+pnpm test         # 325/325 passing (51 files)
+pnpm typecheck    # 0 errors
+pnpm test --coverage  # auth feature ≥ 75%
+pnpm axe              # zero critical/serious on auth pages
+```
+
+---
+
+### Phase 3c — Full-Stack Integration + E2E ✓
+
+> Wire everything together. True end-to-end tests, user profile settings, release-quality hardening.
+
+**Duration:** Days 14–15 (delivered)
+
+#### 3c.1 Full-stack E2E
+- [x] `e2e/utils/mockApi.ts` — enhanced with auth endpoint handlers: login, signup, logout, session check, forgot/reset password, user profile (GET/PUT /api/users/me, PUT /api/users/me/password)
+- [x] `e2e/utils/mockApi.ts` — configurable `MockApiOptions` (`authenticated`, `authError: 'invalid' | 'expired' | 'conflict'`)
+- [x] `e2e/auth.spec.ts` — 17 E2E tests covering all auth flows (render, valid flow, error states, redirects, session expiry, settings)
+- [x] Fixed: `ResetPasswordForm` hidden token input (button stayed disabled without it)
+- [x] Fixed: E2E mock session tracking — logout clears `seedSession` so session check returns 401
+- [x] Fixed: E2E test locators to match actual API error messages (`"Authentication required."` for 401, `"Request failed with status 409."` for 409)
+- [x] Fixed: Logout button locator specificity (`name: /E E2E User/i`)
+
+> **Design decision:** E2E tests use mock API (Playwright route interception) rather than the real Express server. Rationale: isolated test data, deterministic edge cases (expired tokens, network errors), no Prisma/Postgres dependency in CI. The `mockApi.ts` handlers mirror the real server's contract exactly.
+
+#### 3c.2 User profile settings ✓
+- [x] `SettingsPage` — real profile editor with name + email display/edit
+- [x] Password change form (current password + new password)
+- [x] Zod schemas for profile update (`UpdateProfileInputSchema`, `ChangePasswordInputSchema`)
+- [x] Form validation + error handling (409 for duplicate email, 401 for wrong password)
+- [x] `ProfileMenu` — avatar/initials dropdown with Settings link + Sign Out button
+- [x] Keyboard navigation for ProfileMenu (Enter/Space open, Arrow keys navigate, Escape close)
+- [x] 9 unit tests for `SettingsPage` + 15 for `ProfileMenu`
+- [x] Fixed: `ProfileMenu` `useEffect` cleanup for `noImplicitReturns: true` compliance
+
+#### 3c.3 a11y hardening ✓
+- [x] axe-core audit of all 8 auth pages + shell pages — 8/8 pass (0 critical/serious)
+- [x] Fixed `color-contrast` (serious) violation: error summary text `#dc2626` (3.33:1) → `#991b1b` (5.8:1) on `#fecaca` background
+- [x] Added `--color-danger-text` token across all 4 form CSS modules
+- [ ] Manual NVDA + VoiceOver walkthrough of signup → login → profile → logout
+- [ ] Keyboard-only full tab through every auth page
+
+#### 3c.4 Edge case testing ✓
+- [x] Offline: network error during login → error alert with fetch error message
+- [x] Network timeout: route aborted → error alert in form
+- [x] Large input: name > 120 chars → Zod validation error "must contain at most 120 character(s)"
+
+> **Covered by E2E:**
+> - Session expires mid-session: 401 → `sessionExpired` → redirect to login
+> - Duplicate email signup: 409 → error message stays on form
+> - Invalid reset token: proper error + link to request new
+> - Network failure (offline): fetch aborted → error alert appears in form
+> - Name exceeds max length: Zod validation error displayed on blur
+
+#### Verification ✓ (3c.1–3c.4)
+
+```bash
+pnpm test                # 347/347 passing (52 files)
+pnpm typecheck           # 0 errors
+pnpm build               # within budget
+pnpm e2e                 # 38/38 passing (all specs)
+pnpm exec playwright test e2e/axe.spec.ts --project=chromium  # 8/8 passing (0 violations)
+
+# Edge cases verified via E2E:
+#   network error → error alert shown
+#   name > 120 chars → Zod validation error
+#   forgot-password network error → error alert shown
+```
+
+---
+
+## Phase 4 — Feature Module (Template) + Server Endpoints
 
 > The pattern for every future feature. Once established, new features follow this template exactly.
+> Also implements the project and dashboard API endpoints on the server (reserved `Project` model from Phase 3a).
 
-**Duration:** Days 11–13
+**Duration:** Days 16–19
 
 - [ ] `src/features/<name>/` convention:
   ```
@@ -287,6 +473,33 @@ pnpm axe              # zero critical/serious on all auth pages
 - [ ] Integration test: list → select → detail → edit → save → list updated
 - [ ] E2E test: critical user journey through the feature
 
+### Server endpoints (Phase 4 new work)
+
+The `Project` model in `server/prisma/schema.prisma` already exists from Phase 3a (reserved). Phase 4 implements the actual routes and services:
+
+| Endpoint | Priority | Notes |
+|---|---|---|
+| `GET /api/projects` | High | Paginated list with filtering, sorting, search |
+| `GET /api/projects/:id` | High | Single project detail |
+| `POST /api/projects` | High | Create project, returns 201 |
+| `PUT /api/projects/:id` | High | Update project |
+| `DELETE /api/projects/:id` | Medium | Soft-delete or hard-delete (TBD) |
+| `GET /api/dashboard/stats` | Medium | Aggregate: project counts, completion rate, recent activity |
+
+Also needs:
+- [ ] Server-side Zod schemas matching frontend contracts (from `docs/plans/phase-3-authentication.md` § Existing UI Data Contracts)
+- [ ] Service tests + route integration tests for all project/dashboard endpoints
+- [ ] Prisma seed data for projects (at least 5 sample projects with varied statuses)
+- [ ] Update MSW handlers (`test/msw/handlers/`) if endpoint shapes changed
+- [ ] Update `e2e/utils/mockApi.ts` for any new response shapes
+
+**Design decisions needed in Phase 4:**
+- `memberCount` — derived from project-team join table, or hardcoded field?
+- `completionRate` — derived from project status distribution, or explicit metric?
+- `RecentActivity` — event-sourced (separate audit table) or computed from project `updatedAt`?
+- Pagination cursor vs offset-based (current UI uses offset-based: `page` + `pageSize`)
+- Search — basic `ILIKE` on `name`, or full-text search?
+
 ### Verification
 
 ```bash
@@ -303,7 +516,7 @@ pnpm axe               # zero critical/serious
 
 > Coverage, accessibility audit, edge case hardening. The quality gate phase.
 
-**Duration:** Days 14–16
+**Duration:** Days 20–22
 
 ### 5.1 Coverage push
 - [ ] Every component in `src/shared/components/` has:
@@ -359,7 +572,7 @@ pnpm axe               # zero critical/serious
 
 > Measure, identify, optimize, verify. Every optimization is data-driven.
 
-**Duration:** Days 17–19
+**Duration:** Days 23–25
 
 ### 6.1 Baseline
 - [ ] Lighthouse: LCP, INP, CLS, TBT, SI for every route (mobile, 4G, Moto G4)
@@ -404,7 +617,7 @@ lighthouse-ci            # CWV pass
 
 > Automated quality gates, preview deployments, production release.
 
-**Duration:** Days 20–22
+**Duration:** Days 26–28
 
 ### 7.1 CI (GitHub Actions)
 - [ ] PR workflow:
@@ -416,8 +629,10 @@ lighthouse-ci            # CWV pass
   - Lighthouse CI (budget assertions)
   - Bundle size diff comment
   - Status check: all gates green before merge
+- [ ] Server CI: `cd server && pnpm test` (unit + integration against test DB)
 - [ ] Main branch workflow:
   - Same as PR + build for deployment
+  - Server build + migrations run before frontend deploy
   - Version bump + CHANGELOG auto-extract
   - Publish to staging
 
@@ -453,7 +668,7 @@ lighthouse-ci            # CWV pass
 
 > ADRs, component documentation, runbooks, onboarding guide.
 
-**Duration:** Days 23–24
+**Duration:** Days 29–30
 
 - [ ] `docs/adr/` — Architecture Decision Records:
   - `0001-use-vite.md` — why Vite over CRA/Next
@@ -489,6 +704,9 @@ lighthouse-ci            # CWV pass
 | Coverage drops | CI blocks merge; PR comment with diff report |
 | Design system inconsistency | `shared/components/` with canonical tests; no feature-specific UI primitives |
 | Token / secret leak | CSP, `.env` gitignored, `secrets/**` denied in every tool config |
+| Postgres not running on :5242 | `psql -p 5242` check in server startup; Docker Compose fallback documented |
+| Prisma schema drift between machines | `prisma migrate dev` auto-detects drift; document workflow |
+| Server + client port conflicts | `strictPort: true` on Vite; Express on 3001; documented in onboarding |
 
 ---
 

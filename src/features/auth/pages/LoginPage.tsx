@@ -31,7 +31,7 @@ export function LoginPage(): ReactElement {
 
   const handleSubmit = useCallback(
     async (input: LoginInput) => {
-      await login(input);
+      await login.mutateAsync(input);
       navigate(defaultNext, { replace: true });
     },
     [login, navigate, defaultNext],

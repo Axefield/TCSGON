@@ -27,6 +27,10 @@ if (!rootElement) {
 
 const apiClient = createApiClient({
   baseUrl: '/api',
+  getToken: () => {
+    const state = store.getState();
+    return state.auth.kind === 'authenticated' ? state.auth.session.token : null;
+  },
 });
 
 createRoot(rootElement).render(

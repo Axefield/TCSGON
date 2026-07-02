@@ -1,9 +1,10 @@
 /**
- * authSlice — Phase 1.
+ * authSlice — Phase 1 + Phase 3 (setSession action).
  *
  * @see docs/plans/phase-1-core-infrastructure.md §21
+ * @see docs/plans/phase-3-authentication.md
  */
-import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
+import { createAction, createSlice, type PayloadAction } from '@reduxjs/toolkit';
 
 import { authInitialState, type AuthState } from '@/features/auth/authState';
 import type { Session, User } from '@/shared/types/user';
@@ -12,6 +13,15 @@ export interface AuthFailurePayload {
   readonly message: string;
   readonly user: User | null;
 }
+
+/**
+ * `setSession` — dispatched by React Query `useSession()` on successful
+ * background refetch. Semantically identical to `rehydrate` but signals
+ * a server-initiated update rather than a localStorage hydration.
+ *
+ * @see docs/plans/phase-3-authentication.md
+ */
+export const setSession = createAction<Session>('auth/setSession');
 
 export const authSlice = createSlice({
   name: 'auth',
@@ -55,6 +65,25 @@ export const authSlice = createSlice({
       const next: AuthState = { kind: 'anonymous' };
       Object.assign(state, next);
     },
+    /** Update the profile (name/email) without changing session/token. */
+    updateProfile(state, action: PayloadAction<{ user: User }>) {
+      if (state.kind === 'authenticated') {
+        // Direct mutation inside the narrowed authenticated branch is safe
+        // under Immer — the union is narrowed by the `kind` check.
+        state.user = action.payload.user;
+        state.session.user = action.payload.user;
+      }
+    },
+  },
+  extraReducers: (builder) => {
+    builder.addCase(setSession, (state, action) => {
+      const next: AuthState = {
+        kind: 'authenticated',
+        user: action.payload.user,
+        session: action.payload,
+      };
+      Object.assign(state, next);
+    });
   },
 });
 
