@@ -3,6 +3,8 @@ import cors from 'cors';
 import { config } from './config.js';
 import authRoutes from './routes/auth.js';
 import userRoutes from './routes/users.js';
+import projectRoutes from './routes/projects.js';
+import dashboardRoutes from './routes/dashboard.js';
 import { errorHandler } from './middleware/error.js';
 
 const app = express();
@@ -31,6 +33,8 @@ if (!config.isProduction) {
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/projects', projectRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 
 // Health check
 app.get('/api/health', (_req, res) => {

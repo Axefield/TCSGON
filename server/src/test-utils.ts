@@ -1,7 +1,7 @@
 import { prisma } from './lib/prisma.js';
 import { hashToken, generateToken, expiryDate } from './lib/crypto.js';
 import { hashPassword } from './lib/crypto.js';
-import type { User, Session } from '@prisma/client';
+import type { User, Session, Project } from '@prisma/client';
 
 /**
  * Create a test user in the database.
@@ -43,6 +43,26 @@ export async function createTestSession(
   });
 
   return { session, token };
+}
+
+/**
+ * Create a test project in the database.
+ * Returns the created project.
+ */
+export async function createTestProject(
+  overrides: Partial<Project> = {},
+): Promise<Project> {
+  return prisma.project.create({
+    data: {
+      id: generateToken(),
+      name: 'Test Project',
+      description: 'A test project for testing',
+      status: 'active',
+      leadName: 'Test Lead',
+      memberCount: 0,
+      ...overrides,
+    },
+  });
 }
 
 /**

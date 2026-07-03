@@ -77,7 +77,7 @@ export function useProfileQuery(): UseProfileResult {
     queryFn: async ({ signal }): Promise<Profile> => {
       const result = await apiClient.request<void, Profile>({
         method: 'GET',
-        path: '/api/users/me',
+        path: '/users/me',
         schema: ProfileResponseSchema,
         signal,
       });
@@ -116,7 +116,7 @@ export function useUpdateProfile(): UseUpdateProfileResult {
     mutationFn: async (input: UpdateProfileInput): Promise<User> => {
       const result = await apiClient.request<UpdateProfileInput, User>({
         method: 'PUT',
-        path: '/api/users/me',
+        path: '/users/me',
         body: input,
         schema: ProfileResponseSchema.pick({ id: true, name: true, email: true }),
       });
@@ -148,7 +148,7 @@ export function useChangePassword(): UseChangePasswordResult {
     mutationFn: async (input: ChangePasswordInput): Promise<ChangePasswordResponse> => {
       const result = await apiClient.request<ChangePasswordInput, ChangePasswordResponse>({
         method: 'PUT',
-        path: '/api/users/me/password',
+        path: '/users/me/password',
         body: input,
         schema: ChangePasswordResponseSchema,
       });

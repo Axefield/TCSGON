@@ -64,11 +64,32 @@ async function main(): Promise<void> {
     },
   });
 
+  // Create sample projects (delete first for idempotency)
+  await prisma.activityLog.deleteMany();
+  await prisma.project.deleteMany();
+
+  const projectData = [
+    { name: 'Website Redesign', description: 'Complete overhaul of the company website with modern design.', status: 'active', leadName: 'Admin User', memberCount: 5 },
+    { name: 'Mobile App v2', description: 'Version 2 of the mobile application with offline support.', status: 'active', leadName: 'Test User', memberCount: 8 },
+    { name: 'Legacy Migration', description: 'Migrate legacy monolith to microservices architecture.', status: 'completed', leadName: 'Admin User', memberCount: 3 },
+    { name: 'Security Audit Q3', description: 'Quarterly security audit and penetration testing.', status: 'paused', leadName: 'Test User', memberCount: 2 },
+  ];
+
+  for (const data of projectData) {
+    await prisma.project.create({
+      data: {
+        id: uuid(),
+        ...data,
+      },
+    });
+  }
+
   console.log('Seed data created:');
   console.log(`  Admin: admin@tcsgon.dev / password123`);
   console.log(`  Admin E2E token: ${token}`);
   console.log(`  Test user: testuser@example.com / Password123!`);
   console.log(`  Test user E2E token: ${userToken}`);
+  console.log(`  4 sample projects created.`);
 }
 
 main()

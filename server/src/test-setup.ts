@@ -21,6 +21,8 @@ beforeAll(async () => {
 
 afterEach(async () => {
   // Clean all tables between tests (in reverse FK order)
+  await prisma.activityLog.deleteMany();
+  await prisma.project.deleteMany();
   await prisma.passwordResetToken.deleteMany();
   await prisma.session.deleteMany();
   await prisma.user.deleteMany();
