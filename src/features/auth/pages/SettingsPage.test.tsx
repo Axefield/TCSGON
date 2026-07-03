@@ -71,6 +71,19 @@ const PROFILE_RESPONSE = {
   id: 'user-001',
   email: 'admin@tcsgon.dev',
   name: 'Admin User',
+  avatarUrl: null,
+  createdAt: '2026-01-01T00:00:00.000Z',
+  updatedAt: '2026-06-01T00:00:00.000Z',
+};
+
+const NOTIFICATION_PREFS_RESPONSE = {
+  id: 'np-1',
+  userId: 'user-001',
+  emailNotifications: true,
+  pushNotifications: true,
+  inAppNotifications: true,
+  dailyDigest: true,
+  marketingEmails: false,
   createdAt: '2026-01-01T00:00:00.000Z',
   updatedAt: '2026-06-01T00:00:00.000Z',
 };
@@ -165,6 +178,7 @@ describe('SettingsPage', () => {
     const fetchSpy = vi.spyOn(globalThis, 'fetch');
     fetchSpy
       .mockResolvedValueOnce(buildFetchResponse(PROFILE_RESPONSE))
+      .mockResolvedValueOnce(buildFetchResponse(NOTIFICATION_PREFS_RESPONSE))
       .mockResolvedValueOnce(buildFetchResponse(PROFILE_RESPONSE));
 
     const user = userEvent.setup();
@@ -190,6 +204,7 @@ describe('SettingsPage', () => {
     const fetchSpy = vi.spyOn(globalThis, 'fetch');
     fetchSpy
       .mockResolvedValueOnce(buildFetchResponse(PROFILE_RESPONSE))
+      .mockResolvedValueOnce(buildFetchResponse(NOTIFICATION_PREFS_RESPONSE))
       .mockResolvedValueOnce(
         buildFetchResponse({ message: 'Password changed successfully.' }),
       );
@@ -216,6 +231,7 @@ describe('SettingsPage', () => {
     const fetchSpy = vi.spyOn(globalThis, 'fetch');
     fetchSpy
       .mockResolvedValueOnce(buildFetchResponse(PROFILE_RESPONSE))
+      .mockResolvedValueOnce(buildFetchResponse(NOTIFICATION_PREFS_RESPONSE))
       .mockResolvedValueOnce(
         buildFetchResponse(
           { error: { code: 'UNAUTHORIZED', message: 'Current password is incorrect.' } },
@@ -260,5 +276,130 @@ describe('SettingsPage', () => {
     expect(
       await screen.findByText(/at least 8 characters/i),
     ).toBeInTheDocument();
+  });
+
+  // ── Phase 5: Avatar URL field ──────────────────────────────────
+
+  it('renders avatar URL input field', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      buildFetchResponse(PROFILE_RESPONSE),
+    );
+    render(<Wrapper />);
+
+    expect(
+      await screen.findByLabelText(/avatar url/i),
+    ).toBeInTheDocument();
+  });
+
+  it('shows avatar initials fallback when no avatar URL', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      buildFetchResponse(PROFILE_RESPONSE),
+    );
+    render(<Wrapper />);
+
+    // Profile name is "Admin User" → initial "A"
+    expect(await screen.findByText('A')).toBeInTheDocument();
+  });
+
+  it('shows avatar error state when image fails to load', async () => {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch');
+    fetchSpy
+      .mockResolvedValueOnce(
+        buildFetchResponse({
+          ...PROFILE_RESPONSE,
+          avatarUrl: 'https://example.com/broken.jpg',
+        }),
+      )
+      .mockResolvedValueOnce(buildFetchResponse(NOTIFICATION_PREFS_RESPONSE));
+
+    render(<Wrapper />);
+
+    // Wait for avatar URL field to appear
+    await screen.findByLabelText(/avatar url/i);
+
+    // Avatar preview image should be rendered (alt="" → presentation role, query by src)
+    const img = document.querySelector('img[src="https://example.com/broken.jpg"]');
+    expect(img).toBeInTheDocument();
+    expect(img).toHaveAttribute('src', 'https://example.com/broken.jpg');
+
+    // Trigger onError — should hide the image
+    img!.dispatchEvent(new Event('error'));
+    expect(img).toHaveStyle('display: none');
+  });
+
+  // ── Phase 5: Notification preferences ──────────────────────────
+
+  it('shows notification preferences loading spinner', async () => {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch');
+    fetchSpy
+      .mockResolvedValueOnce(buildFetchResponse(PROFILE_RESPONSE))
+      .mockReturnValueOnce(
+        new Promise<Response>(() => {
+          /* never resolve — keep notif prefs query loading */
+        }),
+      );
+
+    render(<Wrapper />);
+
+    expect(
+      await screen.findByRole('status', { name: /loading notification preferences/i }),
+    ).toBeInTheDocument();
+  });
+
+  it('shows notification preferences error state', async () => {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch');
+    fetchSpy
+      .mockResolvedValueOnce(buildFetchResponse(PROFILE_RESPONSE))
+      .mockRejectedValueOnce(new Error('Failed to fetch preferences'));
+
+    render(<Wrapper />);
+
+    expect(
+      await screen.findByText(/failed to load notification preferences/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /retry/i }),
+    ).toBeInTheDocument();
+  });
+
+  it('renders and toggles notification preference switches', async () => {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch');
+    fetchSpy
+      .mockResolvedValueOnce(buildFetchResponse(PROFILE_RESPONSE))
+      .mockResolvedValueOnce(buildFetchResponse(NOTIFICATION_PREFS_RESPONSE));
+
+    render(<Wrapper />);
+
+    // Wait for notification section to render
+    expect(
+      await screen.findByRole('heading', { name: /^notifications$/i }),
+    ).toBeInTheDocument();
+
+    // All 5 toggles should be visible with their labels
+    const emailToggle = screen.getByRole('switch', { name: /email notifications/i });
+    const pushToggle = screen.getByRole('switch', { name: /push notifications/i });
+    const inAppToggle = screen.getByRole('switch', { name: /in-app notifications/i });
+    const digestToggle = screen.getByRole('switch', { name: /daily digest/i });
+    const marketingToggle = screen.getByRole('switch', { name: /marketing emails/i });
+
+    expect(emailToggle).toBeChecked();
+    expect(pushToggle).toBeChecked();
+    expect(inAppToggle).toBeChecked();
+    expect(digestToggle).toBeChecked();
+    expect(marketingToggle).not.toBeChecked();
+
+    // Each toggle should have aria-describedby pointing to its description
+    expect(emailToggle).toHaveAttribute('aria-describedby', 'notif-email-desc');
+    expect(pushToggle).toHaveAttribute('aria-describedby', 'notif-push-desc');
+    expect(inAppToggle).toHaveAttribute('aria-describedby', 'notif-inapp-desc');
+    expect(digestToggle).toHaveAttribute('aria-describedby', 'notif-digest-desc');
+    expect(marketingToggle).toHaveAttribute('aria-describedby', 'notif-marketing-desc');
+
+    // Description elements should exist
+    expect(screen.getByText('Receive notifications via email')).toBeInTheDocument();
+    expect(screen.getByText('Receive push notifications in your browser')).toBeInTheDocument();
+    expect(screen.getByText('Show notifications within the application')).toBeInTheDocument();
+    expect(screen.getByText('Receive a daily summary of activity')).toBeInTheDocument();
+    expect(screen.getByText('Receive product updates and promotional content')).toBeInTheDocument();
   });
 });

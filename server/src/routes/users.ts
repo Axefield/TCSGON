@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { requireAuth } from '../middleware/auth.js';
 import { validate } from '../middleware/validate.js';
 import * as userService from '../services/user.js';
+import * as notificationService from '../services/notification.js';
 import type { AuthenticatedRequest } from '../types/index.js';
 
 const router = Router();
@@ -12,6 +13,7 @@ const router = Router();
 const UpdateProfileBodySchema = z.object({
   name: z.string().min(1, 'Name is required.').max(120).optional(),
   email: z.string().email('Valid email is required.').optional(),
+  avatarUrl: z.string().url('Must be a valid URL.').max(500).optional().nullable(),
 });
 
 const ChangePasswordBodySchema = z.object({
@@ -19,7 +21,15 @@ const ChangePasswordBodySchema = z.object({
   newPassword: z.string().min(8, 'New password must be at least 8 characters.').max(200),
 });
 
-// ─── Routes ─────────────────────────────────────────────────────
+const UpdateNotificationBodySchema = z.object({
+  emailNotifications: z.boolean().optional(),
+  pushNotifications: z.boolean().optional(),
+  inAppNotifications: z.boolean().optional(),
+  dailyDigest: z.boolean().optional(),
+  marketingEmails: z.boolean().optional(),
+});
+
+// ─── User profile routes ────────────────────────────────────────
 
 /**
  * GET /api/users/me
@@ -32,7 +42,7 @@ router.get('/me', requireAuth, (req: AuthenticatedRequest, res) => {
 
 /**
  * PUT /api/users/me
- * Update the current user's name and/or email.
+ * Update the current user's name, email, and/or avatar URL.
  */
 router.put('/me', requireAuth, validate(UpdateProfileBodySchema), async (req: AuthenticatedRequest, res, next) => {
   try {
@@ -52,6 +62,34 @@ router.put('/me/password', requireAuth, validate(ChangePasswordBodySchema), asyn
   try {
     await userService.changePassword(req.user.id, req.body.currentPassword, req.body.newPassword);
     res.json({ message: 'Password changed successfully.' });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// ─── Notification preferences routes ────────────────────────────
+
+/**
+ * GET /api/users/me/notification-preferences
+ * Return the current user's notification preferences.
+ */
+router.get('/me/notification-preferences', requireAuth, async (req: AuthenticatedRequest, res, next) => {
+  try {
+    const prefs = await notificationService.getNotificationPreferences(req.user.id);
+    res.json(prefs);
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
+ * PUT /api/users/me/notification-preferences
+ * Update the current user's notification preferences.
+ */
+router.put('/me/notification-preferences', requireAuth, validate(UpdateNotificationBodySchema), async (req: AuthenticatedRequest, res, next) => {
+  try {
+    const prefs = await notificationService.updateNotificationPreferences(req.user.id, req.body);
+    res.json(prefs);
   } catch (err) {
     next(err);
   }

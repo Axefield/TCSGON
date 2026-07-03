@@ -6,21 +6,30 @@ import { fileURLToPath } from 'node:url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 /**
- * Global test setup:
- * - Ensures test DB has latest migrations
- * - Cleans all tables before each test suite
+ * Sync the test database schema to the current Prisma schema.
+ *
+ * Uses `prisma db push` instead of `prisma migrate deploy` because:
+ *  - It ignores `_prisma_migrations` table, so it cannot fail on P3009
+ *    (stale failed migration from interrupted test runs)
+ *  - It is faster — only pushes changes, never creates migration files
+ *  - The test DB has no migrations history we care about; we only need
+ *    the schema to match the Prisma client at that point in time
  */
-beforeAll(async () => {
-  // Ensure migrations are applied to test database
-  execSync('npx prisma migrate deploy', {
+function syncTestDatabase(): void {
+  execSync('npx prisma db push --skip-generate', {
     cwd: path.resolve(__dirname, '..'),
     env: { ...process.env, DATABASE_URL: process.env.DATABASE_URL! },
     stdio: 'pipe',
   });
+}
+
+beforeAll(() => {
+  syncTestDatabase();
 });
 
 afterEach(async () => {
   // Clean all tables between tests (in reverse FK order)
+  await prisma.notificationPreference.deleteMany();
   await prisma.activityLog.deleteMany();
   await prisma.project.deleteMany();
   await prisma.passwordResetToken.deleteMany();

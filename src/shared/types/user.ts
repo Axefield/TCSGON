@@ -14,6 +14,7 @@ export const UserSchema = z.object({
   id: z.string().min(1).transform(asUserId),
   name: z.string().min(1).max(120),
   email: z.string().email(),
+  avatarUrl: z.string().url().nullable().optional(),
 });
 export type User = z.infer<typeof UserSchema>;
 
@@ -127,7 +128,7 @@ export const SessionCheckSchema = z.object({
 });
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// Profile / User Settings (Phase 3c.2)
+// Profile / User Settings (Phase 3c.2 + Phase 5)
 // ═══════════════════════════════════════════════════════════════════════════════
 
 /**
@@ -139,6 +140,7 @@ export const ProfileResponseSchema = z.object({
   id: z.string().min(1).transform(asUserId),
   name: z.string().min(1).max(120),
   email: z.string().email(),
+  avatarUrl: z.string().url().nullable(),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
 });
@@ -151,6 +153,7 @@ export type Profile = z.infer<typeof ProfileResponseSchema>;
 export const UpdateProfileInputSchema = z.object({
   name: z.string().min(1, 'Name is required.').max(120).optional(),
   email: z.string().email('Valid email is required.').optional(),
+  avatarUrl: z.string().url('Must be a valid URL.').max(500).nullable().optional(),
 });
 export type UpdateProfileInput = z.infer<typeof UpdateProfileInputSchema>;
 
@@ -173,3 +176,37 @@ export const ChangePasswordResponseSchema = z.object({
   message: z.string(),
 });
 export type ChangePasswordResponse = z.infer<typeof ChangePasswordResponseSchema>;
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// Notification Preferences (Phase 5)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+/**
+ * Notification preferences response/input schema.
+ * All boolean fields default to the server-side defaults on creation.
+ */
+export const NotificationPreferencesSchema = z.object({
+  id: z.string().min(1),
+  userId: z.string().min(1).transform(asUserId),
+  emailNotifications: z.boolean(),
+  pushNotifications: z.boolean(),
+  inAppNotifications: z.boolean(),
+  dailyDigest: z.boolean(),
+  marketingEmails: z.boolean(),
+  createdAt: z.string().datetime(),
+  updatedAt: z.string().datetime(),
+});
+export type NotificationPreferences = z.infer<typeof NotificationPreferencesSchema>;
+
+/**
+ * Input for PUT /api/users/me/notification-preferences.
+ * All fields are optional — only provided fields will be updated.
+ */
+export const UpdateNotificationPreferencesInputSchema = z.object({
+  emailNotifications: z.boolean().optional(),
+  pushNotifications: z.boolean().optional(),
+  inAppNotifications: z.boolean().optional(),
+  dailyDigest: z.boolean().optional(),
+  marketingEmails: z.boolean().optional(),
+});
+export type UpdateNotificationPreferencesInput = z.infer<typeof UpdateNotificationPreferencesInputSchema>;

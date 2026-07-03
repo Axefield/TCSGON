@@ -9,7 +9,7 @@
  *   <AppShell>                              ← layout route (includes SessionCheck)
  *     <RequireAuth>                         ← auth guard
  *       /dashboard  → DashboardPage (lazy)
- *       /settings   → SettingsPageStub (lazy)
+ *       /settings   → SettingsPage (lazy)
  *     </RequireAuth>
  *     <RedirectIfAuth>                      ← redirects authed users away
  *       /login           → LoginPage (lazy)

@@ -512,13 +512,70 @@ pnpm axe               # zero critical/serious
 
 ---
 
-## Phase 5 — Testing & A11y Hardening
+## Phase 5 — Settings Feature ✅
 
-> Coverage, accessibility audit, edge case hardening. The quality gate phase.
+> Profile settings (name, email, avatar), password change, notification preferences.
+> All 16 code review findings remediated. See `docs/plans/phase-5-settings.md` for full plan and review findings.
 
 **Duration:** Days 20–22
 
-### 5.1 Coverage push
+### 5.1 Profile Settings ✅
+- [x] Profile form: name, email, avatar URL editing
+- [x] Avatar preview with image load + initials fallback
+- [x] `UpdateProfileInputSchema` extended with `avatarUrl`
+- [x] `useUpdateProfile` mutation dispatches to Redux for immediate `useAuth()` consumption
+- [x] Zod validation (name 1–120 chars, email format, URL or null for avatar)
+- [x] Fixed: `e.currentTarget instanceof HTMLImageElement` instead of unsafe `as HTMLImageElement` cast
+- [x] Fixed: avatar `onError` uses React `useState<boolean>` + conditional render, not DOM manipulation
+- [x] Fixed: `defaultValues` removed from `useForm` (ignored when `values` supplied); `values` wrapped in `useMemo`
+
+### 5.2 Password Change ✅ (from Phase 3c)
+- [x] Current password + new password fields
+- [x] `ChangePasswordInputSchema` validation
+- [x] One-shot mutation, no side effects beyond toast
+
+### 5.3 Notification Preferences ✅
+- [x] 5 toggle switches: email, push, in-app, daily digest, marketing
+- [x] Individual toggle mutations with toast feedback
+- [x] `NotificationPreferencesSchema` + `UpdateNotificationPreferencesInputSchema`
+- [x] Server: `NotificationPreference` Prisma model with auto-create defaults
+- [x] Seed data for existing users
+- [x] Fixed: branded `userId` as `UserId` type via `.transform(asUserId)`
+- [x] Fixed: `aria-describedby` on all 5 toggles (previously only 1 had it; broken reference fixed)
+- [x] Fixed: controlled `checked` instead of `defaultChecked` (prevents UI desync)
+- [x] Fixed: single parameterized `handleNotificationChange` handler (consolidated 5 nearly identical `useCallback`s)
+- [x] Added: error state for notification preferences section (`ErrorDisplay` component)
+- [x] Added: 5 new tests (avatar URL, initials fallback, image error, loading, error, toggle a11y)
+- [x] Fixed: Renamed Prisma relation `notificationPref` → `notificationPreferences` + regenerated migration
+
+### Remediation summary
+
+| Severity | Items | Status |
+|----------|-------|--------|
+| 🔴 Blocking | B1–B6 (a11y, type safety, state bugs) | ✅ All fixed |
+| 🟡 Moderate | M1–M4 (dead code, unsafe casts, DOM manipulation, duplicate calls) | ✅ All fixed |
+| 💡 Polish | S1–S6 (consolidation, error states, tests, naming) | ✅ All fixed |
+
+### Verification
+
+```bash
+pnpm test                # 401/401 client tests passing (59 files)
+cd server && pnpm test   # 104/104 server tests passing (11 files)
+pnpm typecheck           # zero errors
+pnpm lint                # zero errors
+pnpm build               # within budget
+pnpm axe                 # zero critical/serious
+```
+
+---
+
+## Phase 6 — Testing & A11y Hardening
+
+> Coverage, accessibility audit, edge case hardening. The quality gate phase.
+
+**Duration:** Days 23–25
+
+### 6.1 Coverage push
 - [ ] Every component in `src/shared/components/` has:
   - Render test (mounts without error)
   - Interaction test (click, type, focus)
@@ -532,7 +589,7 @@ pnpm axe               # zero critical/serious
   - Integration test (critical path through the page)
   - Error boundary test (simulated render error)
 
-### 5.2 Accessibility audit
+### 6.2 Accessibility audit
 - [ ] Automated: entire app audited via axe-core (CI gate)
 - [ ] Manual: NVDA + Firefox walkthrough of every route
 - [ ] Manual: VoiceOver + Safari walkthrough of every route
@@ -548,7 +605,7 @@ pnpm axe               # zero critical/serious
   - `prefers-reduced-motion` disables all non-essential animations
   - Zoom to 200%: no content cutoff
 
-### 5.3 Edge case registry
+### 6.3 Edge case registry
 - [ ] `docs/edge-cases.md` — documented per-feature:
   - Empty states (no data, filtered to zero)
   - Error states (network, timeout, 500, validation)
@@ -568,18 +625,18 @@ pnpm axe               # zero critical/serious
 
 ---
 
-## Phase 6 — Performance Optimization
+## Phase 7 — Performance Optimization
 
 > Measure, identify, optimize, verify. Every optimization is data-driven.
 
-**Duration:** Days 23–25
+**Duration:** Days 26–28
 
-### 6.1 Baseline
+### 7.1 Baseline
 - [ ] Lighthouse: LCP, INP, CLS, TBT, SI for every route (mobile, 4G, Moto G4)
 - [ ] Bundle analysis: `vite build` + visualizer, identify top contributors
 - [ ] DevTools Performance: record 3 interactions per route, identify long tasks
 
-### 6.2 Optimization rounds
+### 7.2 Optimization rounds
 
 | Priority | Technique | Acceptance criteria |
 |---|---|---|
@@ -591,14 +648,14 @@ pnpm axe               # zero critical/serious
 | 6 | Deferred scripts | Third-party scripts loaded after interactive |
 | 7 | Font optimization | Subset fonts, self-host, `font-display: swap` |
 
-### 6.3 Targets
+### 7.3 Targets
 - **LCP:** < 2.5s (mobile, 4G, Moto G4)
 - **INP:** < 200ms p75
 - **CLS:** < 0.1
 - **Bundle per route:** < 200 kB warn / 350 kB error (gzip)
 - **Total JS (initial):** < 300 kB (gzip)
 
-### 6.4 Monitoring
+### 7.4 Monitoring
 - [ ] Lighthouse CI in GitHub Actions (fail on regression)
 - [ ] Bundle size tracking per PR (warn on +5%, fail on +10%)
 - [ ] `docs/perf/<date>-baseline.md` — recorded for historical comparison
@@ -613,13 +670,13 @@ lighthouse-ci            # CWV pass
 
 ---
 
-## Phase 7 — CI/CD & Deployment Pipeline
+## Phase 8 — CI/CD & Deployment Pipeline
 
 > Automated quality gates, preview deployments, production release.
 
-**Duration:** Days 26–28
+**Duration:** Days 29–31
 
-### 7.1 CI (GitHub Actions)
+### 8.1 CI (GitHub Actions)
 - [ ] PR workflow:
   - `lint` + `typecheck` (parallel)
   - `test --coverage` (upload coverage report)
@@ -636,13 +693,13 @@ lighthouse-ci            # CWV pass
   - Version bump + CHANGELOG auto-extract
   - Publish to staging
 
-### 7.2 CD
+### 8.2 CD
 - [ ] Vercel / Netlify / Cloudflare Pages deployment
   - Preview deployment per PR (comment with URL)
   - Production deployment on merge to main
   - Staged rollouts (optional)
 
-### 7.3 Quality gates (enforced)
+### 8.3 Quality gates (enforced)
 
 | Gate | Threshold | Action |
 |---|---|---|
@@ -664,11 +721,11 @@ lighthouse-ci            # CWV pass
 
 ---
 
-## Phase 8 — Documentation & Knowledge Base
+## Phase 9 — Documentation & Knowledge Base
 
 > ADRs, component documentation, runbooks, onboarding guide.
 
-**Duration:** Days 29–30
+**Duration:** Days 32–34
 
 - [ ] `docs/adr/` — Architecture Decision Records:
   - `0001-use-vite.md` — why Vite over CRA/Next
@@ -694,7 +751,7 @@ lighthouse-ci            # CWV pass
 
 ---
 
-## 9. Risks & Mitigations
+## 10. Risks & Mitigations
 
 | Risk | Mitigation |
 |---|---|
@@ -710,7 +767,7 @@ lighthouse-ci            # CWV pass
 
 ---
 
-## 10. Definition of Done (per phase)
+## 11. Definition of Done (per phase)
 
 - [ ] `pnpm lint` — zero errors
 - [ ] `pnpm typecheck` — zero errors
@@ -725,7 +782,7 @@ lighthouse-ci            # CWV pass
 
 ---
 
-## 11. Verification Commands
+## 12. Verification Commands
 
 ```bash
 pnpm lint             # ESLint flat config
