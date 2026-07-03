@@ -84,12 +84,42 @@ async function main(): Promise<void> {
     });
   }
 
+  // Create default notification preferences for seeded users
+  await prisma.notificationPreference.upsert({
+    where: { userId: admin.id },
+    update: {},
+    create: {
+      id: uuid(),
+      userId: admin.id,
+      emailNotifications: true,
+      pushNotifications: true,
+      inAppNotifications: true,
+      dailyDigest: false,
+      marketingEmails: false,
+    },
+  });
+
+  await prisma.notificationPreference.upsert({
+    where: { userId: testUser.id },
+    update: {},
+    create: {
+      id: uuid(),
+      userId: testUser.id,
+      emailNotifications: true,
+      pushNotifications: true,
+      inAppNotifications: true,
+      dailyDigest: false,
+      marketingEmails: false,
+    },
+  });
+
   console.log('Seed data created:');
   console.log(`  Admin: admin@tcsgon.dev / password123`);
   console.log(`  Admin E2E token: ${token}`);
   console.log(`  Test user: testuser@example.com / Password123!`);
   console.log(`  Test user E2E token: ${userToken}`);
   console.log(`  4 sample projects created.`);
+  console.log(`  Notification preferences created for both users.`);
 }
 
 main()

@@ -11,13 +11,15 @@ model User {
   id           String   @id @default(uuid()) @db.Uuid
   name         String   @db.VarChar(120)
   email        String   @unique @db.VarChar(255)
+  avatarUrl    String?  @map("avatar_url") @db.VarChar(500)
   passwordHash String   @map("password_hash") @db.VarChar(255)
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
 
-  sessions           Session[]
+  sessions            Session[]
   passwordResetTokens PasswordResetToken[]
-  activityLogs       ActivityLog[]
+  activityLogs        ActivityLog[]
+  notificationPreferences NotificationPreference?
 
   @@map("users")
 }
@@ -65,6 +67,22 @@ model ActivityLog {
   @@map("activity_logs")
   @@index([projectId])
   @@index([createdAt])
+}
+
+model NotificationPreference {
+  id                  String   @id @default(uuid()) @db.Uuid
+  userId              String   @unique @map("user_id") @db.Uuid
+  emailNotifications  Boolean  @default(true) @map("email_notifications")
+  pushNotifications   Boolean  @default(true) @map("push_notifications")
+  inAppNotifications  Boolean  @default(true) @map("in_app_notifications")
+  dailyDigest         Boolean  @default(false) @map("daily_digest")
+  marketingEmails     Boolean  @default(false) @map("marketing_emails")
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notification_preferences")
 }
 
 model Project {

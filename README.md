@@ -36,7 +36,7 @@ pnpm axe             # a11y-only spec via @axe-core/playwright
 pnpm clean           # remove dist/, coverage/, playwright-report/, test-results/
 ```
 
-> **Current status (all completed phases):** every gate passes. Coverage: 94.5% lines / 84.35% branches / 81.31% functions (gates: 80%/75%/80%). **395 tests across 59 test files**. Auth feature: 100% all metrics. No `any`, no `@ts-ignore`, no `eslint-disable` without justification. See [`docs/plans/phase-1-core-infrastructure.md`](./docs/plans/phase-1-core-infrastructure.md) and [`roadmap.md`](./roadmap.md) for full plans + verification logs.
+> **Current status (all completed phases):** every gate passes. Coverage: 94.5% lines / 84.35% branches / 81.31% functions (gates: 80%/75%/80%). **401 client tests across 59 files + 104 server tests across 11 files**. Auth feature: 100% all metrics. No `any`, no `@ts-ignore`, no `eslint-disable` without justification. See [`docs/plans/phase-1-core-infrastructure.md`](./docs/plans/phase-1-core-infrastructure.md) and [`roadmap.md`](./roadmap.md) for full plans + verification logs.
 
 ---
 
@@ -144,12 +144,30 @@ See [`docs/plans/phase-3-authentication.md`](./docs/plans/phase-3-authentication
 
 ---
 
-### Phase 5 — Settings Feature 🔄
+### Phase 5 — Settings Feature ✅
 
-- [ ] Profile settings (name, email, avatar)
-- [ ] Password change (current + new + confirm)
-- [ ] Theme preference persistence (already in `uiSlice`)
-- [ ] Notification preferences
+> All review findings remediated. See `docs/plans/phase-5-settings.md`.
+
+- [x] Profile settings (name, email, avatar) with avatar preview + initials fallback
+- [x] Password change (current + new + confirm)
+- [x] Notification preferences — 5 toggle switches with individual mutations
+- [ ] Theme preference persistence (already in `uiSlice`) — _not yet started_
+
+**Code review remediations (16/16 complete):**
+- [x] B1 — Brand `userId` as `UserId` type
+- [x] B2/B3 — `aria-describedby` on all 5 notification toggles
+- [x] B4 — Error summary contrast (4.42:1 → 5.8:1)
+- [x] B5 — Unchecked toggle contrast (1.48:1 → 4.8:1)
+- [x] B6 — Controlled `checked` (no more `defaultChecked`)
+- [x] M1 — Removed dead `defaultValues`, added `useMemo`
+- [x] M2 — Safe `instanceof` narrowing for image error handlers
+- [x] M3 — Avatar `onError` uses React state, not DOM manipulation
+- [x] M4/S1 — Single parameterized toggle handler, removed double refetch
+- [x] S2 — Removed redundant re-exports
+- [x] S3 — Error state for notification preferences section
+- [x] S4 — Fixed stale JSDoc
+- [x] S5 — Added 5 new tests (avatar URL, avatar error, notification toggles)
+- [x] S6 — Renamed Prisma relation `notificationPref` → `notificationPreferences`
 
 ---
 
@@ -348,7 +366,7 @@ TCSgon/
 │   │           ├── LoginPage.tsx / LoginPage.test.tsx
 │   │           ├── DashboardPage.tsx / DashboardPage.test.tsx
 │   │           ├── NotFoundPage.tsx / NotFoundPage.test.tsx
-│   │           ├── SettingsPageStub.tsx / SettingsPageStub.test.tsx
+│   │           ├── SettingsPage.tsx / SettingsPage.test.tsx
 │   │           └── index.ts
 │   ├── shared/                   # Shared infrastructure
 │   │   ├── api/                  # API client, Context, errors, schemas, queryClient

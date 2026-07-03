@@ -56,6 +56,7 @@ export function ProfileMenu({
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [focusIndex, setFocusIndex] = useState(SETTINGS_INDEX);
+  const [imgError, setImgError] = useState(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLUListElement>(null);
   const itemRefs = useRef<(HTMLButtonElement | null)[]>([]);
@@ -179,7 +180,18 @@ export function ProfileMenu({
         className={styles.trigger}
       >
         <span className={styles.avatar}>
-          {user.name.charAt(0).toUpperCase()}
+          {user.avatarUrl && !imgError ? (
+            <img
+              key={user.avatarUrl}
+              src={user.avatarUrl}
+              alt=""
+              className={styles.avatarImage}
+              onError={() => { setImgError(true); }}
+            />
+          ) : null}
+          <span className={styles.avatarInitials}>
+            {user.name.charAt(0).toUpperCase()}
+          </span>
         </span>
         <span className={styles.name}>{user.name}</span>
       </button>

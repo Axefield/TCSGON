@@ -12,6 +12,7 @@ export interface CreateUserInput {
 export interface UpdateUserInput {
   name?: string;
   email?: string;
+  avatarUrl?: string;
 }
 
 /**
@@ -70,6 +71,7 @@ export async function updateUser(
     data: {
       ...(input.name !== undefined ? { name: input.name } : {}),
       ...(input.email !== undefined ? { email: input.email } : {}),
+      ...(input.avatarUrl !== undefined ? { avatarUrl: input.avatarUrl } : {}),
     },
   });
 }

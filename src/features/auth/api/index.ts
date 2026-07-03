@@ -12,5 +12,5 @@ export type {
   UseForgotPasswordResult,
   UseSessionResult,
 } from './authApi';
-export { userKeys, useProfileQuery, useUpdateProfile, useChangePassword } from './userApi';
-export type { UseProfileResult, UseUpdateProfileResult, UseChangePasswordResult } from './userApi';
+export { userKeys, useProfileQuery, useUpdateProfile, useChangePassword, useNotificationPreferences, useUpdateNotificationPreferences } from './userApi';
+export type { UseProfileResult, UseUpdateProfileResult, UseChangePasswordResult, UseNotificationPreferencesResult, UseUpdateNotificationPreferencesResult } from './userApi';
