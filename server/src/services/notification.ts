@@ -6,7 +6,6 @@
 import type { NotificationPreference } from '@prisma/client';
 import { prisma } from '../lib/prisma.js';
 import { v4 as uuid } from 'uuid';
-import { AppError } from '../types/index.js';
 
 export interface UpdateNotificationInput {
   emailNotifications?: boolean;

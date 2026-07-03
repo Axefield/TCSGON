@@ -386,7 +386,7 @@ export function SettingsPage(): ReactElement {
       <div className={styles.section}>
         <h2 className={styles.sectionTitle}>Notifications</h2>
         <p className={styles.sectionDescription}>
-          Choose which notifications you'd like to receive.
+          Choose which notifications you would like to receive.
         </p>
 
         {notifPrefsLoading ? (
@@ -395,6 +395,7 @@ export function SettingsPage(): ReactElement {
           <ErrorDisplay error={notifPrefsError} onRetry={() => void refetchNotifPrefs()} title="Failed to load notification preferences" />
         ) : notifPrefs ? (
           <div className={styles.toggleGroup}>
+            {/* eslint-disable jsx-a11y/label-has-associated-control -- label wraps input; text is in nested span */}
             <label className={styles.toggleRow}>
               <span className={styles.toggleLabel}>
                 <span className={styles.toggleLabelText}>Email notifications</span>
@@ -484,6 +485,7 @@ export function SettingsPage(): ReactElement {
                 aria-describedby="notif-marketing-desc"
               />
             </label>
+            {/* eslint-enable jsx-a11y/label-has-associated-control */}
           </div>
         ) : null}
       </div>
