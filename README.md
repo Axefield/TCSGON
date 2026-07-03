@@ -36,11 +36,17 @@ pnpm axe             # a11y-only spec via @axe-core/playwright
 pnpm clean           # remove dist/, coverage/, playwright-report/, test-results/
 ```
 
-> **Phase 1 status:** every gate above passes. Coverage: 97.86% lines / 87.33% branches (gates: 80%/75%). 250 tests across 35 test files. No `any`, no `@ts-ignore`, no `eslint-disable` without justification. See [`docs/plans/phase-1-core-infrastructure.md`](./docs/plans/phase-1-core-infrastructure.md) for the full plan + verification log.
+> **Current status (all completed phases):** every gate passes. Coverage: 94.5% lines / 84.35% branches / 81.31% functions (gates: 80%/75%/80%). **395 tests across 59 test files**. Auth feature: 100% all metrics. No `any`, no `@ts-ignore`, no `eslint-disable` without justification. See [`docs/plans/phase-1-core-infrastructure.md`](./docs/plans/phase-1-core-infrastructure.md) and [`roadmap.md`](./roadmap.md) for full plans + verification logs.
 
 ---
 
 ## Milestones
+
+### Phase 0 — Project Scaffold ✅
+
+Complete. Repo skeleton with strict TypeScript, Vite, ESLint, Vitest, Playwright, all CI gates passing.
+
+---
 
 ### Phase 1 — Core Infrastructure ✅ (merged)
 
@@ -56,10 +62,120 @@ Authentication, routing, API layer, state management, and shared UI components.
 | **Hooks** | `useTheme` (system preference + localStorage sync, no-flash), `usePrefersReducedMotion` (`useLayoutEffect` + `matchMedia`), `useToast` |
 | **Types** | Branded IDs (`SessionId`, `UserId`), `ApiError` with 6-variant discriminated payload, Zod `SessionSchema` |
 | **Accessibility** | WCAG 2.2 AA: semantic HTML, focus management on route errors, `aria-live` regions, skip link, reduced-motion support, color contrast ≥ 3:1 |
-| **Testing** | 250 tests across 35 files, 97.86% lines / 87.33% branches / 90.43% functions, MSW-free integration tests, React Testing Library behavioral assertions |
+| **Testing** | 250+ tests across 35+ files, 97.86% lines / 87.33% branches / 90.43% functions, MSW-free integration tests, React Testing Library behavioral assertions |
 | **Docs** | ADR 0001: token persistence strategy, remediation plan for code review, full coverage suite |
 
 See [`docs/plans/phase-1-core-infrastructure.md`](./docs/plans/phase-1-core-infrastructure.md) for the full plan and [`docs/adr/0001-token-persistence-strategy.md`](./docs/adr/0001-token-persistence-strategy.md) for architecture decisions.
+
+---
+
+### Phase 2 — Design System Primitives ✅ (partial — core shell components)
+
+Reusable, accessible, typed UI primitives used by the shell and auth features. Each ships with RTL tests and axe audit.
+
+| Component | Status | Notes |
+|-----------|--------|-------|
+| `Spinner` | ✅ | SVG animation, `aria-label`, respects `prefers-reduced-motion` |
+| `Skeleton` | ✅ | Shimmer placeholder, light/dark tokens |
+| `Toast` / `ToastRegion` | ✅ | Dual live-region pattern (polite/assertive), stacked, auto-dismiss, pause on hover, `prefers-reduced-motion` |
+| `SkipLink` | ✅ | First focusable element, visible on focus |
+| `Sidebar` | ✅ | Collapsible, keyboard nav, `aria-expanded`, focus trap on mobile |
+| `TopBar` | ✅ | Self-contained auth via `useAuth()`, renders `ProfileMenu` or sign-in link |
+| `AppShell` | ✅ | Responsive shell (sidebar + top bar + main), integrates `SessionCheck` |
+| `AuthLayout` | ✅ | Consistent heading + subheading for auth pages |
+| **Button, Input, Select, Modal, Drawer, Tooltip, Table, Tabs, Pagination, Avatar, Badge, Tabs** | 🔄 Planned | See [`roadmap.md`](./roadmap.md#phase-2---design-system) for full component list |
+
+---
+
+### Phase 3 — Authentication Feature (Full-Stack) ✅
+
+Complete end-to-end authentication: backend API + database, frontend pages, full-stack integration, E2E tests, and hardening.
+
+#### 3a — Backend Auth API + Database ✅ (Express + Prisma + PostgreSQL)
+
+| Area | Delivered |
+|------|-----------|
+| **Database** | PostgreSQL on `:5242`, Prisma schema: `users`, `sessions`, `password_reset_tokens` (plus reserved `projects` model) |
+| **Crypto** | SHA-256 token hashing, bcrypt password hashing (`bcryptjs` for Windows compat) |
+| **Auth middleware** | `requireAuth` (Bearer token → session lookup), `validate(schema)` (Zod body validation), global error handler (structured JSON) |
+| **Auth routes** | `POST /signup`, `POST /login`, `POST /logout`, `POST /forgot-password`, `POST /reset-password`, `GET /session` |
+| **User routes** | `GET /users/me`, `PUT /users/me`, `PUT /users/me/password` |
+| **Testing** | 65 tests across 7 files (service, middleware, route integration), dedicated `tcsgon_test` DB, sequential execution, factory utilities |
+
+#### 3b — Frontend Auth Pages ✅ (React + Redux + React Query)
+
+| Page / Feature | Delivered |
+|----------------|-----------|
+| **LoginPage** | Email + password, validation, error display, redirect on success, auto-focus, loading state |
+| **SignupPage** | Name + email + password + confirm, `PasswordStrengthIndicator` (`role="meter"`), auto-login on success |
+| **ForgotPasswordPage** | Email-only form, success confirmation view (no Redux state changes) |
+| **ResetPasswordPage** | Token from URL params, new password + confirm, success auto-login |
+| **ProfileMenu** | Avatar/initials dropdown: name, email, Settings link, Sign Out; full keyboard support, ARIA menu pattern |
+| **Auth guards** | `RequireAuth` (redirects to login), `RedirectIfAuth` (redirects to dashboard), `SessionCheck` (rehydrates on mount) |
+| **API hooks** | `useLogin`, `useSignup`, `useLogout`, `useResetPassword`, `useSession` — React Query + Redux dispatch on success/error |
+
+#### 3c — Full-Stack Integration + E2E + Hardening ✅
+
+| Area | Delivered |
+|------|-----------|
+| **E2E tests** | 20 auth tests (login, signup, logout, session, forgot/reset password, error flows, edge cases) |
+| **Mock API** | `mockApi.ts` with configurable `MockApiOptions` (`authenticated`, `authError`, `authNetworkError`) |
+| **A11y audits** | 8 axe-core tests (dashboard, login, signup, forgot, reset valid/missing token, settings) — zero violations |
+| **Coverage** | Auth feature: **100% lines / 100% branches / 100% functions** (48 new unit tests for previously uncovered components/pages) |
+| **Critical bug fix** | `getToken` resolver wired in `main.tsx` — Authorization header now sent on all authenticated requests |
+| **Lint** | Zero errors, zero warnings (25 fixed across client + server) |
+| **Bundle** | All route bundles within 200/350 kB gzip budget |
+
+See [`docs/plans/phase-3-authentication.md`](./docs/plans/phase-3-authentication.md) for the full plan.
+
+---
+
+### Phase 4 — Projects Feature (Dashboard + CRUD) 🔄 (partially delivered)
+
+| Area | Status |
+|------|--------|
+| **DashboardPage** | ✅ Stat cards, recent activity list, skeleton loading, error retry |
+| **ProjectListPage** | ✅ Table with sort, pagination, filter, empty state, create CTA |
+| **ProjectDetailPage** | ✅ Full project view with edit navigation |
+| **ProjectCreatePage** | ✅ Form with validation, creates project, navigates to detail |
+| **ProjectEditPage** | ✅ Loads current values, saves changes |
+| **API hooks** | ✅ `useProjects`, `useProject`, `useCreateProject`, `useUpdateProject` (React Query + Zod) |
+| **Backend endpoints** | 🔄 Not yet implemented — frontend currently hits 404s (Phase 3a reserved `projects` model) |
+
+---
+
+### Phase 5 — Settings Feature 🔄
+
+- [ ] Profile settings (name, email, avatar)
+- [ ] Password change (current + new + confirm)
+- [ ] Theme preference persistence (already in `uiSlice`)
+- [ ] Notification preferences
+
+---
+
+### Phase 6 — Design System Completion 📋
+
+Complete the remaining components from Phase 2: `Button`, `Input`, `Select`, `Checkbox`/`Radio`, `Modal`, `Drawer`, `Tooltip`, `Table`, `Tabs`, `Pagination`, `EmptyState`, `ErrorBoundary`, plus Storybook stories for all.
+
+---
+
+### Phase 7 — Performance & Production Hardening 📋
+
+- [ ] Route-level code splitting audit + bundle analysis
+- [ ] Lighthouse CI integration (LCP < 2.5s, INP < 200ms, CLS < 0.1)
+- [ ] Service worker + offline strategy
+- [ ] CSP tuning + security headers
+- [ ] Production deploy pipeline (Docker, health checks, rollback)
+
+---
+
+### Phase 8 — Documentation & Knowledge Base 📋
+
+- [ ] ADRs for all architectural decisions (state, routing, TS strict, design system)
+- [ ] Feature author conventions (`src/features/__README__.md`)
+- [ ] Design system usage guide (`src/shared/components/__README__.md`)
+- [ ] Runbook (`docs/runbook.md`), onboarding guide (`docs/onboarding.md`)
+- [ ] JSDoc on every exported symbol, CHANGELOG per release
 
 ---
 
