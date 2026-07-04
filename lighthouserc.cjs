@@ -45,6 +45,12 @@ const config = {
         'uses-responsive-images': 'off',
         'offscreen-images': 'off',
         'unused-css-rules': 'off',
+
+        // Lighthouse recommended assertions that don't apply to this project:
+        'robots-txt': 'off',                       // No robots.txt for dev/preview
+        'errors-in-console': 'warn',                // API calls to non-existent backend
+        'interaction-to-next-paint': 'off',         // No user interaction during static gather
+        'network-dependency-tree-insight': 'off',   // Experimental/deprecated LHCI check
       },
     },
     upload: {
