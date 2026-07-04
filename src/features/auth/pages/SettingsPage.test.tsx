@@ -20,6 +20,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import type { AuthState } from '@/features/auth/authState';
 import { authReducer } from '@/features/auth/slice/authSlice';
+import { RootErrorBoundary } from '@/routes/RootErrorBoundary';
 import { ApiClientProvider } from '@/shared/api/ApiClientContext';
 import { createApiClient } from '@/shared/api/client';
 import { buildFetchResponse } from '@/shared/test/mockFetch';
@@ -401,5 +402,23 @@ describe('SettingsPage', () => {
     expect(screen.getByText('Show notifications within the application')).toBeInTheDocument();
     expect(screen.getByText('Receive a daily summary of activity')).toBeInTheDocument();
     expect(screen.getByText('Receive product updates and promotional content')).toBeInTheDocument();
+  });
+
+  // ── Error boundary ─────────────────────────────────────────────
+
+  it('shows error boundary fallback when a child component crashes', () => {
+    const ThrowingChild = () => {
+      throw new Error('Settings render crash');
+    };
+
+    render(
+      <RootErrorBoundary>
+        <ThrowingChild />
+      </RootErrorBoundary>,
+    );
+
+    expect(screen.getByRole('heading', { name: /something went wrong/i })).toBeInTheDocument();
+    expect(screen.getByText(/settings render crash/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /try again/i })).toBeInTheDocument();
   });
 });

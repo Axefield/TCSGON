@@ -171,23 +171,48 @@ See [`docs/plans/phase-3-authentication.md`](./docs/plans/phase-3-authentication
 
 ---
 
-### Phase 6 — Design System Completion 📋
+### Phase 6 — Testing & A11y Hardening 📋
 
-Complete the remaining components from Phase 2: `Button`, `Input`, `Select`, `Checkbox`/`Radio`, `Modal`, `Drawer`, `Tooltip`, `Table`, `Tabs`, `Pagination`, `EmptyState`, `ErrorBoundary`, plus Storybook stories for all.
+Coverage push, accessibility audit, edge case hardening. See [`docs/plans/phase-6-testing-a11y-hardening.md`](./docs/plans/phase-6-testing-a11y-hardening.md).
+
+- [ ] Coverage gates: 80% lines / 75% branches / 80% functions (hard requirement, CI-blocking)
+- [ ] Every shared component: render + interaction + edge case + a11y test
+- [ ] Every API hook: success + error + loading state test
+- [ ] Every page: integration test + error boundary test
+- [ ] Automated a11y: axe-core in CI (unit + E2E, zero critical/serious)
+- [ ] Manual a11y: NVDA + VoiceOver + keyboard-only + zoom + contrast audit
+- [ ] Edge case registry (`docs/edge-cases/`) — per-feature documented and validated
+
+> **Note:** The design system primitives originally planned for Phase 6 (Button, Input, Select, Modal, Drawer, Tooltip, Table, Tabs, Pagination, EmptyState, ErrorBoundary, Avatar, Badge) are deferred to a future phase after Testing & A11y Hardening is complete.
 
 ---
 
-### Phase 7 — Performance & Production Hardening 📋
+### Phase 7 — Performance Optimization 📋
 
-- [ ] Route-level code splitting audit + bundle analysis
-- [ ] Lighthouse CI integration (LCP < 2.5s, INP < 200ms, CLS < 0.1)
-- [ ] Service worker + offline strategy
-- [ ] CSP tuning + security headers
-- [ ] Production deploy pipeline (Docker, health checks, rollback)
+> Measure, identify, optimize, verify. See [`roadmap.md`](./roadmap.md#phase-7--performance-optimization).
+
+- [ ] Lighthouse baseline + CWV targets (LCP < 2.5s, INP < 200ms, CLS < 0.1)
+- [ ] Route-level code splitting audit + bundle analysis (200 kB warn / 350 kB error)
+- [ ] Image optimization (AVIF/WebP, responsive srcset, lazy loading)
+- [ ] List virtualization (`@tanstack/react-virtual` for lists > 50 rows)
+- [ ] Memoization only where measured (no preemptive `React.memo`)
+- [ ] Lighthouse CI in GitHub Actions (fail on regression)
 
 ---
 
-### Phase 8 — Documentation & Knowledge Base 📋
+### Phase 8 — CI/CD & Deployment Pipeline 📋
+
+> Automated quality gates, preview deployments, production release. See [`roadmap.md`](./roadmap.md#phase-8--cicd--deployment-pipeline).
+
+- [ ] PR workflow: lint → typecheck → test (coverage) → build (budget) → axe → e2e → Lighthouse CI
+- [ ] Server CI: `cd server && pnpm test` against test DB
+- [ ] Main branch: version bump + CHANGELOG + staging deploy
+- [ ] Preview deployment per PR (comment with URL)
+- [ ] Production deployment on merge to main
+
+---
+
+### Phase 9 — Documentation & Knowledge Base 📋
 
 - [ ] ADRs for all architectural decisions (state, routing, TS strict, design system)
 - [ ] Feature author conventions (`src/features/__README__.md`)

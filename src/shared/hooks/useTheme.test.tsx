@@ -62,4 +62,22 @@ describe('useTheme', () => {
     });
     expect(localStorage.getItem('tcsgon:theme')).toBe('dark');
   });
+
+  it('handles localStorage setItem failure gracefully', () => {
+    const setItemSpy = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new Error('Quota exceeded');
+    });
+
+    const { result } = renderHook(() => useTheme(), { wrapper: Wrapper });
+    act(() => {
+      // Should not throw despite localStorage failure
+      result.current.setTheme('dark');
+    });
+
+    // Theme still updates in-memory even if localStorage fails
+    expect(result.current.theme).toBe('dark');
+    expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
+
+    setItemSpy.mockRestore();
+  });
 });

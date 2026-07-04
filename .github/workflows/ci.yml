@@ -1,4 +1,6 @@
-# Phase 2 CI — lint, typecheck, test, coverage, build, a11y, e2e, bundle check
+# Phase 6 CI — lint, typecheck, test + sharded coverage, build, bundle budget,
+# edge-case validation, a11y (unit axe + E2E axe + keyboard), E2E (sharded),
+# Lighthouse CI.
 #
 # Runs on every push to main and every PR.
 name: CI
@@ -16,9 +18,19 @@ concurrency:
 env:
   NODE_VERSION: '24'
 
+# ---------------------------------------------------------------------------
+# Shared setup used by multiple jobs
+# ---------------------------------------------------------------------------
+defaults:
+  run:
+    shell: bash
+
+# ---------------------------------------------------------------------------
+# Quality gate — lint, typecheck, sharded unit tests + coverage
+# ---------------------------------------------------------------------------
 jobs:
   quality:
-    name: Lint + TypeCheck + Test + Coverage
+    name: Lint + TypeCheck + Coverage
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -42,6 +54,9 @@ jobs:
       - name: Unit tests + coverage
         run: pnpm test:coverage
 
+      - name: Validate edge case registry
+        run: pnpm validate:edge-cases
+
       - name: Upload coverage report
         uses: actions/upload-artifact@v7
         if: always()
@@ -49,8 +64,11 @@ jobs:
           name: coverage
           path: coverage/
 
+  # ---------------------------------------------------------------------------
+  # Build + bundle budget + edge-case validation
+  # ---------------------------------------------------------------------------
   build:
-    name: Build + Bundle Analysis
+    name: Build + Bundle Check
     needs: quality
     runs-on: ubuntu-latest
     steps:
@@ -72,6 +90,9 @@ jobs:
       - name: Build analysis
         run: pnpm build:analyze
 
+      - name: Bundle budget check
+        run: pnpm check:budgets
+
       - name: Upload build artifacts
         uses: actions/upload-artifact@v7
         if: always()
@@ -79,10 +100,17 @@ jobs:
           name: dist
           path: dist/
 
+  # ---------------------------------------------------------------------------
+  # E2E — Chromium (sharded) + a11y (axe + keyboard)
+  # ---------------------------------------------------------------------------
   e2e:
-    name: E2E + a11y
+    name: E2E (Chromium)
     needs: build
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
     steps:
       - uses: actions/checkout@v6
 
@@ -96,29 +124,55 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Install Playwright browsers
-        run: pnpm exec playwright install chromium
+      - name: Cache Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
 
-      - name: Build
-        run: pnpm build
+      - name: Install Playwright browsers (if not cached)
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: pnpm exec playwright install --with-deps chromium
 
-      - name: E2E tests (all)
-        run: pnpm e2e
+      - name: Install Playwright system deps (if cached)
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: pnpm exec playwright install-deps chromium
 
-      - name: a11y audit (axe-core)
-        run: pnpm axe
+      - name: Download build artifacts
+        uses: actions/download-artifact@v7
+        with:
+          name: dist
+          path: dist/
 
-      - name: Upload Playwright report
+      - name: Start preview server
+        run: |
+          pnpm preview &
+          # Wait for the server to be ready (max 30s)
+          for i in $(seq 1 30); do
+            if curl -s http://127.0.0.1:4173/ > /dev/null 2>&1; then
+              echo "Preview server is ready"
+              break
+            fi
+            sleep 1
+          done
+
+      - name: E2E tests (shard ${{ matrix.shard }}/4)
+        run: pnpm e2e --shard=${{ matrix.shard }}/4
+
+      - name: Upload Playwright report (shard ${{ matrix.shard }})
         uses: actions/upload-artifact@v7
         if: always()
         with:
-          name: playwright-report
+          name: playwright-report-shard-${{ matrix.shard }}
           path: playwright-report/
 
-  lighthouse:
-    name: Lighthouse CI
+  # ---------------------------------------------------------------------------
+  # A11y — axe-core E2E on Chromium + Firefox
+  # ---------------------------------------------------------------------------
+  a11y:
+    name: A11y (axe + keyboard)
     needs: build
-    if: false  # Disabled until LHCI is fully configured in CI
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -133,8 +187,80 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build
-        run: pnpm build
+      - name: Cache Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-a11y-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+
+      - name: Install Playwright browsers (if not cached)
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: pnpm exec playwright install --with-deps chromium firefox
+
+      - name: Install Playwright system deps (if cached)
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: pnpm exec playwright install-deps chromium firefox
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v7
+        with:
+          name: dist
+          path: dist/
+
+      - name: Start preview server
+        run: |
+          pnpm preview &
+          # Wait for the server to be ready (max 30s)
+          for i in $(seq 1 30); do
+            if curl -s http://127.0.0.1:4173/ > /dev/null 2>&1; then
+              echo "Preview server is ready"
+              break
+            fi
+            sleep 1
+          done
+
+      - name: A11y audit (axe-core, Chromium)
+        run: pnpm axe
+
+      - name: A11y audit (axe-core, Firefox)
+        run: pnpm axe:firefox
+
+      - name: Keyboard-only walkthrough
+        run: pnpm keyboard
+
+      - name: Upload a11y reports
+        uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: a11y-reports
+          path: playwright-report/
+
+  # ---------------------------------------------------------------------------
+  # Lighthouse CI — CWV + a11y score + performance score
+  # ---------------------------------------------------------------------------
+  lighthouse:
+    name: Lighthouse CI
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v7
+        with:
+          name: dist
+          path: dist/
 
       - name: Lighthouse CI
         run: pnpm lhci

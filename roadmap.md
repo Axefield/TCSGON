@@ -576,18 +576,19 @@ pnpm axe                 # zero critical/serious
 **Duration:** Days 23–25
 
 ### 6.1 Coverage push
-- [ ] Every component in `src/shared/components/` has:
-  - Render test (mounts without error)
-  - Interaction test (click, type, focus)
+- [ ] **Every shared component** (`src/shared/components/*`):
+  - Render test (mounts without error, renders expected ARIA role)
+  - Interaction test (click, type, focus, keyboard)
   - Edge case test (empty, loading, error, disabled)
-  - Accessibility test (axe-core)
-- [ ] Every API hook has:
-  - Success case test (data returned, loading states)
-  - Error case test (network error, validation error, 401)
-  - Loading state test
-- [ ] Every page has:
-  - Integration test (critical path through the page)
-  - Error boundary test (simulated render error)
+  - Accessibility test (axe-core, zero critical/serious)
+  - **Affected:** Spinner, Skeleton, Toast, ToastRegion, SkipLink, Sidebar, TopBar, AppShell, AuthLayout
+- [ ] **Every API hook** (`src/features/*/api/*`):
+  - Success case test (data returned, loading transitions `true → false`)
+  - Error case test (network error, validation error, 401, 409, 500)
+  - Loading/empty state test
+- [ ] **Every page** (`src/features/*/pages/*`):
+  - Integration test (critical path with MSW: render → interact → data appears → navigate)
+  - Error boundary test (simulated render crash → fallback UI appears, retry restores)
 
 ### 6.2 Accessibility audit
 - [ ] Automated: entire app audited via axe-core (CI gate)
@@ -606,21 +607,21 @@ pnpm axe                 # zero critical/serious
   - Zoom to 200%: no content cutoff
 
 ### 6.3 Edge case registry
-- [ ] `docs/edge-cases.md` — documented per-feature:
-  - Empty states (no data, filtered to zero)
-  - Error states (network, timeout, 500, validation)
-  - Loading states (initial load, paginated load, mutation in flight)
-  - Offline behavior (stale-while-revalidate, retry on reconnect)
-  - Large input (10k+ items in a list, virtualized)
-  - Concurrent mutations (double-submit prevention, idempotency)
+- [ ] `docs/edge-cases/` — documented per-feature (Zod-validated JSON registry):
+  - `registry.json` — structured entries with `id`, `feature`, `scenario`, `category`, `severity`, `expectedBehavior`, `testCoverage`
+  - Categories: empty states, error states, loading states, offline behavior, large input, concurrent mutations, invalid input, permission denied, timeout
+  - Schema validated in CI (`scripts/validate-edge-cases.ts`)
 
 ### Verification
 
 ```bash
 pnpm test --coverage   # 80% lines / 75% branches / 80% functions — HARD REQUIREMENT
-pnpm axe               # zero critical/serious
+pnpm axe               # zero critical/serious (unit + E2E)
 # Manual: NVDA + VoiceOver walkthrough complete
-# docs/edge-cases.md documented for every feature
+# docs/edge-cases/registry.json documented for every feature
+# Every shared component: render + interaction + edge case + a11y test present
+# Every API hook: success + error + loading test present
+# Every page: integration + error boundary test present
 ```
 
 ---

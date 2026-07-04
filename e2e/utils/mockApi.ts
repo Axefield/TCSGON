@@ -17,6 +17,7 @@ const MOCK_USER = {
   name: 'E2E User',
   email: 'e2e@test.com',
   role: 'admin' as const,
+  avatarUrl: null,
 };
 
 function makeSessionId(): string {
@@ -393,6 +394,8 @@ export async function setupMockApi(page: Page, options: MockApiOptions = {}): Pr
           id: 'u-e2e',
           name: 'E2E User',
           email: 'e2e@test.com',
+          role: 'admin',
+          avatarUrl: null,
           createdAt: '2026-01-01T00:00:00.000Z',
           updatedAt: '2026-06-01T00:00:00.000Z',
         }),
@@ -426,6 +429,10 @@ export async function setupMockApi(page: Page, options: MockApiOptions = {}): Pr
           id: 'u-e2e',
           name: body.name ?? 'E2E User',
           email: body.email ?? 'e2e@test.com',
+          role: 'admin',
+          avatarUrl: null,
+          createdAt: '2026-01-01T00:00:00.000Z',
+          updatedAt: new Date().toISOString(),
         }),
       });
     } else {
@@ -474,6 +481,45 @@ export async function setupMockApi(page: Page, options: MockApiOptions = {}): Pr
       contentType: 'application/json',
       body: JSON.stringify({ message: 'Password changed successfully.' }),
     });
+  });
+
+  // ── Notification preferences handler ─────────────────────────────────
+
+  await page.route('**/api/users/me/notification-preferences', async (route) => {
+    const method = route.request().method();
+    const MOCK_NOTIF_PREFS = {
+      id: 'np-e2e',
+      userId: 'u-e2e',
+      emailNotifications: true,
+      pushNotifications: true,
+      inAppNotifications: true,
+      dailyDigest: false,
+      marketingEmails: false,
+      createdAt: '2026-01-01T00:00:00.000Z',
+      updatedAt: '2026-06-01T00:00:00.000Z',
+    };
+
+    if (method === 'GET') {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify(MOCK_NOTIF_PREFS),
+      });
+    } else if (method === 'PUT') {
+      const body = route.request().postDataJSON();
+      const updated = {
+        ...MOCK_NOTIF_PREFS,
+        ...body,
+        updatedAt: new Date().toISOString(),
+      };
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify(updated),
+      });
+    } else {
+      await route.fallback();
+    }
   });
 
   // ── Dashboard handler ───────────────────────────────────────────────

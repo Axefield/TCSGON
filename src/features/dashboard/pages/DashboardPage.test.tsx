@@ -7,6 +7,7 @@
 import { waitFor } from '@testing-library/react';
 import { vi } from 'vitest';
 
+import { RootErrorBoundary } from '@/routes/RootErrorBoundary';
 import { buildFetchResponse } from '@/shared/test/mockFetch';
 import { renderWithProviders, screen } from '@/test-utils';
 
@@ -99,5 +100,23 @@ describe('DashboardPage', () => {
     });
 
     expect(fetchSpy).toHaveBeenCalledTimes(2);
+  });
+
+  // ── Error boundary ─────────────────────────────────────────────
+
+  it('shows error boundary fallback when a child component crashes', () => {
+    const ThrowingChild = () => {
+      throw new Error('Simulated render crash');
+    };
+
+    renderWithProviders(
+      <RootErrorBoundary>
+        <ThrowingChild />
+      </RootErrorBoundary>,
+    );
+
+    expect(screen.getByRole('heading', { name: /something went wrong/i })).toBeInTheDocument();
+    expect(screen.getByText(/simulated render crash/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /try again/i })).toBeInTheDocument();
   });
 });

@@ -108,4 +108,69 @@ describe('useToast', () => {
     });
     expect(id1).not.toBe(id2);
   });
+
+  it('push with description includes description in toast entry', () => {
+    const { result } = renderHook(() => useToast(), { wrapper: Wrapper });
+    act(() => {
+      result.current.push({ message: 'Warning', kind: 'warning', description: 'Detailed info' });
+    });
+    expect(result.current.toasts).toHaveLength(1);
+    expect(result.current.toasts[0]?.description).toBe('Detailed info');
+  });
+
+  it('push without description omits description field', () => {
+    const { result } = renderHook(() => useToast(), { wrapper: Wrapper });
+    act(() => {
+      result.current.push({ message: 'No desc', kind: 'info' });
+    });
+    expect(result.current.toasts[0]?.description).toBeUndefined();
+  });
+
+  it('info shortcut with description includes it', () => {
+    const { result } = renderHook(() => useToast(), { wrapper: Wrapper });
+    act(() => {
+      result.current.info('Info', { description: 'Extra context' });
+    });
+    expect(result.current.toasts[0]?.description).toBe('Extra context');
+  });
+
+  it('success shortcut with description includes it', () => {
+    const { result } = renderHook(() => useToast(), { wrapper: Wrapper });
+    act(() => {
+      result.current.success('Success', { description: 'Success details' });
+    });
+    expect(result.current.toasts[0]?.description).toBe('Success details');
+  });
+
+  it('warning shortcut with description includes it', () => {
+    const { result } = renderHook(() => useToast(), { wrapper: Wrapper });
+    act(() => {
+      result.current.warning('Warning', { description: 'Warning details' });
+    });
+    expect(result.current.toasts[0]?.description).toBe('Warning details');
+  });
+
+  it('error shortcut with description includes it', () => {
+    const { result } = renderHook(() => useToast(), { wrapper: Wrapper });
+    act(() => {
+      result.current.error('Error', { description: 'Error details' });
+    });
+    expect(result.current.toasts[0]?.description).toBe('Error details');
+  });
+
+  it('push with custom durationMs overrides default', () => {
+    const { result } = renderHook(() => useToast(), { wrapper: Wrapper });
+    act(() => {
+      result.current.push({ message: 'Long toast', kind: 'info', durationMs: 10000 });
+    });
+    expect(result.current.toasts[0]?.durationMs).toBe(10000);
+  });
+
+  it('push without durationMs uses default', () => {
+    const { result } = renderHook(() => useToast(), { wrapper: Wrapper });
+    act(() => {
+      result.current.push({ message: 'Normal toast', kind: 'info' });
+    });
+    expect(result.current.toasts[0]?.durationMs).toBe(5000);
+  });
 });

@@ -16,8 +16,8 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./src/test-setup.ts'],
     css: true,
-    include: ['src/**/*.{test,spec}.{ts,tsx}'],
-    exclude: ['node_modules', 'dist', 'e2e', 'server', '**/*.axe.test.ts'],
+    include: ['src/**/*.{test,spec,axe.test}.{ts,tsx}'],
+    exclude: ['node_modules', 'dist', 'e2e', 'server'],
     // AGENTS.md §3: coverage gates 80% lines / 75% branches / 80% functions.
     // Enforced from Phase 0; smoke test (App.test.tsx) must exercise every
     // provider so coverage is real, not stub-zero.
@@ -30,7 +30,7 @@ export default defineConfig({
         'src/**/*.{test,spec}.{ts,tsx}',
         'src/**/__tests__/**',
         'src/main.tsx',
-        'src/test-utils.tsx',
+        'src/test-utils/**',
         'src/test-setup.ts',
         'src/**/*.d.ts',
         'src/**/index.ts',
