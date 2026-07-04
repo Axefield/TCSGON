@@ -68,3 +68,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   interface and `render.tsx` wrapper. No consumer existed.
 - **App.test.tsx**: mocks `@/routes` module to avoid jsdom AbortSignal incompatibility
   with MSW interceptor when testing `createAppRouter` default branch.
+
+### Changed
+
+- **Keyboard E2E spec**: focus-trap detection with element-identity comparison, skip-link verification
+  (`A[href="#main-content"]`), expanded focusable selector (added `select`, `textarea`).
+- **Axe tests**: SettingsPage, DashboardPage, ProjectListPage, and ToastRegion now audit populated
+  states with mocked fetch data instead of loading skeletons.
+- **SettingsPage test**: `toHaveAttribute('aria-describedby')` → `toHaveAccessibleDescription(/regex/i)`
+  for all 5 notification toggles (behavioral assertion).
+- **AuthLayout test**: removed `container.querySelectorAll('p')` and CSS-class assertions; replaced
+  with `screen.queryByText('Welcome back')`.
+- **test-utils/a11y.tsx**: documented color-contrast and prefers-reduced-motion limitations in JSDoc.
+- **test-utils/msw.tsx**: simplified `createErrorResponse` status type from lengthy union to `number`.
