@@ -76,7 +76,7 @@ export function createDeferredResponse<T>(
  *   msw.use(http.get('/api/data', () => createErrorResponse(500, { message: 'Server error' })));
  */
 export function createErrorResponse(
-  status: 400 | 401 | 403 | 404 | 409 | 422 | 429 | 500 | number,
+  status: number,
   body?: Record<string, unknown>,
 ): Response {
   return new Response(JSON.stringify(body ?? { message: `Error ${status}` }), {
