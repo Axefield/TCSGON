@@ -59,41 +59,56 @@ async function assertKeyboardAccessible(
   expect(focusableCount).toBeGreaterThanOrEqual(minFocusable);
 
   // Tab forward through each element — verify focus moves and no traps
-  let previousElement: string | null = null;
+  // Build a compound key per element: tagName + id + type + name + placeholder + text.
+  // We need all of these because:
+  //   <button> without id → text distinguishes them
+  //   <input> without id → type/name/placeholder distinguishes them (text is empty)
+  //   <a> without id → href + text distinguishes them
+  let previousKey: string | null = null;
   for (let i = 0; i < focusableCount; i++) {
     await page.keyboard.press('Tab');
     const focused = await page.evaluate(() => {
       const el = document.activeElement;
       if (!el) return null;
-      return { tagName: el.tagName, id: el.id, text: (el.textContent ?? '').trim().slice(0, 40) };
+      const input = el as HTMLInputElement;
+      return {
+        tagName: el.tagName,
+        id: el.id,
+        type: input.type ?? '',
+        name: input.name ?? '',
+        placeholder: input.placeholder ?? '',
+        text: (el.textContent ?? '').trim().slice(0, 40),
+        href: el.getAttribute('href') ?? '',
+      };
     });
     expect(focused, `Focus should be on an element after ${i + 1} Tab presses`).not.toBeNull();
     // Verify focus actually moved to a different element (detect focus traps)
-    // Use tagName + id + first 40 chars of text as key — tagName#id alone is ambiguous
-    // when multiple elements lack ids (e.g., <button> without id → all map to "BUTTON#").
-    const focusedTag = `${focused!.tagName}#${focused!.id}#${focused!.text}`;
-    if (previousElement !== null) {
+    const focusedKey =
+      `${focused!.tagName}|${focused!.id}|${focused!.type}|${focused!.name}|${focused!.placeholder}|${focused!.text}`;
+    if (previousKey !== null) {
       expect(
-        focusedTag,
+        focusedKey,
         `Focus should move to a new element on Tab ${i + 1} — got stuck on ${focused!.tagName}#${focused!.id}`,
-      ).not.toBe(previousElement);
+      ).not.toBe(previousKey);
     }
-    previousElement = focusedTag;
+    previousKey = focusedKey;
   }
 
-  // Shift+Tab back to the beginning (need focusableCount - 1 because Tab loop
-  // started at body and moved to focusable[0] on 1st press, so focusableCount
-  // presses lands on the LAST element; N-1 Shift+Tabs returns to focusable[0]).
-  for (let i = 0; i < focusableCount - 1; i++) {
+  // Shift+Tab back to the skip link (loop-until-found — accounts for autofocus
+  // on some routes changing the initial tab start position).
+  let backAtStart: { tagName: string; href: string | null } | null = null;
+  for (let i = 0; i < focusableCount + 10; i++) {
     await page.keyboard.press('Shift+Tab');
+    backAtStart = await page.evaluate(() => {
+      const el = document.activeElement;
+      if (!el) return null;
+      return { tagName: el.tagName, href: el.getAttribute('href') };
+    });
+    if (backAtStart && backAtStart.tagName === 'A' && backAtStart.href === '#main-content') {
+      break;
+    }
   }
 
-  // Verify we're back at the skip link
-  const backAtStart = await page.evaluate(() => {
-    const el = document.activeElement;
-    if (!el) return null;
-    return { tagName: el.tagName, href: el.getAttribute('href') };
-  });
   expect(backAtStart, 'Shift+Tab should return to the first focusable element').not.toBeNull();
   expect(backAtStart!.tagName, 'Should be back at the skip link').toBe('A');
   expect(backAtStart!.href, 'Should point to main content').toBe('#main-content');
