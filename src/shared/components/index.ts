@@ -17,5 +17,7 @@ export { Tooltip } from './Tooltip';
 export type { TooltipProps } from './Tooltip';
 export { ErrorBoundary } from './ErrorBoundary';
 export type { ErrorBoundaryProps, FallbackRender } from './ErrorBoundary';
+export { Button } from './Button';
+export type { ButtonProps, ButtonAsButton, ButtonAsLink } from './Button';
 export { Radio } from './Radio';
 export type { RadioProps, RadioGroupProps } from './Radio';
