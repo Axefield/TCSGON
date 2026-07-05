@@ -149,7 +149,9 @@ jobs:
       # No manual start needed.
 
       - name: E2E tests (shard ${{ matrix.shard }}/4)
-        run: pnpm e2e --shard=${{ matrix.shard }}/4
+        # Only run the chromium project — other projects (axe-firefox, mobile) need
+        # different browser binaries or are a11y-specific and run in the a11y job.
+        run: pnpm exec playwright test --project=chromium --shard=${{ matrix.shard }}/4
 
       - name: Upload Playwright report (shard ${{ matrix.shard }})
         uses: actions/upload-artifact@v7

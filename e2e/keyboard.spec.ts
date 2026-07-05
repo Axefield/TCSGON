@@ -81,8 +81,10 @@ async function assertKeyboardAccessible(
     previousElement = focusedTag;
   }
 
-  // Shift+Tab back to the beginning
-  for (let i = 0; i < focusableCount; i++) {
+  // Shift+Tab back to the beginning (need focusableCount - 1 because Tab loop
+  // started at body and moved to focusable[0] on 1st press, so focusableCount
+  // presses lands on the LAST element; N-1 Shift+Tabs returns to focusable[0]).
+  for (let i = 0; i < focusableCount - 1; i++) {
     await page.keyboard.press('Shift+Tab');
   }
 
