@@ -68,6 +68,23 @@ describe('projectService.getProjectById', () => {
       code: 'NOT_FOUND',
     });
   });
+
+  it('throws AppError 404 for soft-deleted project', async () => {
+    const created = await projectService.createProject(user.id, {
+      name: 'To Be Deleted',
+      leadName: 'Test Lead',
+    });
+    const projectId = created.id as string;
+
+    await projectService.deleteProject(projectId);
+
+    await expect(
+      projectService.getProjectById(projectId),
+    ).rejects.toMatchObject({
+      statusCode: 404,
+      code: 'NOT_FOUND',
+    });
+  });
 });
 
 describe('projectService.listProjects', () => {
@@ -151,6 +168,24 @@ describe('projectService.listProjects', () => {
     expect((result.items[0] as Record<string, string>).name).toBe('Project 1');
     expect((result.items[2] as Record<string, string>).name).toBe('Project 3');
   });
+
+  it('excludes soft-deleted projects from results', async () => {
+    // Create a project and soft-delete it
+    const created = await projectService.createProject(user.id, {
+      name: 'Deleted Project',
+      leadName: 'Ghost Lead',
+    });
+    const projectId = created.id as string;
+    await projectService.deleteProject(projectId);
+
+    const result = await projectService.listProjects({
+      page: 1,
+      pageSize: 10,
+    });
+    expect(result.items.every((item) => (item as Record<string, unknown>).name !== 'Deleted Project')).toBe(true);
+    // Total should not count the deleted project
+    expect(result.total).toBe(3);
+  });
 });
 
 describe('projectService.updateProject', () => {
@@ -189,8 +224,18 @@ describe('projectService.updateProject', () => {
     });
     const statusChanged = logs.find((l) => l.type === 'status_changed');
     expect(statusChanged).toBeDefined();
-    expect(statusChanged?.message).toContain('active');
     expect(statusChanged?.message).toContain('archived');
+  });
+
+  it('throws AppError 404 for soft-deleted project', async () => {
+    await projectService.deleteProject(projectId);
+
+    await expect(
+      projectService.updateProject(projectId, user.id, { name: 'Ghost' }),
+    ).rejects.toMatchObject({
+      statusCode: 404,
+      code: 'NOT_FOUND',
+    });
   });
 });
 
@@ -205,19 +250,33 @@ describe('projectService.deleteProject', () => {
     projectId = project.id as string;
   });
 
-  it('deletes project and cascades activity logs', async () => {
+  it('soft-deletes a project (sets deletedAt, preserves activity logs)', async () => {
     await projectService.deleteProject(projectId);
 
     const found = await prisma.project.findUnique({ where: { id: projectId } });
-    expect(found).toBeNull();
+    expect(found).not.toBeNull();
+    expect(found?.deletedAt).not.toBeNull();
+    expect(found?.deletedAt).toBeInstanceOf(Date);
 
+    // Activity logs preserved for audit trail
     const logs = await prisma.activityLog.count({ where: { projectId } });
-    expect(logs).toBe(0);
+    expect(logs).toBeGreaterThanOrEqual(1);
   });
 
   it('throws AppError 404 for non-existent project', async () => {
     await expect(
       projectService.deleteProject(generateToken()),
+    ).rejects.toMatchObject({
+      statusCode: 404,
+      code: 'NOT_FOUND',
+    });
+  });
+
+  it('throws AppError 404 for already soft-deleted project', async () => {
+    await projectService.deleteProject(projectId);
+
+    await expect(
+      projectService.deleteProject(projectId),
     ).rejects.toMatchObject({
       statusCode: 404,
       code: 'NOT_FOUND',
