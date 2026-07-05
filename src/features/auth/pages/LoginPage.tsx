@@ -5,6 +5,7 @@
  */
 import { type ReactElement, useCallback } from 'react';
 import {
+  Link,
   Navigate,
   useNavigate,
   useSearchParams,
@@ -45,6 +46,21 @@ export function LoginPage(): ReactElement {
   return (
     <AuthLayout heading="Sign in">
       <LoginForm onSubmit={handleSubmit} />
+      <div style={{ marginTop: '1.25rem', textAlign: 'center', fontSize: 'var(--font-size-sm, 0.875rem)' }}>
+        <Link
+          to="/forgot-password"
+          style={{ color: 'var(--color-primary, #0b3d91)', textDecoration: 'underline' }}
+        >
+          Forgot your password?
+        </Link>
+        <span style={{ margin: '0 0.75rem', color: 'var(--color-border, #ccc)' }}>|</span>
+        <Link
+          to="/signup"
+          style={{ color: 'var(--color-primary, #0b3d91)', textDecoration: 'underline' }}
+        >
+          Don&apos;t have an account? Sign up
+        </Link>
+      </div>
     </AuthLayout>
   );
 }

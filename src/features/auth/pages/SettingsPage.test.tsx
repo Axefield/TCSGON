@@ -389,12 +389,12 @@ describe('SettingsPage', () => {
     expect(digestToggle).toBeChecked();
     expect(marketingToggle).not.toBeChecked();
 
-    // Each toggle should have aria-describedby pointing to its description
-    expect(emailToggle).toHaveAttribute('aria-describedby', 'notif-email-desc');
-    expect(pushToggle).toHaveAttribute('aria-describedby', 'notif-push-desc');
-    expect(inAppToggle).toHaveAttribute('aria-describedby', 'notif-inapp-desc');
-    expect(digestToggle).toHaveAttribute('aria-describedby', 'notif-digest-desc');
-    expect(marketingToggle).toHaveAttribute('aria-describedby', 'notif-marketing-desc');
+    // Each toggle should have an accessible description
+    expect(emailToggle).toHaveAccessibleDescription(/receive notifications via email/i);
+    expect(pushToggle).toHaveAccessibleDescription(/receive push notifications in your browser/i);
+    expect(inAppToggle).toHaveAccessibleDescription(/show notifications within the application/i);
+    expect(digestToggle).toHaveAccessibleDescription(/receive a daily summary of activity/i);
+    expect(marketingToggle).toHaveAccessibleDescription(/receive product updates and promotional content/i);
 
     // Description elements should exist
     expect(screen.getByText('Receive notifications via email')).toBeInTheDocument();

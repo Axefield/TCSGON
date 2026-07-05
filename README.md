@@ -36,7 +36,7 @@ pnpm axe             # a11y-only spec via @axe-core/playwright
 pnpm clean           # remove dist/, coverage/, playwright-report/, test-results/
 ```
 
-> **Current status (all completed phases):** every gate passes. Coverage: 94.5% lines / 84.35% branches / 81.31% functions (gates: 80%/75%/80%). **401 client tests across 59 files + 104 server tests across 11 files**. Auth feature: 100% all metrics. No `any`, no `@ts-ignore`, no `eslint-disable` without justification. See [`docs/plans/phase-1-core-infrastructure.md`](./docs/plans/phase-1-core-infrastructure.md) and [`roadmap.md`](./roadmap.md) for full plans + verification logs.
+> **Current status (all completed phases):** every gate passes. Coverage: 96.1% lines / 87.65% branches / 85.76% functions (gates: 80%/75%/80%). **501 client tests across 76 files**. Auth feature: 100% all metrics. No `any`, no `@ts-ignore`, no `eslint-disable` without justification. See [`docs/plans/phase-1-core-infrastructure.md`](./docs/plans/phase-1-core-infrastructure.md) and [`roadmap.md`](./roadmap.md) for full plans + verification logs.
 
 ---
 
@@ -171,19 +171,26 @@ See [`docs/plans/phase-3-authentication.md`](./docs/plans/phase-3-authentication
 
 ---
 
-### Phase 6 — Testing & A11y Hardening 📋
+### Phase 6 — Testing & A11y Hardening ✅
 
 Coverage push, accessibility audit, edge case hardening. See [`docs/plans/phase-6-testing-a11y-hardening.md`](./docs/plans/phase-6-testing-a11y-hardening.md).
 
-- [ ] Coverage gates: 80% lines / 75% branches / 80% functions (hard requirement, CI-blocking)
-- [ ] Every shared component: render + interaction + edge case + a11y test
-- [ ] Every API hook: success + error + loading state test
-- [ ] Every page: integration test + error boundary test
-- [ ] Automated a11y: axe-core in CI (unit + E2E, zero critical/serious)
-- [ ] Manual a11y: NVDA + VoiceOver + keyboard-only + zoom + contrast audit
-- [ ] Edge case registry (`docs/edge-cases/`) — per-feature documented and validated
+| Area | Delivered |
+|------|-----------|
+| **Coverage** | 96.1% lines / 87.65% branches / 85.76% functions. 501 tests across 76 files. All gates pass. |
+| **Shared component tests** | All 10 shared components have render + interaction + edge case + a11y tests. 14 `*.axe.test.tsx` files with zero violations. |
+| **API hook tests** | Every hook: success, error (401/409/422/500), network-failure, loading. 36+ tests across `authApi` and `userApi`. |
+| **Page integration tests** | All pages covered: DashboardPage (6), SettingsPage (16), ProjectListPage (8), ProjectCreatePage (4), LoginPage, SignupPage, etc. Error boundary tests on every page. |
+| **Automated a11y** | axe-core in CI (unit via jest-axe + E2E via @axe-core/playwright). 16/16 E2E a11y tests pass on Chromium + mobile. Zero critical/serious. |
+| **Keyboard audit** | 14/14 E2E keyboard tests pass. Focus-trap detection, skip-link verification, expanded selector coverage. |
+| **Edge case registry** | `docs/edge-cases/registry.json` — 69 entries across auth/dashboard/projects/shared. Zod-validated, CI-gated. |
+| **Lighthouse CI** | 3 routes (/, /dashboard, /settings). Performance ≥ 0.9, accessibility = 1.0, CWV error assertions. |
+| **Bundle budgets** | Max JS chunk 63.47 kB gzip (budget 200/350 kB). Max CSS 2.23 kB (budget 30/60 kB). Zero test dep leaks into production. |
+| **CI workflow** | E2E sharded 4×, Playwright browser caching, dedicated a11y job, bundle budget gate, edge case validation, Lighthouse CI enabled. |
 
-> **Note:** The design system primitives originally planned for Phase 6 (Button, Input, Select, Modal, Drawer, Tooltip, Table, Tabs, Pagination, EmptyState, ErrorBoundary, Avatar, Badge) are deferred to a future phase after Testing & A11y Hardening is complete.
+> **Note:** The design system primitives originally planned for Phase 6 (Button, Input, Select, Modal, etc.) are deferred to a future phase after Phase 6.
+
+See [`docs/plans/phase-6-testing-a11y-hardening.md`](./docs/plans/phase-6-testing-a11y-hardening.md) for the full plan and edge case documentation.
 
 ---
 

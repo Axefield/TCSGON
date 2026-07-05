@@ -37,43 +37,81 @@ async function assertKeyboardAccessible(
   // Verify skip link is first focusable element
   const firstTabStop = await page.evaluate(() => {
     const focusable = document.querySelectorAll<HTMLElement>(
-      'a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      'a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"]), select:not([disabled]), textarea:not([disabled])',
     );
-    return focusable.length > 0 ? focusable[0]?.tagName ?? null : null;
+    if (focusable.length === 0) return null;
+    const el = focusable[0]!;
+    return { tagName: el.tagName, href: el.getAttribute('href') };
   });
   expect(firstTabStop, 'Expected at least one focusable element').not.toBeNull();
+  // The first element should be the "Skip to content" link
+  expect(firstTabStop!.tagName, 'First focusable element should be the skip link').toBe('A');
+  expect(firstTabStop!.href, 'Skip link should point to main content').toBe('#main-content');
 
   // Tab through all focusable elements — verify no focus traps
   const focusableCount = await page.evaluate(() => {
     const focusable = document.querySelectorAll<HTMLElement>(
-      'a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      'a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"]), select:not([disabled]), textarea:not([disabled])',
     );
     return focusable.length;
   });
 
   expect(focusableCount).toBeGreaterThanOrEqual(minFocusable);
 
-  // Tab forward through each element — verify focus moves
+  // Tab forward through each element — verify focus moves and no traps
+  // Build a compound key per element: tagName + id + type + name + placeholder + text.
+  // We need all of these because:
+  //   <button> without id → text distinguishes them
+  //   <input> without id → type/name/placeholder distinguishes them (text is empty)
+  //   <a> without id → href + text distinguishes them
+  let previousKey: string | null = null;
   for (let i = 0; i < focusableCount; i++) {
     await page.keyboard.press('Tab');
     const focused = await page.evaluate(() => {
       const el = document.activeElement;
-      return el ? el.tagName : null;
+      if (!el) return null;
+      const input = el as HTMLInputElement;
+      return {
+        tagName: el.tagName,
+        id: el.id,
+        type: input.type ?? '',
+        name: input.name ?? '',
+        placeholder: input.placeholder ?? '',
+        text: (el.textContent ?? '').trim().slice(0, 40),
+        href: el.getAttribute('href') ?? '',
+      };
     });
     expect(focused, `Focus should be on an element after ${i + 1} Tab presses`).not.toBeNull();
+    // Verify focus actually moved to a different element (detect focus traps)
+    const focusedKey =
+      `${focused!.tagName}|${focused!.id}|${focused!.type}|${focused!.name}|${focused!.placeholder}|${focused!.text}`;
+    if (previousKey !== null) {
+      expect(
+        focusedKey,
+        `Focus should move to a new element on Tab ${i + 1} — got stuck on ${focused!.tagName}#${focused!.id}`,
+      ).not.toBe(previousKey);
+    }
+    previousKey = focusedKey;
   }
 
-  // Shift+Tab back to the beginning
-  for (let i = 0; i < focusableCount; i++) {
+  // Shift+Tab back to the skip link (loop-until-found — accounts for autofocus
+  // on some routes changing the initial tab start position).
+  let backAtStart: { tagName: string; href: string | null } | null = null;
+  for (let i = 0; i < focusableCount + 10; i++) {
     await page.keyboard.press('Shift+Tab');
+    backAtStart = await page.evaluate(() => {
+      const el = document.activeElement;
+      if (!el) return null;
+      return { tagName: el.tagName, href: el.getAttribute('href') };
+    });
+    if (backAtStart && backAtStart.tagName === 'A' && backAtStart.href === '#main-content') {
+      break;
+    }
   }
 
-  // Verify we're back at the skip link
-  const backAtStart = await page.evaluate(() => {
-    const el = document.activeElement;
-    return el?.tagName ?? null;
-  });
   expect(backAtStart, 'Shift+Tab should return to the first focusable element').not.toBeNull();
+  expect(backAtStart!.tagName, 'Should be back at the skip link').toBe('A');
+  expect(backAtStart!.href, 'Should point to main content').toBe('#main-content');
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

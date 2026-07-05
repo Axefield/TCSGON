@@ -4,6 +4,15 @@
  * Provides `testA11y` for axe-core assertions in unit tests
  * and `announce` for live region utilities.
  *
+ * ## Known limitations
+ *
+ * - **Color contrast rules are disabled** — `jest-axe` disables all
+ *   `cat.color` rules by default because jsdom cannot compute actual
+ *   CSS colours. Colour contrast violations are only detectable in
+ *   E2E axe tests (`e2e/axe.spec.ts`) which run in real browsers.
+ * - **`prefers-reduced-motion`** and other user-preference media
+ *   queries are not simulated in jsdom. Test these in E2E tests.
+ *
  * @packageDocumentation
  */
 

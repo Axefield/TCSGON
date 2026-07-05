@@ -145,20 +145,13 @@ jobs:
           name: dist
           path: dist/
 
-      - name: Start preview server
-        run: |
-          pnpm preview &
-          # Wait for the server to be ready (max 30s)
-          for i in $(seq 1 30); do
-            if curl -s http://127.0.0.1:4173/ > /dev/null 2>&1; then
-              echo "Preview server is ready"
-              break
-            fi
-            sleep 1
-          done
+      # Playwright webServer config handles starting/stopping the preview server.
+      # No manual start needed.
 
       - name: E2E tests (shard ${{ matrix.shard }}/4)
-        run: pnpm e2e --shard=${{ matrix.shard }}/4
+        # Only run the chromium project — other projects (axe-firefox, mobile) need
+        # different browser binaries or are a11y-specific and run in the a11y job.
+        run: pnpm exec playwright test --project=chromium --shard=${{ matrix.shard }}/4
 
       - name: Upload Playwright report (shard ${{ matrix.shard }})
         uses: actions/upload-artifact@v7
@@ -208,17 +201,8 @@ jobs:
           name: dist
           path: dist/
 
-      - name: Start preview server
-        run: |
-          pnpm preview &
-          # Wait for the server to be ready (max 30s)
-          for i in $(seq 1 30); do
-            if curl -s http://127.0.0.1:4173/ > /dev/null 2>&1; then
-              echo "Preview server is ready"
-              break
-            fi
-            sleep 1
-          done
+      # Playwright webServer config handles starting/stopping the preview server.
+      # No manual start needed.
 
       - name: A11y audit (axe-core, Chromium)
         run: pnpm axe
