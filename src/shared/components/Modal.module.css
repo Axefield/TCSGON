@@ -1,0 +1,128 @@
+/* Modal — accessible dialog overlay. */
+
+/* ── Backdrop ─────────────────────────────────────────────────────── */
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(15, 23, 42, 0.45);
+  padding: var(--space-4, 1rem);
+  animation: fadeIn var(--motion-base, 200ms) var(--motion-ease-standard, ease-out) forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ── Dialog ───────────────────────────────────────────────────────── */
+
+.dialog {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-height: 85vh;
+  background: var(--color-bg, #ffffff);
+  border-radius: var(--radius-lg, 0.75rem);
+  box-shadow: var(--shadow-lg, 0 10px 15px -3px rgba(0, 0, 0, 0.1));
+  animation: scaleIn var(--motion-base, 200ms) var(--motion-ease-enter, ease-out) forwards;
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-0.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Sizes */
+.sm {
+  max-width: 24rem;
+}
+
+.md {
+  max-width: 32rem;
+}
+
+.lg {
+  max-width: 48rem;
+}
+
+/* ── Header ───────────────────────────────────────────────────────── */
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4, 1rem);
+  padding: var(--space-4, 1rem) var(--space-6, 1.5rem);
+  border-bottom: 1px solid var(--color-border, #e2e8f0);
+}
+
+.title {
+  margin: 0;
+  font-size: var(--font-size-lg, 1.125rem);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-fg, #0f172a);
+  line-height: var(--leading-tight, 1.25);
+}
+
+.close {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border: none;
+  background: transparent;
+  color: var(--color-fg-muted, #64748b);
+  cursor: pointer;
+  border-radius: var(--radius-sm, 0.25rem);
+  font-size: 1.25rem;
+  line-height: 1;
+  transition: background var(--motion-fast, 150ms) ease-out;
+}
+
+.close:hover {
+  background: var(--color-bg-elevated, #f8fafc);
+  color: var(--color-fg, #0f172a);
+}
+
+.close:focus-visible {
+  outline: 2px solid var(--color-focus, #2563eb);
+  outline-offset: 2px;
+}
+
+/* ── Content ──────────────────────────────────────────────────────── */
+
+.content {
+  padding: var(--space-6, 1.5rem);
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* ── Reduced motion ───────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .backdrop,
+  .dialog {
+    animation: none;
+  }
+
+  .backdrop {
+    opacity: 1;
+  }
+}

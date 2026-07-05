@@ -1,0 +1,52 @@
+/* ErrorBoundary — default fallback UI. */
+
+.default {
+  padding: var(--space-8, 2rem);
+  max-width: 32rem;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.heading {
+  font-size: var(--font-size-2xl, 1.5rem);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-fg, #0f172a);
+  margin: 0 0 var(--space-4, 1rem);
+}
+
+.message {
+  font-size: var(--font-size-base, 1rem);
+  color: var(--color-fg-muted, #64748b);
+  margin: 0 0 var(--space-6, 1.5rem);
+  line-height: var(--leading-normal, 1.5);
+  word-break: break-word;
+}
+
+.retry {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-2, 0.5rem) var(--space-4, 1rem);
+  border: none;
+  border-radius: var(--radius-md, 0.5rem);
+  background: var(--color-primary, #0b3d91);
+  color: var(--color-fg-inverse, #ffffff);
+  font-size: var(--font-size-sm, 0.875rem);
+  font-weight: var(--font-weight-medium, 500);
+  cursor: pointer;
+  transition: opacity var(--motion-fast, 150ms) ease-out;
+}
+
+.retry:hover {
+  opacity: 0.9;
+}
+
+.retry:focus-visible {
+  outline: 2px solid var(--color-focus, #2563eb);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .retry {
+    transition: none;
+  }
+}
