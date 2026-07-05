@@ -197,7 +197,7 @@ test.describe('Auth flows @smoke', () => {
 
     await expect(page.getByRole('heading', { name: /settings/i, level: 1 })).toBeVisible();
     await expect(page.getByLabel(/name/i)).toHaveValue('E2E User');
-    await expect(page.getByLabel(/email/i)).toHaveValue('e2e@test.com');
+    await expect(page.getByLabel(/^email$/i)).toHaveValue('e2e@test.com');
   });
 
   // ── Session expiry ──────────────────────────────────────────────────

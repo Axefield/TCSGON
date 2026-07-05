@@ -69,11 +69,13 @@ async function assertKeyboardAccessible(
     });
     expect(focused, `Focus should be on an element after ${i + 1} Tab presses`).not.toBeNull();
     // Verify focus actually moved to a different element (detect focus traps)
-    const focusedTag = `${focused!.tagName}#${focused!.id}`;
+    // Use tagName + id + first 40 chars of text as key — tagName#id alone is ambiguous
+    // when multiple elements lack ids (e.g., <button> without id → all map to "BUTTON#").
+    const focusedTag = `${focused!.tagName}#${focused!.id}#${focused!.text}`;
     if (previousElement !== null) {
       expect(
         focusedTag,
-        `Focus should move to a new element on Tab ${i + 1} — got stuck on ${previousElement}`,
+        `Focus should move to a new element on Tab ${i + 1} — got stuck on ${focused!.tagName}#${focused!.id}`,
       ).not.toBe(previousElement);
     }
     previousElement = focusedTag;
