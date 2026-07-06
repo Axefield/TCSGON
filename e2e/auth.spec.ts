@@ -177,8 +177,8 @@ test.describe('Auth flows @smoke', () => {
     await page.goto('/dashboard');
     await expect(page.getByRole('heading', { name: /dashboard/i, level: 1 })).toBeVisible();
 
-    // Open profile menu — avatar shows "E" for "E2E User"
-    await page.getByRole('button', { name: /E E2E User/i }).click();
+    // Open profile menu — avatar triggers on user name
+    await page.getByRole('button', { name: /E2E User/i }).click();
     await expect(page.getByRole('menuitem', { name: /sign out/i })).toBeVisible();
 
     // Click Sign out
