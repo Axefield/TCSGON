@@ -99,8 +99,10 @@ export async function listProjects(
 ): Promise<ListProjectsResult> {
   const { page, pageSize, sort, order, search, status } = options;
 
-  // Build where clause
-  const where: Prisma.ProjectWhereInput = {};
+  // Build where clause — exclude soft-deleted projects
+  const where: Prisma.ProjectWhereInput = {
+    deletedAt: null,
+  };
 
   if (status) {
     where.status = status;
@@ -137,14 +139,14 @@ export async function listProjects(
 
 /**
  * Get a single project by ID.
- * Throws AppError 404 if not found.
+ * Throws AppError 404 if not found or soft-deleted.
  */
 export async function getProjectById(
   id: string,
 ): Promise<Record<string, unknown>> {
   const project = await prisma.project.findUnique({ where: { id } });
 
-  if (!project) {
+  if (!project || project.deletedAt) {
     throw new AppError(404, 'NOT_FOUND', 'Project not found.');
   }
 
@@ -192,7 +194,7 @@ export async function updateProject(
 ): Promise<Record<string, unknown>> {
   const existing = await prisma.project.findUnique({ where: { id } });
 
-  if (!existing) {
+  if (!existing || existing.deletedAt) {
     throw new AppError(404, 'NOT_FOUND', 'Project not found.');
   }
 
@@ -230,17 +232,21 @@ export async function updateProject(
 }
 
 /**
- * Delete a project and cascade its activity logs.
- * Throws AppError 404 if the project does not exist.
+ * Soft-delete a project by setting its `deletedAt` timestamp.
+ * Activity logs are preserved for audit trail purposes.
+ * Throws AppError 404 if the project does not exist or is already deleted.
  */
 export async function deleteProject(
   id: string,
 ): Promise<void> {
   const existing = await prisma.project.findUnique({ where: { id } });
 
-  if (!existing) {
+  if (!existing || existing.deletedAt) {
     throw new AppError(404, 'NOT_FOUND', 'Project not found.');
   }
 
-  await prisma.project.delete({ where: { id } });
+  await prisma.project.update({
+    where: { id },
+    data: { deletedAt: new Date() },
+  });
 }

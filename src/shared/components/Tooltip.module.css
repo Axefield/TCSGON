@@ -1,0 +1,114 @@
+/* Tooltip — accessible hover/focus tooltip. */
+
+/* ── Wrapper ──────────────────────────────────────────────────────── */
+
+.wrapper {
+  position: relative;
+  display: inline-flex;
+}
+
+/* ── Trigger (wraps children) ─────────────────────────────────────── */
+
+.trigger {
+  display: inline-flex;
+}
+
+/* ── Tooltip bubble ───────────────────────────────────────────────── */
+
+.tooltip {
+  position: absolute;
+  z-index: 2000;
+  padding: var(--space-2, 0.5rem) var(--space-3, 0.75rem);
+  background: var(--color-fg, #0f172a);
+  color: var(--color-fg-inverse, #ffffff);
+  font-size: var(--font-size-xs, 0.75rem);
+  line-height: var(--leading-tight, 1.25);
+  border-radius: var(--radius-sm, 0.25rem);
+  white-space: nowrap;
+  pointer-events: none;
+  animation: tooltipFadeIn var(--motion-fast, 150ms) var(--motion-ease-standard, ease-out) forwards;
+}
+
+@keyframes tooltipFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── Arrow (CSS triangle via ::after) ─────────────────────────────── */
+
+.tooltip::after {
+  content: '';
+  position: absolute;
+  width: 0.5rem;
+  height: 0.5rem;
+  background: var(--color-fg, #0f172a);
+}
+
+/* ── Position variants ────────────────────────────────────────────── */
+
+.top {
+  bottom: calc(100% + 0.5rem);
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.top::after {
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%) rotate(45deg);
+  transform-origin: center;
+  clip-path: polygon(0 0, 100% 0, 0 100%);
+}
+
+.bottom {
+  top: calc(100% + 0.5rem);
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.bottom::after {
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) rotate(45deg);
+  clip-path: polygon(100% 100%, 100% 0, 0 100%);
+}
+
+.left {
+  right: calc(100% + 0.5rem);
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.left::after {
+  left: 100%;
+  top: 50%;
+  transform: translateY(-50%) rotate(45deg);
+  clip-path: polygon(100% 0, 0 50%, 100% 100%);
+}
+
+.right {
+  left: calc(100% + 0.5rem);
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.right::after {
+  right: 100%;
+  top: 50%;
+  transform: translateY(-50%) rotate(45deg);
+  clip-path: polygon(0 0, 100% 50%, 0 100%);
+}
+
+/* ── Reduced motion ───────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .tooltip {
+    animation: none;
+  }
+}

@@ -16,6 +16,8 @@
  */
 import { type ReactElement, type ReactNode } from 'react';
 
+import { Button } from '@/shared/components';
+
 import styles from './Sidebar.module.css';
 
 export interface SidebarProps {
@@ -34,15 +36,15 @@ export function Sidebar({ state, onToggle, children }: SidebarProps): ReactEleme
     >
       <div className={styles.header}>
         <span className={styles.brand}>TCSgon</span>
-        <button
-          type="button"
-          className={styles.toggle}
+        <Button
+          variant="ghost"
+          size="sm"
           onClick={onToggle}
           aria-expanded={isExpanded}
           aria-label={isExpanded ? 'Collapse sidebar' : 'Expand sidebar'}
         >
           {isExpanded ? '◀' : '▶'}
-        </button>
+        </Button>
       </div>
       <nav aria-label="Main">{children}</nav>
     </aside>

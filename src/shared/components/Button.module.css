@@ -1,0 +1,152 @@
+/* Button — accessible, themeable button primitive. */
+
+/* ─── Reset + base ───────────────────────────────────────────────────── */
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2, 0.5rem);
+  padding: 0.5rem 1rem;
+  font-family: var(--font-sans, system-ui, sans-serif);
+  font-size: var(--font-size-sm, 0.875rem);
+  font-weight: var(--font-weight-medium, 500);
+  line-height: var(--leading-normal, 1.5);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md, 0.5rem);
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+  user-select: none;
+  transition:
+    background var(--motion-base, 200ms) var(--motion-ease-standard, ease),
+    border-color var(--motion-base, 200ms) var(--motion-ease-standard, ease),
+    color var(--motion-base, 200ms) var(--motion-ease-standard, ease),
+    box-shadow var(--motion-base, 200ms) var(--motion-ease-standard, ease);
+}
+
+.button:focus-visible {
+  outline: 2px solid var(--color-focus, #2563eb);
+  outline-offset: 2px;
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* ─── Loading state ──────────────────────────────────────────────────── */
+
+/* Disable pointer events while loading so no double-clicks */
+.button:has(.spinner) {
+  pointer-events: none;
+}
+
+/* ─── Full width ─────────────────────────────────────────────────────── */
+
+.fullWidth {
+  width: 100%;
+}
+
+/* ─── Icon ───────────────────────────────────────────────────────────── */
+
+.icon {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  font-size: 1.125em;
+  line-height: 0;
+}
+
+/* ─── Sizes ──────────────────────────────────────────────────────────── */
+
+.sm {
+  padding: var(--space-1, 0.25rem) var(--space-3, 0.75rem);
+  font-size: var(--font-size-xs, 0.75rem);
+  border-radius: var(--radius-sm, 0.25rem);
+}
+
+.md {
+  padding: 0.5rem 1rem;
+  font-size: var(--font-size-sm, 0.875rem);
+}
+
+.lg {
+  padding: var(--space-3, 0.75rem) var(--space-6, 1.5rem);
+  font-size: var(--font-size-base, 1rem);
+}
+
+/* ─── Variants ───────────────────────────────────────────────────────── */
+
+/* Primary — solid brand */
+.primary {
+  color: var(--color-fg-inverse, #ffffff);
+  background: var(--color-primary, #0b3d91);
+  border-color: var(--color-primary, #0b3d91);
+}
+
+.primary:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--color-primary, #0b3d91) 85%, #000);
+  border-color: color-mix(in srgb, var(--color-primary, #0b3d91) 85%, #000);
+}
+
+.primary:active:not(:disabled) {
+  background: color-mix(in srgb, var(--color-primary, #0b3d91) 70%, #000);
+}
+
+/* Secondary — outlined, subtle */
+.secondary {
+  color: var(--color-fg, #0f172a);
+  background: transparent;
+  border-color: var(--color-border, #e2e8f0);
+}
+
+.secondary:hover:not(:disabled) {
+  background: var(--color-bg-elevated, #f8fafc);
+  border-color: var(--color-primary, #0b3d91);
+  color: var(--color-primary, #0b3d91);
+}
+
+.secondary:active:not(:disabled) {
+  background: color-mix(in srgb, var(--color-bg-elevated, #f8fafc) 80%, #000);
+}
+
+/* Danger — red for destructive actions */
+.danger {
+  color: #ffffff;
+  background: var(--color-danger, #dc2626);
+  border-color: var(--color-danger, #dc2626);
+}
+
+.danger:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--color-danger, #dc2626) 85%, #000);
+  border-color: color-mix(in srgb, var(--color-danger, #dc2626) 85%, #000);
+}
+
+.danger:active:not(:disabled) {
+  background: color-mix(in srgb, var(--color-danger, #dc2626) 70%, #000);
+}
+
+/* Ghost — transparent, text-only */
+.ghost {
+  color: var(--color-fg, #0f172a);
+  background: transparent;
+  border-color: transparent;
+}
+
+.ghost:hover:not(:disabled) {
+  background: var(--color-bg-elevated, #f8fafc);
+}
+
+.ghost:active:not(:disabled) {
+  background: var(--color-border, #e2e8f0);
+}
+
+/* ─── reduce motion ──────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .button {
+    transition: none;
+  }
+}

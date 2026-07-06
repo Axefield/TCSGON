@@ -1,0 +1,83 @@
+/* Tabs — accessible tab interface. */
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4, 1rem);
+}
+
+/* ── Tab list ─────────────────────────────────────────────────────── */
+
+.tablist {
+  display: flex;
+  gap: 0;
+  border-bottom: 2px solid var(--color-border, #e2e8f0);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ── Tab button ───────────────────────────────────────────────────── */
+
+.tab {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-3, 0.75rem) var(--space-4, 1rem);
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  background: transparent;
+  color: var(--color-fg-muted, #64748b);
+  font-size: var(--font-size-sm, 0.875rem);
+  font-weight: var(--font-weight-medium, 500);
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    color var(--motion-fast, 150ms) ease-out,
+    border-color var(--motion-fast, 150ms) ease-out;
+}
+
+.tab:hover:not(.disabled) {
+  color: var(--color-fg, #0f172a);
+  border-bottom-color: var(--color-border, #e2e8f0);
+}
+
+.tab:focus-visible {
+  outline: 2px solid var(--color-focus, #2563eb);
+  outline-offset: -2px;
+  border-radius: var(--radius-sm, 0.25rem);
+}
+
+/* Active tab */
+.active {
+  color: var(--color-primary, #0b3d91);
+  border-bottom-color: var(--color-primary, #0b3d91);
+}
+
+/* Disabled tab */
+.disabled {
+  color: var(--color-border, #e2e8f0);
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* ── Tab panel ────────────────────────────────────────────────────── */
+
+.panel {
+  padding: var(--space-4, 1rem) 0;
+  outline: none;
+}
+
+.panel:focus-visible {
+  outline: 2px solid var(--color-focus, #2563eb);
+  outline-offset: -2px;
+  border-radius: var(--radius-sm, 0.25rem);
+}
+
+/* ── Reduced motion ───────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .tab {
+    transition: none;
+  }
+}

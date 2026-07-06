@@ -298,8 +298,8 @@ describe('SettingsPage', () => {
     );
     render(<Wrapper />);
 
-    // Profile name is "Admin User" → initial "A"
-    expect(await screen.findByText('A')).toBeInTheDocument();
+    // Profile name is "Admin User" → initials "AU" from Avatar component
+    expect(await screen.findByText('AU')).toBeInTheDocument();
   });
 
   it('shows avatar error state when image fails to load', async () => {
@@ -318,14 +318,17 @@ describe('SettingsPage', () => {
     // Wait for avatar URL field to appear
     await screen.findByLabelText(/avatar url/i);
 
-    // Avatar preview image should be rendered (alt="" → presentation role, query by src)
-    const img = document.querySelector('img[src="https://example.com/broken.jpg"]');
+    // Avatar renders an internal <img> element
+    const img = document.querySelector('img[src="https://example.com/broken.jpg"]') as HTMLImageElement;
     expect(img).toBeInTheDocument();
     expect(img).toHaveAttribute('src', 'https://example.com/broken.jpg');
 
-    // Trigger onError — should hide the image
-    img!.dispatchEvent(new Event('error'));
-    expect(img).toHaveStyle('display: none');
+    // Trigger onError — Avatar handles the error internally, hides image, shows initials
+    img.dispatchEvent(new Event('error'));
+
+    // Avatar should now show initials "AU" and the image should be removed
+    expect(await screen.findByText('AU')).toBeInTheDocument();
+    expect(document.querySelector('img[src="https://example.com/broken.jpg"]')).not.toBeInTheDocument();
   });
 
   // ── Phase 5: Notification preferences ──────────────────────────

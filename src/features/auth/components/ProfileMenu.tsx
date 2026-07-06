@@ -29,6 +29,7 @@ import {
 } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import { Avatar } from '@/shared/components';
 import type { User } from '@/shared/types/user';
 
 import styles from './ProfileMenu.module.css';
@@ -56,7 +57,6 @@ export function ProfileMenu({
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [focusIndex, setFocusIndex] = useState(SETTINGS_INDEX);
-  const [imgError, setImgError] = useState(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLUListElement>(null);
   const itemRefs = useRef<(HTMLButtonElement | null)[]>([]);
@@ -179,20 +179,7 @@ export function ProfileMenu({
         aria-controls={MENU_ID}
         className={styles.trigger}
       >
-        <span className={styles.avatar}>
-          {user.avatarUrl && !imgError ? (
-            <img
-              key={user.avatarUrl}
-              src={user.avatarUrl}
-              alt=""
-              className={styles.avatarImage}
-              onError={() => { setImgError(true); }}
-            />
-          ) : null}
-          <span className={styles.avatarInitials}>
-            {user.name.charAt(0).toUpperCase()}
-          </span>
-        </span>
+        <Avatar src={user.avatarUrl ?? undefined} alt={user.name} name={user.name} size="sm" />
         <span className={styles.name}>{user.name}</span>
       </button>
 

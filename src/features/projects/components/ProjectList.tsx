@@ -1,7 +1,7 @@
 import { type ReactElement } from 'react';
 
 import type { Project, ProjectStatus } from '@/features/projects/types';
-import { DataTable, Pagination } from '@/shared/components';
+import { Badge, DataTable, Pagination } from '@/shared/components';
 
 import styles from './ProjectList.module.css';
 
@@ -16,6 +16,15 @@ export interface ProjectListProps {
   readonly onPageChange: (page: number) => void;
   readonly onOpen: (project: Project) => void;
   readonly emptyState: ReactElement;
+}
+
+function badgeVariant(status: ProjectStatus): 'success' | 'warning' | 'info' | 'default' {
+  switch (status) {
+    case 'active': return 'success';
+    case 'paused': return 'warning';
+    case 'completed': return 'info';
+    case 'archived': return 'default';
+  }
 }
 
 const statusLabels: Record<ProjectStatus, string> = {
@@ -65,9 +74,9 @@ export function ProjectList({
             label: 'Status',
             sortable: true,
             render: (project) => (
-              <span className={`${styles.badge} ${styles[project.status]}`}>
+              <Badge variant={badgeVariant(project.status)}>
                 {statusLabels[project.status]}
-              </span>
+              </Badge>
             ),
           },
           {

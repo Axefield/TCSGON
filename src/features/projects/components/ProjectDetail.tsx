@@ -1,5 +1,6 @@
 import { type ReactElement } from 'react';
-import { Link } from 'react-router-dom';
+
+import { Button } from '@/shared/components';
 
 import type { Project } from '@/features/projects/types';
 
@@ -31,12 +32,8 @@ export function ProjectDetail({
           <h1 className={styles.title}>{project.name}</h1>
         </div>
         <div className={styles.actions}>
-          <Link className={styles.editLink} to={`/projects/${project.id}/edit`}>
-            Edit project
-          </Link>
-          <button className={styles.deleteButton} type="button" onClick={onDelete} disabled={isDeleting}>
-            {isDeleting ? 'Deleting...' : 'Delete project'}
-          </button>
+          <Button href={`/projects/${project.id}/edit`} variant="secondary">Edit project</Button>
+          <Button variant="danger" onClick={onDelete} loading={isDeleting}>Delete project</Button>
         </div>
       </div>
 

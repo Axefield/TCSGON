@@ -49,28 +49,3 @@
   line-height: var(--leading-normal, 1.5);
 }
 
-.dismiss {
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 1.25rem;
-  height: 1.25rem;
-  border: none;
-  background: transparent;
-  color: var(--color-fg-muted, #64748b);
-  cursor: pointer;
-  border-radius: var(--radius-sm, 0.25rem);
-  font-size: 1rem;
-  line-height: 1;
-}
-
-.dismiss:hover {
-  background: var(--color-bg-elevated, #f8fafc);
-  color: var(--color-fg, #0f172a);
-}
-
-.dismiss:focus-visible {
-  outline: 2px solid var(--color-focus, #2563eb);
-  outline-offset: 1px;
-}

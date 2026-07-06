@@ -20,6 +20,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { type ReactElement, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 
+import { Button, Input } from '@/shared/components';
 import { ResetPasswordInputSchema, type ResetPasswordInput } from '@/shared/types/user';
 
 import { PasswordStrengthIndicator } from './PasswordStrengthIndicator';
@@ -95,56 +96,37 @@ export function ResetPasswordForm({
       />
 
       <div className={styles.field}>
-        <label htmlFor="reset-password" className={styles.label}>
-          New password
-        </label>
-        <input
+        <Input
           id="reset-password"
+          label="New password"
           type="password"
           autoComplete="new-password"
-          aria-required="true"
-          aria-invalid={errors.password ? 'true' : undefined}
-          aria-describedby={errors.password ? 'reset-password-error' : undefined}
+          error={errors.password?.message}
           {...register('password')}
-          className={`${styles.input} ${errors.password ? styles.inputError : styles.inputNormal}`}
         />
         <PasswordStrengthIndicator password={passwordValue} />
-        {errors.password ? (
-          <p id="reset-password-error" role="alert" className={styles.errorText}>
-            {errors.password.message}
-          </p>
-        ) : null}
       </div>
 
       <div className={styles.field}>
-        <label htmlFor="reset-confirm" className={styles.label}>
-          Confirm new password
-        </label>
-        <input
+        <Input
           id="reset-confirm"
+          label="Confirm new password"
           type="password"
           autoComplete="new-password"
-          aria-required="true"
-          aria-invalid={errors.confirmPassword ? 'true' : undefined}
-          aria-describedby={errors.confirmPassword ? 'reset-confirm-error' : undefined}
+          error={errors.confirmPassword?.message}
           {...register('confirmPassword')}
-          className={`${styles.input} ${errors.confirmPassword ? styles.inputError : styles.inputNormal}`}
         />
-        {errors.confirmPassword ? (
-          <p id="reset-confirm-error" role="alert" className={styles.errorText}>
-            {errors.confirmPassword.message}
-          </p>
-        ) : null}
       </div>
 
-      <button
+      <Button
         type="submit"
-        disabled={isBusy || (!isValid && !hasRootError)}
-        aria-busy={isBusy}
-        className={styles.submitButton}
+        variant="primary"
+        fullWidth
+        loading={isBusy}
+        disabled={!isValid && !hasRootError}
       >
         {isBusy ? 'Resetting password…' : 'Reset password'}
-      </button>
+      </Button>
     </form>
   );
 }

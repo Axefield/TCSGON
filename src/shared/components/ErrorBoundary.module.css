@@ -1,0 +1,24 @@
+/* ErrorBoundary — default fallback UI. */
+
+.default {
+  padding: var(--space-8, 2rem);
+  max-width: 32rem;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.heading {
+  font-size: var(--font-size-2xl, 1.5rem);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-fg, #0f172a);
+  margin: 0 0 var(--space-4, 1rem);
+}
+
+.message {
+  font-size: var(--font-size-base, 1rem);
+  color: var(--color-fg-muted, #64748b);
+  margin: 0 0 var(--space-6, 1.5rem);
+  line-height: var(--leading-normal, 1.5);
+  word-break: break-word;
+}
+

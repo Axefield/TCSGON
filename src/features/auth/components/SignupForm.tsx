@@ -20,6 +20,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { type ReactElement, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 
+import { Button, Input } from '@/shared/components';
 import { SignupInputSchema, type SignupInput } from '@/shared/types/user';
 
 import { PasswordStrengthIndicator } from './PasswordStrengthIndicator';
@@ -82,98 +83,59 @@ export function SignupForm({
       ) : null}
 
       <div className={styles.field}>
-        <label htmlFor="signup-name" className={styles.label}>
-          Name
-        </label>
-        <input
+        <Input
           id="signup-name"
+          label="Name"
           type="text"
           autoComplete="name"
-          aria-required="true"
-          aria-invalid={errors.name ? 'true' : undefined}
-          aria-describedby={errors.name ? 'signup-name-error' : undefined}
+          error={errors.name?.message}
           {...register('name')}
-          className={`${styles.input} ${errors.name ? styles.inputError : styles.inputNormal}`}
         />
-        {errors.name ? (
-          <p id="signup-name-error" role="alert" className={styles.errorText}>
-            {errors.name.message}
-          </p>
-        ) : null}
       </div>
 
       <div className={styles.field}>
-        <label htmlFor="signup-email" className={styles.label}>
-          Email
-        </label>
-        <input
+        <Input
           id="signup-email"
+          label="Email"
           type="email"
           autoComplete="email"
-          aria-required="true"
-          aria-invalid={errors.email ? 'true' : undefined}
-          aria-describedby={errors.email ? 'signup-email-error' : undefined}
+          error={errors.email?.message}
           {...register('email')}
-          className={`${styles.input} ${errors.email ? styles.inputError : styles.inputNormal}`}
         />
-        {errors.email ? (
-          <p id="signup-email-error" role="alert" className={styles.errorText}>
-            {errors.email.message}
-          </p>
-        ) : null}
       </div>
 
       <div className={styles.field}>
-        <label htmlFor="signup-password" className={styles.label}>
-          Password
-        </label>
-        <input
+        <Input
           id="signup-password"
+          label="Password"
           type="password"
           autoComplete="new-password"
-          aria-required="true"
-          aria-invalid={errors.password ? 'true' : undefined}
-          aria-describedby={errors.password ? 'signup-password-error' : undefined}
+          error={errors.password?.message}
           {...register('password')}
-          className={`${styles.input} ${errors.password ? styles.inputError : styles.inputNormal}`}
         />
         <PasswordStrengthIndicator password={passwordValue} />
-        {errors.password ? (
-          <p id="signup-password-error" role="alert" className={styles.errorText}>
-            {errors.password.message}
-          </p>
-        ) : null}
       </div>
 
       <div className={styles.field}>
-        <label htmlFor="signup-confirm" className={styles.label}>
-          Confirm password
-        </label>
-        <input
+        <Input
           id="signup-confirm"
+          label="Confirm password"
           type="password"
           autoComplete="new-password"
-          aria-required="true"
-          aria-invalid={errors.confirmPassword ? 'true' : undefined}
-          aria-describedby={errors.confirmPassword ? 'signup-confirm-error' : undefined}
+          error={errors.confirmPassword?.message}
           {...register('confirmPassword')}
-          className={`${styles.input} ${errors.confirmPassword ? styles.inputError : styles.inputNormal}`}
         />
-        {errors.confirmPassword ? (
-          <p id="signup-confirm-error" role="alert" className={styles.errorText}>
-            {errors.confirmPassword.message}
-          </p>
-        ) : null}
       </div>
 
-      <button
+      <Button
         type="submit"
-        disabled={isBusy || (!isValid && !hasRootError)}
-        aria-busy={isBusy}
-        className={styles.submitButton}
+        variant="primary"
+        fullWidth
+        loading={isBusy}
+        disabled={!isValid && !hasRootError}
       >
         {isBusy ? 'Creating account…' : 'Create account'}
-      </button>
+      </Button>
     </form>
   );
 }

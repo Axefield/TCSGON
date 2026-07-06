@@ -178,7 +178,7 @@ describe('PUT /api/projects/:id', () => {
 });
 
 describe('DELETE /api/projects/:id', () => {
-  it('deletes a project and returns 204', async () => {
+  it('soft-deletes a project and returns 204', async () => {
     const created = await prisma.project.create({
       data: {
         id: generateToken(),
@@ -195,14 +195,43 @@ describe('DELETE /api/projects/:id', () => {
       .set('Authorization', `Bearer ${token}`)
       .expect(204);
 
-    // Verify deletion
+    // Verify soft-delete: project still exists but has deletedAt set
     const found = await prisma.project.findUnique({ where: { id: created.id } });
-    expect(found).toBeNull();
+    expect(found).not.toBeNull();
+    expect(found?.deletedAt).not.toBeNull();
+    expect(found?.deletedAt).toBeInstanceOf(Date);
   });
 
   it('returns 404 for non-existent project', async () => {
     const res = await request(app)
       .delete(`/api/projects/${generateToken()}`)
+      .set('Authorization', `Bearer ${token}`)
+      .expect(404);
+
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('returns 404 for already soft-deleted project', async () => {
+    const created = await prisma.project.create({
+      data: {
+        id: generateToken(),
+        name: 'Double Delete',
+        description: '',
+        status: 'active',
+        leadName: 'Test Lead',
+        memberCount: 0,
+      },
+    });
+
+    // First delete
+    await request(app)
+      .delete(`/api/projects/${created.id}`)
+      .set('Authorization', `Bearer ${token}`)
+      .expect(204);
+
+    // Second delete should 404
+    const res = await request(app)
+      .delete(`/api/projects/${created.id}`)
       .set('Authorization', `Bearer ${token}`)
       .expect(404);
 
