@@ -16,8 +16,6 @@ import { type ReactElement } from 'react';
 import type { ToastEntry } from '@/shared/types/toast';
 
 import { Button } from './Button';
-
-// eslint-disable-next-line import/order -- plugin bug: CSS import misclassified
 import styles from './Toast.module.css';
 
 export interface ToastProps {

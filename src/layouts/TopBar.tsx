@@ -16,8 +16,8 @@ import { Link, useNavigate } from 'react-router-dom';
 
 import { ProfileMenu } from '@/features/auth/components/ProfileMenu';
 import { useAuth } from '@/features/auth/hooks/useAuth';
-import type { Theme } from '@/store/slices/uiSlice';
 import { Button } from '@/shared/components';
+import type { Theme } from '@/store/slices/uiSlice';
 
 import styles from './TopBar.module.css';
 

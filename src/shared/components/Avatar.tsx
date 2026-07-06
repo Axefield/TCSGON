@@ -63,8 +63,8 @@ export function Avatar({
   const initials = trimmedName ? getInitials(trimmedName) : '';
 
   const classes = [
-    styles.avatar!,
-    styles[size]!,
+    styles.avatar,
+    styles[size],
     className ?? '',
   ]
     .filter(Boolean)
@@ -77,17 +77,17 @@ export function Avatar({
           key={src}
           src={src}
           alt={alt}
-          className={styles.image!}
+          className={styles.image}
           onError={() => { setImgError(true); }}
           onLoad={() => { setImgError(false); }}
         />
       ) : initials ? (
-        <span className={styles.initials!} aria-hidden="true">
+        <span className={styles.initials} aria-hidden="true">
           {initials}
         </span>
       ) : (
         <svg
-          className={styles.fallbackIcon!}
+          className={styles.fallbackIcon}
           viewBox="0 0 24 24"
           aria-hidden="true"
           fill="none"

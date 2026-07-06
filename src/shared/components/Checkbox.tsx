@@ -45,9 +45,9 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(function Che
   }, [indeterminate, ref]);
 
   const classes = [
-    styles.wrapper!,
-    styles[size]!,
-    error ? styles.hasError! : '',
+    styles.wrapper,
+    styles[size],
+    error ? styles.hasError : '',
     className ?? '',
   ]
     .filter(Boolean)
@@ -59,24 +59,24 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(function Che
         type="checkbox"
         id={inputId}
         ref={ref}
-        className={styles.input!}
+        className={styles.input}
         aria-invalid={error ? 'true' : undefined}
         aria-describedby={error ? `${inputId}-error` : undefined}
         {...domProps}
       />
       <label htmlFor={inputId} className={styles.label}>
         <span className={styles.control}>
-          <svg className={`${styles.icon!} ${styles.iconCheck!}`} viewBox="0 0 24 24" aria-hidden="true">
+          <svg className={`${styles.icon} ${styles.iconCheck}`} viewBox="0 0 24 24" aria-hidden="true">
             <polyline points="20 6 9 17 4 12" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
-          <svg className={`${styles.icon!} ${styles.iconMinus!}`} viewBox="0 0 24 24" aria-hidden="true">
+          <svg className={`${styles.icon} ${styles.iconMinus}`} viewBox="0 0 24 24" aria-hidden="true">
             <line x1="6" y1="12" x2="18" y2="12" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
           </svg>
         </span>
-        {label && <span className={styles.labelText!}>{label}</span>}
+        {label && <span className={styles.labelText}>{label}</span>}
       </label>
       {error && (
-        <p id={`${inputId}-error`} className={styles.errorText!} role="alert">
+        <p id={`${inputId}-error`} className={styles.errorText} role="alert">
           {error}
         </p>
       )}

@@ -5,8 +5,9 @@
  * and labelled landmarks. Test both the unauthenticated render and the
  * authenticated redirect path.
  */
-import { renderWithProviders, testA11y } from '@/test-utils';
 import { screen } from '@testing-library/react';
+
+import { renderWithProviders, testA11y } from '@/test-utils';
 
 import { LandingPage } from './LandingPage';
 

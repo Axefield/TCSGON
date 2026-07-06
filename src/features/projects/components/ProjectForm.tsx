@@ -2,13 +2,12 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { type ReactElement } from 'react';
 import { useForm } from 'react-hook-form';
 
-import { Button, Input, Select } from '@/shared/components';
-
 import {
   ProjectInputSchema,
   type ProjectInput,
   type ProjectStatus,
 } from '@/features/projects/types';
+import { Button, Input, Select } from '@/shared/components';
 
 import styles from './ProjectForm.module.css';
 

@@ -16,8 +16,8 @@ import {
   type ReactNode,
 } from 'react';
 
-import { Spinner } from './Spinner';
 import styles from './Button.module.css';
+import { Spinner } from './Spinner';
 
 // ─── Base props (shared across both variants) ──────────────────────────
 

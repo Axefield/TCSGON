@@ -1,8 +1,7 @@
 import { type ReactElement } from 'react';
 
-import { Button } from '@/shared/components';
-
 import type { Project } from '@/features/projects/types';
+import { Button } from '@/shared/components';
 
 import styles from './ProjectDetail.module.css';
 

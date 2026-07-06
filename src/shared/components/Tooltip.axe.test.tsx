@@ -12,8 +12,9 @@
  */
 import { render, screen, fireEvent } from '@testing-library/react';
 import { act } from 'react';
-import { testA11y } from '@/test-utils';
 import { describe, it, vi, afterEach } from 'vitest';
+
+import { testA11y } from '@/test-utils';
 
 import { Tooltip } from './Tooltip';
 

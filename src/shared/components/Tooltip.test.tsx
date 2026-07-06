@@ -120,7 +120,7 @@ describe('Tooltip', () => {
     fireEvent.mouseOut(screen.getByText('Hover me'));
     act(() => {
       vi.advanceTimersByTime(300);
-    }); // past the 200 ms hide delay
+    }); // past the 200 ms hide delay
 
     expect(screen.queryByText('tooltip text')).not.toBeInTheDocument();
   });

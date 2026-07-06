@@ -11,8 +11,8 @@ import { type ReactElement } from 'react';
 import { Navigate } from 'react-router-dom';
 
 import { selectIsAuthenticated } from '@/features/auth/slice/authSlice';
-import { Button } from '@/shared/components';
 import { ROUTES } from '@/routes';
+import { Button } from '@/shared/components';
 import { useAppSelector } from '@/store/hooks';
 
 import styles from './LandingPage.module.css';

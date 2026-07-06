@@ -5,8 +5,9 @@
  * accessibility violations when an error is caught.
  */
 import { render } from '@testing-library/react';
-import { testA11y } from '@/test-utils';
 import { describe, it, vi, beforeEach, afterEach } from 'vitest';
+
+import { testA11y } from '@/test-utils';
 
 import { ErrorBoundary } from './ErrorBoundary';
 

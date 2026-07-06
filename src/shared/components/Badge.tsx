@@ -28,9 +28,9 @@ export function Badge({
   className,
 }: BadgeProps) {
   const classes = [
-    styles.badge!,
-    styles[variant]!,
-    styles[size]!,
+    styles.badge,
+    styles[variant],
+    styles[size],
     className ?? '',
   ]
     .filter(Boolean)

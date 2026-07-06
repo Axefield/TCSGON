@@ -40,17 +40,17 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
   const inputId = idProp ?? generatedId;
 
   const inputClasses = [
-    styles.input!,
-    styles[size]!,
-    error ? styles.inputError! : '',
+    styles.input,
+    styles[size],
+    error ? styles.inputError : '',
     className ?? '',
   ]
     .filter(Boolean)
     .join(' ');
 
   const wrapperClasses = [
-    styles.wrapper!,
-    fullWidth ? styles.fullWidth! : '',
+    styles.wrapper,
+    fullWidth ? styles.fullWidth : '',
   ]
     .filter(Boolean)
     .join(' ');
@@ -58,7 +58,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
   return (
     <div className={wrapperClasses}>
       {label && (
-        <label htmlFor={inputId} className={styles.label!}>
+        <label htmlFor={inputId} className={styles.label}>
           {label}
         </label>
       )}
@@ -73,12 +73,12 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
         {...domProps}
       />
       {error && (
-        <p id={`${inputId}-error`} className={styles.error!} role="alert">
+        <p id={`${inputId}-error`} className={styles.error} role="alert">
           {error}
         </p>
       )}
       {hint && !error && (
-        <p id={`${inputId}-hint`} className={styles.hint!}>
+        <p id={`${inputId}-hint`} className={styles.hint}>
           {hint}
         </p>
       )}

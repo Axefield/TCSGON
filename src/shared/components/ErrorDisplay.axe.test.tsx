@@ -7,9 +7,8 @@
  */
 import { render } from '@testing-library/react';
 
-import { testA11y } from '@/test-utils';
-
 import { ApiError } from '@/shared/api/errors';
+import { testA11y } from '@/test-utils';
 
 import { ErrorDisplay } from './ErrorDisplay';
 

@@ -45,17 +45,17 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(function Select
   const selectId = idProp ?? generatedId;
 
   const selectClasses = [
-    styles.select!,
-    styles[size]!,
-    error ? styles.selectError! : '',
+    styles.select,
+    styles[size],
+    error ? styles.selectError : '',
     className ?? '',
   ]
     .filter(Boolean)
     .join(' ');
 
   const wrapperClasses = [
-    styles.wrapper!,
-    fullWidth ? styles.fullWidth! : '',
+    styles.wrapper,
+    fullWidth ? styles.fullWidth : '',
   ]
     .filter(Boolean)
     .join(' ');
@@ -63,11 +63,11 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(function Select
   return (
     <div className={wrapperClasses}>
       {label && (
-        <label htmlFor={selectId} className={styles.label!}>
+        <label htmlFor={selectId} className={styles.label}>
           {label}
         </label>
       )}
-      <div className={styles.selectWrapper!}>
+      <div className={styles.selectWrapper}>
         <select
           id={selectId}
           ref={ref}
@@ -80,15 +80,15 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(function Select
         >
           {children}
         </select>
-        <span className={styles.arrow!} aria-hidden="true">▼</span>
+        <span className={styles.arrow} aria-hidden="true">▼</span>
       </div>
       {error && (
-        <p id={`${selectId}-error`} className={styles.error!} role="alert">
+        <p id={`${selectId}-error`} className={styles.error} role="alert">
           {error}
         </p>
       )}
       {hint && !error && (
-        <p id={`${selectId}-hint`} className={styles.hint!}>
+        <p id={`${selectId}-hint`} className={styles.hint}>
           {hint}
         </p>
       )}

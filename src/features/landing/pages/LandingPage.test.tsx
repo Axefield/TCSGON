@@ -15,8 +15,8 @@ import { Provider as ReduxProvider } from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it } from 'vitest';
 
-import { authReducer } from '@/features/auth/slice/authSlice';
 import type { AuthState } from '@/features/auth/authState';
+import { authReducer } from '@/features/auth/slice/authSlice';
 import { ApiClientProvider } from '@/shared/api/ApiClientContext';
 import { createApiClient } from '@/shared/api/client';
 import { asSessionId, asUserId } from '@/shared/types/brand';
