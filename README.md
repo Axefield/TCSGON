@@ -36,7 +36,7 @@ pnpm axe             # a11y-only spec via @axe-core/playwright
 pnpm clean           # remove dist/, coverage/, playwright-report/, test-results/
 ```
 
-> **Current status (all completed phases):** every gate passes. Coverage: 96.1% lines / 87.65% branches / 85.76% functions (gates: 80%/75%/80%). **501 client tests across 76 files**. Auth feature: 100% all metrics. No `any`, no `@ts-ignore`, no `eslint-disable` without justification. See [`docs/plans/phase-1-core-infrastructure.md`](./docs/plans/phase-1-core-infrastructure.md) and [`roadmap.md`](./roadmap.md) for full plans + verification logs.
+> **Current status (all completed phases):** every gate passes. Coverage: **96.7% lines / 90.34% branches / 87.34% functions** (gates: 80%/75%/80%). **762 client tests across 107 files**. Auth feature: 100% all metrics. No `any`, no `@ts-ignore`, no `eslint-disable` without justification. See [`docs/plans/phase-1-core-infrastructure.md`](./docs/plans/phase-1-core-infrastructure.md) and [`roadmap.md`](./roadmap.md) for full plans + verification logs.
 
 ---
 
@@ -83,7 +83,8 @@ Reusable, accessible, typed UI primitives used by the shell and auth features. E
 | `TopBar` | ✅ | Self-contained auth via `useAuth()`, renders `ProfileMenu` or sign-in link |
 | `AppShell` | ✅ | Responsive shell (sidebar + top bar + main), integrates `SessionCheck` |
 | `AuthLayout` | ✅ | Consistent heading + subheading for auth pages |
-| **Button, Input, Select, Modal, Drawer, Tooltip, Table, Tabs, Pagination, Avatar, Badge, Tabs** | 🔄 Planned | See [`roadmap.md`](./roadmap.md#phase-2---design-system) for full component list |
+| **Button, Input, Select, Checkbox, Badge, Avatar** | ✅ | Primitives: accessible, typed, tested — `Button` (href-discriminant `<a>`/`<button>`), `Input` (`forwardRef` + `useId()`), `Select`, `Checkbox` (indeterminate support), `Badge` (6 variant colors, 3 sizes), `Avatar` (image → initials → SVG fallback) |
+| **Modal, Drawer, Tooltip, DataTable, Pagination, Tabs, Radio.Group, ErrorBoundary, ConfirmDialog, EmptyState, ErrorDisplay** | ✅ | Existing composites hardened with full tests + a11y audits (see Phase 7) |
 
 ---
 
@@ -188,13 +189,34 @@ Coverage push, accessibility audit, edge case hardening. See [`docs/plans/phase-
 | **Bundle budgets** | Max JS chunk 63.47 kB gzip (budget 200/350 kB). Max CSS 2.23 kB (budget 30/60 kB). Zero test dep leaks into production. |
 | **CI workflow** | E2E sharded 4×, Playwright browser caching, dedicated a11y job, bundle budget gate, edge case validation, Lighthouse CI enabled. |
 
-> **Note:** The design system primitives originally planned for Phase 6 (Button, Input, Select, Modal, etc.) are deferred to a future phase after Phase 6.
+> **Note:** The design system primitives originally deferred from Phase 6 were delivered in Phase 7 (Design System Completion).
 
 See [`docs/plans/phase-6-testing-a11y-hardening.md`](./docs/plans/phase-6-testing-a11y-hardening.md) for the full plan and edge case documentation.
 
 ---
 
-### Phase 7 — Performance Optimization 📋
+### Phase 7 — Design System Completion + Landing Page ✅
+
+> Six new primitives, six hardened composites, a11y audits for all, feature page adoption, and a public landing page. See [`docs/plans/phase-7-design-system-and-features.md`](./docs/plans/phase-7-design-system-and-features.md).
+
+| Area | Delivered |
+|------|-----------|
+| **Button** | Accessible `<button>` / `<a>` (href-presence discriminant), 6 color variants, 3 sizes, loading spinner, `forwardRef` |
+| **Input** | Wrapper with label/error/hint, `forwardRef` + `useId()`, 3 sizes, `fullWidth` |
+| **Select** | Mirrors Input API, native `<select>` for a11y, 3 sizes, placeholder option |
+| **Checkbox** | Controlled + indeterminate (`useEffect` DOM property), label association, error state |
+| **Badge** | 6 variant colors, 3 sizes, dot + count modes, CSS-only animation, respects `prefers-reduced-motion` |
+| **Avatar** | Image → initials → SVG fallback chain, `key={src}` for src-change resets, 4 sizes, aria-label |
+| **Modal / Drawer / Tabs / Tooltip / Radio.Group / ErrorBoundary** | 6 composites hardened: 82 new tests (unit + a11y), focus management, keyboard support, role semantics |
+| **Existing a11y tests (5 components)** | EmptyState, ErrorDisplay, DataTable, Pagination, ConfirmDialog — 29 new axe-core tests added |
+| **Feature page adoption** | Input/Select/Badge/Avatar adopted across 12 feature files (projects, dashboard, auth ProfileMenu, settings) |
+| **Landing Page** | Public homepage at `/` with hero, feature cards, CTAs; redirects authenticated users to `/dashboard` via `<Navigate>`; WCAG 2.2 AA clean |
+| **Type correctness** | All `exactOptionalPropertyTypes` violations resolved (`| undefined` on optional props); zero `!` on CSS module dot-access |
+| **CI fixes** | 36 unsafe `!` assertions removed; E2E locator updated for new Avatar component |
+
+---
+
+### Phase 8 — Performance Optimization 📋
 
 > Measure, identify, optimize, verify. See [`roadmap.md`](./roadmap.md#phase-7--performance-optimization).
 
@@ -207,7 +229,7 @@ See [`docs/plans/phase-6-testing-a11y-hardening.md`](./docs/plans/phase-6-testin
 
 ---
 
-### Phase 8 — CI/CD & Deployment Pipeline 📋
+### Phase 9 — CI/CD & Deployment Pipeline 📋
 
 > Automated quality gates, preview deployments, production release. See [`roadmap.md`](./roadmap.md#phase-8--cicd--deployment-pipeline).
 
@@ -219,7 +241,7 @@ See [`docs/plans/phase-6-testing-a11y-hardening.md`](./docs/plans/phase-6-testin
 
 ---
 
-### Phase 9 — Documentation & Knowledge Base 📋
+### Phase 10 — Documentation & Knowledge Base 📋
 
 - [ ] ADRs for all architectural decisions (state, routing, TS strict, design system)
 - [ ] Feature author conventions (`src/features/__README__.md`)
