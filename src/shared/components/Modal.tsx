@@ -37,6 +37,7 @@ import { createPortal } from 'react-dom';
 import { useFocusTrap, getFocusableElements } from '@/shared/hooks/useFocusTrap';
 import { useLockedBody } from '@/shared/hooks/useLockedBody';
 
+import { Button } from './Button';
 import styles from './Modal.module.css';
 
 export interface ModalProps {
@@ -128,14 +129,14 @@ export function Modal({
           <h2 id={titleId} className={styles.title}>
             {title}
           </h2>
-          <button
-            type="button"
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={onClose}
-            className={styles.close}
             aria-label="Close dialog"
           >
             &times;
-          </button>
+          </Button>
         </div>
         <div className={styles.content}>{children}</div>
       </div>

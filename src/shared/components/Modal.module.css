@@ -79,32 +79,6 @@
   line-height: var(--leading-tight, 1.25);
 }
 
-.close {
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2rem;
-  height: 2rem;
-  border: none;
-  background: transparent;
-  color: var(--color-fg-muted, #64748b);
-  cursor: pointer;
-  border-radius: var(--radius-sm, 0.25rem);
-  font-size: 1.25rem;
-  line-height: 1;
-  transition: background var(--motion-fast, 150ms) ease-out;
-}
-
-.close:hover {
-  background: var(--color-bg-elevated, #f8fafc);
-  color: var(--color-fg, #0f172a);
-}
-
-.close:focus-visible {
-  outline: 2px solid var(--color-focus, #2563eb);
-  outline-offset: 2px;
-}
 
 /* ── Content ──────────────────────────────────────────────────────── */
 

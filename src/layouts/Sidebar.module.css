@@ -34,29 +34,6 @@
   overflow: hidden;
 }
 
-.toggle {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2rem;
-  height: 2rem;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  border-radius: var(--radius-sm, 0.25rem);
-  color: var(--color-fg-muted, #64748b);
-}
-
-.toggle:hover {
-  background: var(--color-bg, #ffffff);
-  color: var(--color-fg, #0f172a);
-}
-
-.toggle:focus-visible {
-  outline: 2px solid var(--color-focus, #2563eb);
-  outline-offset: 1px;
-}
-
 @media (prefers-reduced-motion: reduce) {
   .sidebar {
     transition: none;

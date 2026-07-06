@@ -30,24 +30,24 @@ describe('Button', () => {
 
   it('applies the base button class', () => {
     const { container } = render(<Button>Label</Button>);
-    expect(container.firstChild).toHaveClass(styles.button);
+    expect(container.firstChild).toHaveClass(styles.button!);
   });
 
   it('applies a non-default variant class', () => {
     const { container } = render(<Button variant="danger">Delete</Button>);
-    expect(container.firstChild).toHaveClass(styles.danger);
+    expect(container.firstChild).toHaveClass(styles.danger!);
   });
 
   // ─── Sizes ───────────────────────────────────────────────────────────
 
   it('applies default size md', () => {
     const { container } = render(<Button>Label</Button>);
-    expect(container.firstChild).toHaveClass(styles.md);
+    expect(container.firstChild).toHaveClass(styles.md!);
   });
 
   it('applies a non-default size class', () => {
     const { container } = render(<Button size="lg">Large</Button>);
-    expect(container.firstChild).toHaveClass(styles.lg);
+    expect(container.firstChild).toHaveClass(styles.lg!);
   });
 
   // ─── States: disabled ────────────────────────────────────────────────
@@ -103,7 +103,7 @@ describe('Button', () => {
 
   it('applies fullWidth class', () => {
     const { container } = render(<Button fullWidth>Wide</Button>);
-    expect(container.firstChild).toHaveClass(styles.fullWidth);
+    expect(container.firstChild).toHaveClass(styles.fullWidth!);
   });
 
   // ─── Custom className ────────────────────────────────────────────────

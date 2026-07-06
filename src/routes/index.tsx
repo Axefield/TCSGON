@@ -17,7 +17,7 @@
  *       /forgot-password → ForgotPasswordPage (lazy)
  *       /reset-password  → ResetPasswordPage (lazy)
  *     </RedirectIfAuth>
- *     /          → redirect to /dashboard
+ *     /          → LandingPage (public, redirects to /dashboard if authed)
  *     *          → NotFoundPage (lazy)
  *   </AppShell>
  * </RootErrorBoundary>
@@ -132,7 +132,7 @@ const routes: RouteObject[] = [
       },
       {
         index: true,
-        lazy: () => import('@/features/dashboard/pages/DashboardPage').then((m) => ({ Component: m.DashboardPage })),
+        lazy: () => import('@/features/landing/pages/LandingPage').then((m) => ({ Component: m.LandingPage })),
       },
       {
         path: '*',

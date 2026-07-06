@@ -31,6 +31,7 @@ import { createPortal } from 'react-dom';
 import { useFocusTrap, getFocusableElements } from '@/shared/hooks/useFocusTrap';
 import { useLockedBody } from '@/shared/hooks/useLockedBody';
 
+import { Button } from './Button';
 import styles from './Drawer.module.css';
 
 export interface DrawerProps {
@@ -119,14 +120,14 @@ export function Drawer({
           <h2 id={titleId} className={styles.title}>
             {title}
           </h2>
-          <button
-            type="button"
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={onClose}
-            className={styles.close}
             aria-label="Close drawer"
           >
             &times;
-          </button>
+          </Button>
         </div>
         <div className={styles.content}>{children}</div>
       </div>

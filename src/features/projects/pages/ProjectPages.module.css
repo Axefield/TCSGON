@@ -27,15 +27,6 @@
   color: var(--color-fg, #0f172a);
 }
 
-.cta {
-  border: 0;
-  border-radius: 0.75rem;
-  background: #0f172a;
-  color: #ffffff;
-  padding: 0.875rem 1.25rem;
-  font-weight: 700;
-}
-
 .toolbar {
   display: flex;
   gap: 1rem;

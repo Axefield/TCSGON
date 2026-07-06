@@ -20,6 +20,7 @@ import { type ReactElement, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link } from 'react-router-dom';
 
+import { Button, Input } from '@/shared/components';
 import { ForgotPasswordInputSchema, type ForgotPasswordInput } from '@/shared/types/user';
 
 import styles from './ForgotPasswordForm.module.css';
@@ -90,34 +91,24 @@ export function ForgotPasswordForm({
       ) : null}
 
       <div className={styles.field}>
-        <label htmlFor="forgot-email" className={styles.label}>
-          Email address
-        </label>
-        <input
+        <Input
           id="forgot-email"
+          label="Email address"
           type="email"
           autoComplete="email"
-          aria-required="true"
-          aria-invalid={errors.email ? 'true' : undefined}
-          aria-describedby={errors.email ? 'forgot-email-error' : undefined}
+          error={errors.email?.message}
           {...register('email')}
-          className={`${styles.input} ${errors.email ? styles.inputError : styles.inputNormal}`}
         />
-        {errors.email ? (
-          <p id="forgot-email-error" role="alert" className={styles.errorText}>
-            {errors.email.message}
-          </p>
-        ) : null}
       </div>
 
-      <button
+      <Button
         type="submit"
-        disabled={isBusy}
-        aria-busy={isBusy}
-        className={styles.submitButton}
+        variant="primary"
+        fullWidth
+        loading={isBusy}
       >
         {isBusy ? 'Sending…' : 'Send reset link'}
-      </button>
+      </Button>
 
       <p className={styles.backLinkWrapper}>
         <Link to="/login" className={styles.backLink}>

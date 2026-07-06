@@ -23,7 +23,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { type ChangeEventHandler, type ReactElement, useCallback, useMemo, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 
-import { ErrorDisplay, Spinner } from '@/shared/components';
+import { Avatar, Button, ErrorDisplay, Input, Spinner } from '@/shared/components';
 import { useToast } from '@/shared/hooks/useToast';
 import type {
   ChangePasswordInput,
@@ -215,99 +215,59 @@ export function SettingsPage(): ReactElement {
           ) : null}
 
           <div className={styles.field}>
-            <label htmlFor="settings-name" className={styles.label}>
-              Name
-            </label>
-            <input
+            <Input
               id="settings-name"
+              label="Name"
               type="text"
               autoComplete="name"
               aria-required="true"
-              aria-invalid={profileErrors.name ? 'true' : undefined}
-              aria-describedby={profileErrors.name ? 'settings-name-error' : undefined}
+              error={profileErrors.name?.message}
               {...registerProfile('name')}
-              className={`${styles.input} ${profileErrors.name ? styles.inputError : styles.inputNormal}`}
             />
-            {profileErrors.name ? (
-              <p id="settings-name-error" role="alert" className={styles.errorText}>
-                {profileErrors.name.message}
-              </p>
-            ) : null}
           </div>
 
           <div className={styles.field}>
-            <label htmlFor="settings-email" className={styles.label}>
-              Email
-            </label>
-            <input
+            <Input
               id="settings-email"
+              label="Email"
               type="email"
               autoComplete="email"
               aria-required="true"
-              aria-invalid={profileErrors.email ? 'true' : undefined}
-              aria-describedby={profileErrors.email ? 'settings-email-error' : undefined}
+              error={profileErrors.email?.message}
               {...registerProfile('email')}
-              className={`${styles.input} ${profileErrors.email ? styles.inputError : styles.inputNormal}`}
             />
-            {profileErrors.email ? (
-              <p id="settings-email-error" role="alert" className={styles.errorText}>
-                {profileErrors.email.message}
-              </p>
-            ) : null}
           </div>
 
           {/* ── Avatar URL ──────────────────────────────── */}
           <div className={styles.field}>
-            <label htmlFor="settings-avatar-url" className={styles.label}>
-              Avatar URL
-            </label>
             <div className={styles.avatarRow}>
-              <div className={styles.avatarPreview}>
-                {currentAvatarUrl ? (
-                  <img
-                    src={currentAvatarUrl}
-                    alt=""
-                    className={styles.avatarImage}
-                    onError={(e) => {
-                      // Hide broken image — show fallback initials
-                      if (e.currentTarget instanceof HTMLImageElement) {
-                        e.currentTarget.style.display = 'none';
-                      }
-                    }}
-                  />
-                ) : (
-                  <span className={styles.avatarFallback}>
-                    {profile?.name?.charAt(0).toUpperCase() ?? '?'}
-                  </span>
-                )}
-              </div>
-              <input
+              <Avatar
+                src={currentAvatarUrl ?? undefined}
+                alt={profile?.name ?? 'Avatar'}
+                name={profile?.name ?? undefined}
+                size="xl"
+              />
+              <Input
                 id="settings-avatar-url"
+                label="Avatar URL"
                 type="url"
                 autoComplete="url"
                 placeholder="https://example.com/avatar.jpg"
-                aria-invalid={profileErrors.avatarUrl ? 'true' : undefined}
-                aria-describedby={profileErrors.avatarUrl ? 'settings-avatar-url-error' : undefined}
+                error={profileErrors.avatarUrl?.message}
                 {...registerProfile('avatarUrl')}
-                className={`${styles.input} ${profileErrors.avatarUrl ? styles.inputError : styles.inputNormal}`}
               />
             </div>
-            {profileErrors.avatarUrl ? (
-              <p id="settings-avatar-url-error" role="alert" className={styles.errorText}>
-                {profileErrors.avatarUrl.message}
-              </p>
-            ) : null}
           </div>
 
           <div className={styles.actions}>
-            <button
+            <Button
               type="submit"
-              disabled={isProfileSubmitting || !isProfileDirty || updateProfile.isPending}
-              aria-busy={isProfileSubmitting || updateProfile.isPending}
-              className={styles.submitButton}
+              variant="primary"
+              disabled={!isProfileDirty}
+              loading={isProfileSubmitting || updateProfile.isPending}
             >
               {isProfileSubmitting || updateProfile.isPending ? 'Saving…' : 'Save changes'}
-            </button>
+            </Button>
           </div>
         </form>
       </div>
@@ -326,56 +286,37 @@ export function SettingsPage(): ReactElement {
           ) : null}
 
           <div className={styles.field}>
-            <label htmlFor="settings-current-password" className={styles.label}>
-              Current password
-            </label>
-            <input
+            <Input
               id="settings-current-password"
+              label="Current password"
               type="password"
               autoComplete="current-password"
               aria-required="true"
-              aria-invalid={passwordErrors.currentPassword ? 'true' : undefined}
-              aria-describedby={passwordErrors.currentPassword ? 'settings-current-password-error' : undefined}
+              error={passwordErrors.currentPassword?.message}
               {...registerPassword('currentPassword')}
-              className={`${styles.input} ${passwordErrors.currentPassword ? styles.inputError : styles.inputNormal}`}
             />
-            {passwordErrors.currentPassword ? (
-              <p id="settings-current-password-error" role="alert" className={styles.errorText}>
-                {passwordErrors.currentPassword.message}
-              </p>
-            ) : null}
           </div>
 
           <div className={styles.field}>
-            <label htmlFor="settings-new-password" className={styles.label}>
-              New password
-            </label>
-            <input
+            <Input
               id="settings-new-password"
+              label="New password"
               type="password"
               autoComplete="new-password"
               aria-required="true"
-              aria-invalid={passwordErrors.newPassword ? 'true' : undefined}
-              aria-describedby={passwordErrors.newPassword ? 'settings-new-password-error' : undefined}
+              error={passwordErrors.newPassword?.message}
               {...registerPassword('newPassword')}
-              className={`${styles.input} ${passwordErrors.newPassword ? styles.inputError : styles.inputNormal}`}
             />
-            {passwordErrors.newPassword ? (
-              <p id="settings-new-password-error" role="alert" className={styles.errorText}>
-                {passwordErrors.newPassword.message}
-              </p>
-            ) : null}
           </div>
 
           <div className={styles.actions}>
-            <button
+            <Button
               type="submit"
-              disabled={isPasswordSubmitting || changePassword.isPending}
-              aria-busy={isPasswordSubmitting || changePassword.isPending}
-              className={styles.submitButton}
+              variant="primary"
+              loading={isPasswordSubmitting || changePassword.isPending}
             >
               {isPasswordSubmitting || changePassword.isPending ? 'Changing…' : 'Change password'}
-            </button>
+            </Button>
           </div>
         </form>
       </div>

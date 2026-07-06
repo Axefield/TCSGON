@@ -35,6 +35,7 @@
  */
 import { Component, type ErrorInfo, type ReactNode } from 'react';
 
+import { Button } from './Button';
 import styles from './ErrorBoundary.module.css';
 
 // ── Types ──────────────────────────────────────────────────────────
@@ -65,9 +66,7 @@ function DefaultFallback({ error, onReset }: DefaultFallbackProps): ReactNode {
     <div className={styles.default} role="alert">
       <h2 className={styles.heading}>Something went wrong</h2>
       <p className={styles.message}>{error.message}</p>
-      <button type="button" onClick={onReset} className={styles.retry}>
-        Try again
-      </button>
+      <Button variant="primary" onClick={onReset}>Try again</Button>
     </div>
   );
 }

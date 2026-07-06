@@ -1,0 +1,63 @@
+/* Avatar — user profile picture or initials. */
+
+/* ── Root ─────────────────────────────────────────────────────────── */
+
+.avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--avatar-size, 2rem);
+  height: var(--avatar-size, 2rem);
+  border-radius: var(--radius-full, 9999px);
+  background: var(--color-bg-elevated, #f1f5f9);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+/* ── Size variants ────────────────────────────────────────────────── */
+
+.sm {
+  --avatar-size: 1.5rem;
+  --avatar-font-size: 0.625rem;
+}
+
+.md {
+  --avatar-size: 2rem;
+  --avatar-font-size: 0.75rem;
+}
+
+.lg {
+  --avatar-size: 2.5rem;
+  --avatar-font-size: 0.875rem;
+}
+
+.xl {
+  --avatar-size: 3rem;
+  --avatar-font-size: 1rem;
+}
+
+/* ── Image ────────────────────────────────────────────────────────── */
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ── Initials ─────────────────────────────────────────────────────── */
+
+.initials {
+  font-size: var(--avatar-font-size, 0.75rem);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-fg-secondary, #475569);
+  line-height: 1;
+  user-select: none;
+}
+
+/* ── Fallback icon ────────────────────────────────────────────────── */
+
+.fallbackIcon {
+  width: 60%;
+  height: 60%;
+  color: var(--color-fg-tertiary, #94a3b8);
+}

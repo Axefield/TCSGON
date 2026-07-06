@@ -20,7 +20,11 @@ describe('LoginForm a11y', () => {
 
   it('form with validation errors has no a11y violations', async () => {
     const { container } = renderWithProviders(<LoginForm onSubmit={vi.fn()} />);
-    await userEvent.click(screen.getByRole('button', { name: /sign in/i }));
+    // Type invalid values to trigger onTouched validation on blur
+    await userEvent.type(screen.getByLabelText('Email'), 'bad');
+    await userEvent.type(screen.getByLabelText('Password'), 'ab');
+    // Focusing outside triggers blur on password → onTouched validation
+    await userEvent.tab();
     await testA11y(container);
   });
 

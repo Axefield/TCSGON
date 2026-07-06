@@ -20,7 +20,13 @@ describe('SignupForm a11y', () => {
 
   it('form with validation errors has no a11y violations', async () => {
     const { container } = renderWithProviders(<SignupForm onSubmit={vi.fn()} />);
-    await userEvent.click(screen.getByRole('button', { name: /create account/i }));
+    // Type invalid values to trigger onTouched validation on blur for each field
+    await userEvent.type(screen.getByLabelText('Name'), 'A');
+    await userEvent.type(screen.getByLabelText('Email'), 'bad');
+    await userEvent.type(screen.getByLabelText('Password'), 'ab');
+    await userEvent.type(screen.getByLabelText('Confirm password'), 'different');
+    // Blur the last field to trigger onTouched validation
+    await userEvent.tab();
     await testA11y(container);
   });
 

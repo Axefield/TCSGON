@@ -19,6 +19,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { type ReactElement, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 
+import { Button, Input } from '@/shared/components';
 import { LoginInputSchema, type LoginInput } from '@/shared/types/user';
 
 import styles from './LoginForm.module.css';
@@ -79,55 +80,36 @@ export function LoginForm({
       ) : null}
 
       <div className={styles.field}>
-        <label htmlFor="login-email" className={styles.label}>
-          Email
-        </label>
-        <input
+        <Input
           id="login-email"
+          label="Email"
           type="email"
           autoComplete="email"
-          aria-required="true"
-          aria-invalid={errors.email ? 'true' : undefined}
-          aria-describedby={errors.email ? 'login-email-error' : undefined}
+          error={errors.email?.message}
           {...register('email')}
-          className={`${styles.input} ${errors.email ? styles.inputError : styles.inputNormal}`}
         />
-        {errors.email ? (
-          <p id="login-email-error" role="alert" className={styles.errorText}>
-            {errors.email.message}
-          </p>
-        ) : null}
       </div>
 
       <div className={styles.field}>
-        <label htmlFor="login-password" className={styles.label}>
-          Password
-        </label>
-        <input
+        <Input
           id="login-password"
+          label="Password"
           type="password"
           autoComplete="current-password"
-          aria-required="true"
-          aria-invalid={errors.password ? 'true' : undefined}
-          aria-describedby={errors.password ? 'login-password-error' : undefined}
+          error={errors.password?.message}
           {...register('password')}
-          className={`${styles.input} ${errors.password ? styles.inputError : styles.inputNormal}`}
         />
-        {errors.password ? (
-          <p id="login-password-error" role="alert" className={styles.errorText}>
-            {errors.password.message}
-          </p>
-        ) : null}
       </div>
 
-      <button
+      <Button
         type="submit"
-        disabled={isBusy || (!isValid && !hasRootError)}
-        aria-busy={isBusy}
-        className={styles.submitButton}
+        variant="primary"
+        fullWidth
+        loading={isBusy}
+        disabled={!isValid && !hasRootError}
       >
         {isBusy ? 'Signing in…' : 'Sign in'}
-      </button>
+      </Button>
     </form>
   );
 }

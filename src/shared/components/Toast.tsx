@@ -15,6 +15,8 @@ import { type ReactElement } from 'react';
 
 import type { ToastEntry } from '@/shared/types/toast';
 
+import { Button } from './Button';
+
 // eslint-disable-next-line import/order -- plugin bug: CSS import misclassified
 import styles from './Toast.module.css';
 
@@ -36,14 +38,14 @@ export function Toast({ entry, onDismiss }: ToastProps): ReactElement {
         <p className={styles.message}>{entry.message}</p>
         {entry.description ? <p className={styles.description}>{entry.description}</p> : null}
       </div>
-      <button
-        type="button"
-        className={styles.dismiss}
+      <Button
+        variant="ghost"
+        size="sm"
         onClick={() => onDismiss(entry.id)}
         aria-label="Dismiss notification"
       >
         &times;
-      </button>
+      </Button>
     </div>
   );
 }

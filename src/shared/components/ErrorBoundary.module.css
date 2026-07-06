@@ -22,31 +22,3 @@
   word-break: break-word;
 }
 
-.retry {
-  display: inline-flex;
-  align-items: center;
-  padding: var(--space-2, 0.5rem) var(--space-4, 1rem);
-  border: none;
-  border-radius: var(--radius-md, 0.5rem);
-  background: var(--color-primary, #0b3d91);
-  color: var(--color-fg-inverse, #ffffff);
-  font-size: var(--font-size-sm, 0.875rem);
-  font-weight: var(--font-weight-medium, 500);
-  cursor: pointer;
-  transition: opacity var(--motion-fast, 150ms) ease-out;
-}
-
-.retry:hover {
-  opacity: 0.9;
-}
-
-.retry:focus-visible {
-  outline: 2px solid var(--color-focus, #2563eb);
-  outline-offset: 2px;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .retry {
-    transition: none;
-  }
-}

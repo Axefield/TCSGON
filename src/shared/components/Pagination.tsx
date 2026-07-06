@@ -12,6 +12,7 @@
  */
 import type { ReactElement } from 'react';
 
+import { Button } from './Button';
 import styles from './Pagination.module.css';
 
 export interface PaginationProps {
@@ -81,15 +82,15 @@ export function Pagination({
       <ul className={styles.list}>
         {/* Previous */}
         <li className={styles.item}>
-          <button
-            className={styles.button}
-            type="button"
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={() => onPageChange(currentPage - 1)}
             disabled={isFirst}
             aria-label="Previous page"
           >
             ‹ Prev
-          </button>
+          </Button>
         </li>
 
         {/* Page numbers */}
@@ -102,30 +103,30 @@ export function Pagination({
             </li>
           ) : (
             <li key={page} className={styles.item}>
-              <button
-                className={`${styles.button} ${page === currentPage ? styles.current : ''}`}
-                type="button"
+              <Button
+                variant={page === currentPage ? 'primary' : 'ghost'}
+                size="sm"
                 onClick={() => onPageChange(page)}
                 aria-current={page === currentPage ? 'page' : undefined}
                 aria-label={`Page ${String(page)}`}
               >
                 {page}
-              </button>
+              </Button>
             </li>
           ),
         )}
 
         {/* Next */}
         <li className={styles.item}>
-          <button
-            className={styles.button}
-            type="button"
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={() => onPageChange(currentPage + 1)}
             disabled={isLast}
             aria-label="Next page"
           >
             Next ›
-          </button>
+          </Button>
         </li>
       </ul>
     </nav>

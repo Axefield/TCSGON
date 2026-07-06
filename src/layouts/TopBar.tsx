@@ -17,6 +17,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { ProfileMenu } from '@/features/auth/components/ProfileMenu';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import type { Theme } from '@/store/slices/uiSlice';
+import { Button } from '@/shared/components';
 
 import styles from './TopBar.module.css';
 
@@ -56,27 +57,27 @@ export function TopBar({
   return (
     <header className={styles.topBar}>
       <div className={styles.left}>
-        <button
-          type="button"
-          className={styles.menuButton}
+        <Button
+          variant="ghost"
+          size="sm"
           onClick={effectiveMenuClick}
           aria-label={isSidebarOpen ? 'Close navigation menu' : 'Open navigation menu'}
         >
           ☰
-        </button>
+        </Button>
         <h1 className={styles.title}>{title}</h1>
       </div>
 
       <div className={styles.right}>
-        <button
-          type="button"
-          className={styles.themeToggle}
+        <Button
+          variant="ghost"
+          size="sm"
           onClick={handleThemeToggle}
           aria-pressed={effectiveTheme === 'dark'}
           aria-label={`Switch to ${effectiveTheme === 'dark' ? 'light' : 'dark'} theme`}
         >
           {effectiveTheme === 'dark' ? '☀️' : '🌙'}
-        </button>
+        </Button>
 
         {user ? (
           <ProfileMenu

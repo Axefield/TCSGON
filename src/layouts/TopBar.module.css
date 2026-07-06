@@ -19,29 +19,6 @@
   gap: var(--space-3, 0.75rem);
 }
 
-.menuButton {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2rem;
-  height: 2rem;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  border-radius: var(--radius-sm, 0.25rem);
-  font-size: 1.25rem;
-  color: var(--color-fg, #0f172a);
-}
-
-.menuButton:hover {
-  background: var(--color-bg-elevated, #f8fafc);
-}
-
-.menuButton:focus-visible {
-  outline: 2px solid var(--color-focus, #2563eb);
-  outline-offset: 1px;
-}
-
 .title {
   font-size: var(--font-size-lg, 1.125rem);
   font-weight: var(--font-weight-semibold, 600);
@@ -53,28 +30,6 @@
   display: flex;
   align-items: center;
   gap: var(--space-3, 0.75rem);
-}
-
-.themeToggle {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2rem;
-  height: 2rem;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  border-radius: var(--radius-sm, 0.25rem);
-  font-size: 1.25rem;
-}
-
-.themeToggle:hover {
-  background: var(--color-bg-elevated, #f8fafc);
-}
-
-.themeToggle:focus-visible {
-  outline: 2px solid var(--color-focus, #2563eb);
-  outline-offset: 1px;
 }
 
 .signInLink {

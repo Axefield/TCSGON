@@ -13,6 +13,7 @@ import type { ReactElement } from 'react';
 import type { ApiError } from '@/shared/api/errors';
 import { apiErrorMessage } from '@/shared/api/errors';
 
+import { Button } from './Button';
 import styles from './ErrorDisplay.module.css';
 
 export interface ErrorDisplayProps {
@@ -36,9 +37,7 @@ export function ErrorDisplay({
         <p className={styles.message}>{apiErrorMessage(error)}</p>
       </div>
       {onRetry ? (
-        <button className={styles.retry} type="button" onClick={onRetry}>
-          Retry
-        </button>
+        <Button variant="secondary" size="sm" onClick={onRetry}>Retry</Button>
       ) : null}
     </div>
   );

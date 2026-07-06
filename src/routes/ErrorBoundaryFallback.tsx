@@ -10,6 +10,8 @@
  */
 import { type ReactElement } from 'react';
 
+import { Button } from '@/shared/components';
+
 export interface ErrorBoundaryFallbackProps {
   readonly error: Error;
   readonly onReset: () => void;
@@ -42,20 +44,7 @@ export function ErrorBoundaryFallback({
       <p style={{ color: 'var(--color-fg-muted, #64748b)', marginBottom: '1.5rem' }}>
         {error.message}
       </p>
-      <button
-        type="button"
-        onClick={onReset}
-        style={{
-          padding: '0.5rem 1rem',
-          background: 'var(--color-primary, #0b3d91)',
-          color: '#ffffff',
-          border: 'none',
-          borderRadius: 'var(--radius-md, 0.5rem)',
-          cursor: 'pointer',
-        }}
-      >
-        Try again
-      </button>
+      <Button variant="primary" onClick={onReset}>Try again</Button>
     </main>
   );
 }

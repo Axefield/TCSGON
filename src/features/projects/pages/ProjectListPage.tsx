@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import { ProjectList } from '@/features/projects/components/ProjectList';
 import { useProjectList } from '@/features/projects/hooks/useProjects';
-import { EmptyState, ErrorDisplay } from '@/shared/components';
+import { Button, EmptyState, ErrorDisplay, Input, Select } from '@/shared/components';
 
 import styles from './ProjectPages.module.css';
 
@@ -58,33 +58,31 @@ export function ProjectListPage(): ReactElement {
           <p className={styles.eyebrow}>Projects</p>
           <h1 className={styles.title}>Project portfolio</h1>
         </div>
-        <button className={styles.cta} type="button" onClick={() => navigate('/projects/new')}>
-          New project
-        </button>
+        <Button variant="primary" onClick={() => navigate('/projects/new')}>New project</Button>
       </div>
 
       <div className={styles.toolbar}>
-        <label className={styles.searchField}>
-          <span>Search</span>
-          <input
+        <div className={styles.searchField}>
+          <Input
             value={search}
             onChange={(event) => updateParams({ search: event.target.value || null })}
             placeholder="Search by project or lead"
+            label="Search"
           />
-        </label>
-        <label className={styles.searchField}>
-          <span>Status</span>
-          <select
+        </div>
+        <div className={styles.searchField}>
+          <Select
             value={status ?? ''}
             onChange={(event) => updateParams({ status: event.target.value || null })}
+            label="Status"
           >
             <option value="">All statuses</option>
             <option value="active">Active</option>
             <option value="paused">Paused</option>
             <option value="completed">Completed</option>
             <option value="archived">Archived</option>
-          </select>
-        </label>
+          </Select>
+        </div>
       </div>
 
       {isError && error ? (

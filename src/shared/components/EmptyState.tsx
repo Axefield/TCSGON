@@ -10,6 +10,7 @@
  */
 import type { ReactElement, ReactNode } from 'react';
 
+import { Button } from './Button';
 import styles from './EmptyState.module.css';
 
 export interface EmptyStateProps {
@@ -31,9 +32,7 @@ export function EmptyState({
       <h2 className={styles.heading}>{heading}</h2>
       {description ? <p className={styles.description}>{description}</p> : null}
       {action ? (
-        <button className={styles.action} type="button" onClick={action.onClick}>
-          {action.label}
-        </button>
+        <Button variant="primary" onClick={action.onClick}>{action.label}</Button>
       ) : null}
     </div>
   );

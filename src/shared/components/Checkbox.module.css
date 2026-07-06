@@ -1,0 +1,149 @@
+/* Checkbox — accessible, themeable checkbox primitive. */
+
+/* ── Wrapper ───────────────────────────────────────────────────────── */
+
+.wrapper {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: var(--space-2, 0.5rem);
+  cursor: pointer;
+}
+
+/* ── Size variants ─────────────────────────────────────────────────── */
+
+.sm {
+  --checkbox-size: 1rem;
+  --checkbox-font-size: var(--font-size-xs, 0.75rem);
+}
+
+.md {
+  --checkbox-size: 1.25rem;
+  --checkbox-font-size: var(--font-size-sm, 0.875rem);
+}
+
+.lg {
+  --checkbox-size: 1.5rem;
+  --checkbox-font-size: var(--font-size-base, 1rem);
+}
+
+/* ── Input (visually hidden, keyboard focus via label) ────────────── */
+
+.input {
+  /* Visually hidden but accessible to AT and keyboard focus */
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+
+  /* Ensure focus-visible ring shows on the label when input is focused */
+  &:focus-visible + .label {
+    outline: 2px solid var(--color-focus, #2563eb);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm, 0.25rem);
+  }
+}
+
+/* ── Label ─────────────────────────────────────────────────────────── */
+
+.label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2, 0.5rem);
+  font-size: var(--checkbox-font-size, var(--font-size-sm, 0.875rem));
+  color: var(--color-fg, #0f172a);
+  cursor: pointer;
+  line-height: var(--leading-normal, 1.5);
+  user-select: none;
+}
+
+/* ── Visual checkbox box ───────────────────────────────────────────── */
+
+.control {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: var(--checkbox-size, 1.25rem);
+  height: var(--checkbox-size, 1.25rem);
+  border: 2px solid var(--color-border, #e2e8f0);
+  border-radius: var(--radius-sm, 0.25rem);
+  background: var(--color-bg, #ffffff);
+  transition:
+    background var(--motion-fast, 150ms) ease-out,
+    border-color var(--motion-fast, 150ms) ease-out,
+    box-shadow var(--motion-fast, 150ms) ease-out;
+}
+
+/* ── SVG icons ─────────────────────────────────────────────────────── */
+
+.icon {
+  display: none;
+  width: 1rem;
+  height: 1rem;
+  color: #ffffff;
+}
+
+/* Checked state: show checkmark */
+.input:checked + .label .control {
+  background: var(--color-primary, #0b3d91);
+  border-color: var(--color-primary, #0b3d91);
+}
+
+.input:checked + .label .iconCheck {
+  display: block;
+}
+
+/* Indeterminate state: show minus */
+.input:indeterminate + .label .control {
+  background: var(--color-primary, #0b3d91);
+  border-color: var(--color-primary, #0b3d91);
+}
+
+.input:indeterminate + .label .iconMinus {
+  display: block;
+}
+
+/* Hover state */
+.label:hover .control {
+  border-color: var(--color-primary, #0b3d91);
+}
+
+/* ── Disabled state ────────────────────────────────────────────────── */
+
+.wrapper:has(.input:disabled) {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.input:disabled + .label {
+  cursor: not-allowed;
+}
+
+.input:disabled + .label .control {
+  background: var(--color-bg-elevated, #f8fafc);
+  border-color: var(--color-border, #e2e8f0);
+}
+
+/* ── Error state ───────────────────────────────────────────────────── */
+
+.hasError .control {
+  border-color: var(--color-danger, #dc2626);
+}
+
+/* ── Error text ────────────────────────────────────────────────────── */
+
+.errorText {
+  font-size: var(--font-size-xs, 0.75rem);
+  color: var(--color-danger, #dc2626);
+  margin: 0;
+}
+
+/* ── Reduced motion ────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .control {
+    transition: none;
+  }
+}
