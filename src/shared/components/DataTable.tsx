@@ -132,6 +132,22 @@ export function DataTable<T>({
     [onRowClick],
   );
 
+  // Virtualized rendering for large datasets — takes over the entire table.
+  if (virtualized && data.length > 50 && !isLoading) {
+    return (
+      <VirtualizedDataTable
+        columns={columns}
+        data={data}
+        rowKey={rowKey}
+        onRowClick={onRowClick}
+        label={label}
+        onSort={onSort}
+        sortKey={sortKey}
+        sortOrder={sortOrder}
+      />
+    );
+  }
+
   return (
     <div className={styles.wrapper}>
       <table className={styles.table} aria-label={label}>
@@ -182,23 +198,8 @@ export function DataTable<T>({
           {showBody
             ? data.map((item) => {
                 const key = rowKey(item);
-  // Virtualized rendering for large datasets.
-  if (virtualized && data.length > 50 && !isLoading) {
-    return (
-      <VirtualizedDataTable
-        columns={columns}
-        data={data}
-        rowKey={rowKey}
-        onRowClick={onRowClick}
-        label={label}
-        onSort={onSort}
-        sortKey={sortKey}
-        sortOrder={sortOrder}
-      />
-    );
-  }
 
-  return (
+                return (
                   <tr
                     key={key}
                     className={`${styles.row} ${onRowClick ? styles.clickable : ''}`}

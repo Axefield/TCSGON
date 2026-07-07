@@ -31,8 +31,8 @@ describe('VirtualizedDataTable', () => {
         label="Test list"
       />,
     );
-    const table = screen.getByRole('table');
-    expect(table).toHaveAttribute('aria-label', 'Test list');
+    const grid = screen.getByRole('grid');
+    expect(grid).toHaveAttribute('aria-label', 'Test list');
   });
 
   it('renders aria-rowcount matching data length', () => {
@@ -44,8 +44,8 @@ describe('VirtualizedDataTable', () => {
         label="Count check"
       />,
     );
-    const table = screen.getByRole('table');
-    expect(table).toHaveAttribute('aria-rowcount', '75');
+    const grid = screen.getByRole('grid');
+    expect(grid).toHaveAttribute('aria-rowcount', '75');
   });
 
   it('renders column headers', () => {
@@ -73,13 +73,13 @@ describe('VirtualizedDataTable', () => {
     // In jsdom (no layout), getBoundingClientRect returns height 0, so the
     // virtualizer will only render items once the container has a measured
     // height. Verify the overall structure is correct.
-    const table = container.querySelector('[role="table"]');
-    expect(table).toBeInTheDocument();
+    const gridEl = container.querySelector('[role="grid"]');
+    expect(gridEl).toBeInTheDocument();
     // Verify the spacer rowgroup exists (holds the total size).
     const body = container.querySelector('[role="rowgroup"]:last-child');
     expect(body).toBeInTheDocument();
     // In jsdom, without layout, the virtualizer may not render any rows,
-    // but the structure (table → rowgroups → spacer) is correct.
+    // but the structure (grid → rowgroups → spacer) is correct.
   });
 
   it('renders sort buttons for sortable columns', () => {
@@ -116,7 +116,7 @@ describe('VirtualizedDataTable', () => {
         label="Scrollable"
       />,
     );
-    const table = screen.getByRole('table');
-    expect(table).toHaveAttribute('tabindex', '0');
+    const grid = screen.getByRole('grid');
+    expect(grid).toHaveAttribute('tabindex', '0');
   });
 });

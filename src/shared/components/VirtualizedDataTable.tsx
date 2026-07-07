@@ -9,9 +9,9 @@
  * accessibility) with virtualized scrolling.
  *
  * Accessibility:
- *  - The scrollable container is `tabindex="0"` so keyboard users can
- *    scroll with arrow keys.
- *  - The table element carries `role="table"` and `aria-rowcount`.
+ *  - The scrollable container is `tabindex="0"` with `role="grid"` so keyboard
+ *    users can scroll with arrow keys.
+ *  - The grid element carries `aria-rowcount`.
  *  - Each visible row has `aria-rowindex` for AT context.
  *  - Sort buttons retain their existing ARIA attributes.
  *
@@ -23,12 +23,12 @@
  *     label="Large project list"
  *   />
  */
+import { useVirtualizer } from '@tanstack/react-virtual';
 import {
   type ReactElement,
   useCallback,
   useRef,
 } from 'react';
-import { useVirtualizer } from '@tanstack/react-virtual';
 
 import type { DataTableColumn } from '@/shared/components/DataTable';
 
@@ -121,7 +121,7 @@ export function VirtualizedDataTable<T>({
     <div className={tableStyles.wrapper}>
       <div
         ref={scrollRef}
-        role="table"
+        role="grid"
         aria-label={label}
         aria-rowcount={data.length}
         tabIndex={0}
