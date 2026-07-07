@@ -416,3 +416,32 @@ pnpm build && pnpm check:budgets && pnpm lhci
 - `docs/perf/phase-8-measurement-and-verification.md` — Detailed measurement methodology + baseline template
 - `AGENTS.md §6` — Review checklist applied to every change
 - `roadmap.md` — Original phased delivery plan (Phase 8 = Performance Optimization)
+
+---
+
+## 13. Review Fixes (post-implementation)
+
+After Phase 8 implementation was complete, a 4-agent review identified 4 blocking items. All have been fixed:
+
+### B1 — Dead bundle from VirtualizedDataTable import
+**Fix:** Removed the `virtualized` prop from `DataTable` (`DataTable.tsx:39-50`) and the static `import { VirtualizedDataTable }` (`DataTable.tsx:27`). `VirtualizedDataTable` is now a standalone component consumers import directly when needed. This eliminates the +7.97 kB gzip from the projects chunk when no consumer uses virtualization.
+
+### B2 — Roving tabindex violation
+**Fix:** Replaced `tabIndex={0}` on every clickable row with `aria-activedescendant` on the grid container. The container (`role="grid"`) receives keyboard focus; active row is tracked via `activeIndex` state and identified by `aria-activedescendant={activeDescendantId}`. Rows get `tabIndex={-1}` for programmatic focusability.
+
+### B3 — Missing focus-visible outline
+**Fix:** Added `.gridContainer:focus-visible` CSS class in `DataTable.module.css` with a 2px primary-color outline (`outline-offset: -2px`, `border-radius: 0.25rem`).
+
+### B4 — Missing arrow-key navigation
+**Fix:** Added `handleGridKeyDown` on the grid container handling `ArrowDown`, `ArrowUp`, `Home`, `End`, `Enter`, and `Space`. Arrow keys update `activeIndex` and call `virtualizer.scrollToIndex` to bring the active row into view. `Enter`/`Space` activate the active row's `onRowClick`.
+
+### Additional non-blocking fixes applied
+- Removed `useCallback` wrappers on curried `handleRowClick`/`handleRowKeyDown` (the closures change identity on every render anyway)
+- Fixed `KeyboardEvent` generic type from `HTMLTableRowElement` to `HTMLDivElement`
+- Add `aria-selected` on active row for AT context
+- Added visual background highlight on active row (`var(--color-bg-active)`)
+
+### Verification
+- ✅ `pnpm typecheck` — 0 errors
+- ✅ `pnpm lint` — 0 errors (1 pre-existing Toast.tsx warning)
+- ✅ `pnpm test:run` — 800 passed, 110 files

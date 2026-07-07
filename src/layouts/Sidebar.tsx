@@ -10,9 +10,11 @@
  * Usage:
  * ```tsx
  * <Sidebar state={sidebar} onToggle={toggleSidebar}>
- *   <SidebarNavItem to="/dashboard" icon={<HomeIcon />}>Dashboard</SidebarNavItem>
+ *   <SidebarNavItem to="/dashboard" icon={<DashboardIcon />}>Dashboard</SidebarNavItem>
  * </Sidebar>
  * ```
+ *
+ * @see SidebarNavItem — the nav item component
  */
 import { type ReactElement, type ReactNode } from 'react';
 

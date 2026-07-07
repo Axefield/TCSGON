@@ -8,11 +8,15 @@
  * appearance and interaction model (sort headers, row clicks, keyboard
  * accessibility) with virtualized scrolling.
  *
- * Accessibility:
- *  - The scrollable container is `tabindex="0"` with `role="grid"` so keyboard
- *    users can scroll with arrow keys.
+ * Accessibility (WCAG 2.2 AA):
+ *  - The scrollable container is `tabindex="0"` with `role="grid"` and
+ *    `aria-activedescendant` for roving-tabindex navigation.
+ *  - Arrow keys (Up/Down/Home/End) move the active row; Enter/Space
+ *    activates the row when `onRowClick` is provided.
  *  - The grid element carries `aria-rowcount`.
- *  - Each visible row has `aria-rowindex` for AT context.
+ *  - Each visible row has `aria-rowindex` and `aria-selected` for AT context.
+ *  - A visible `:focus-visible` outline is applied to the grid container
+ *    for keyboard users.
  *  - Sort buttons retain their existing ARIA attributes.
  *
  * @example
@@ -27,7 +31,9 @@ import { useVirtualizer } from '@tanstack/react-virtual';
 import {
   type ReactElement,
   useCallback,
+  useEffect,
   useRef,
+  useState,
 } from 'react';
 
 import type { DataTableColumn } from '@/shared/components/DataTable';
@@ -79,6 +85,14 @@ export function VirtualizedDataTable<T>({
   sortOrder,
 }: VirtualizedDataTableProps<T>): ReactElement {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  // Clamp activeIndex when data shrinks (e.g. filtering).
+  useEffect(() => {
+    setActiveIndex((prev) => Math.min(prev, Math.max(0, data.length - 1)));
+  }, [data.length]);
+
+  const activeDescendantId = `virtual-grid-${label.replace(/\s+/g, '-')}-row-${String(activeIndex)}`;
 
   const virtualizer = useVirtualizer({
     count: data.length,
@@ -100,22 +114,48 @@ export function VirtualizedDataTable<T>({
     [onSort, sortKey, sortOrder],
   );
 
-  const handleRowClick = useCallback(
-    (item: T) => () => onRowClick?.(item),
-    [onRowClick],
-  );
+  /** Navigate the active row index with arrow keys. */
+  const moveActiveIndex = (delta: number): void => {
+    setActiveIndex((prev) => {
+      const next = Math.min(Math.max(prev + delta, 0), data.length - 1);
+      virtualizer.scrollToIndex(next, { align: 'auto' });
+      return next;
+    });
+  };
 
-  const handleRowKeyDown = useCallback(
-    (item: T) =>
-      (e: React.KeyboardEvent<HTMLTableRowElement>): void => {
-        if (!onRowClick) return;
-        if (e.key === 'Enter' || e.key === ' ') {
+  /** Handle keyboard events on the grid container (roving tabindex). */
+  const handleGridKeyDown = (
+    e: React.KeyboardEvent<HTMLDivElement>,
+  ): void => {
+    switch (e.key) {
+      case 'ArrowDown':
+        e.preventDefault();
+        moveActiveIndex(1);
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        moveActiveIndex(-1);
+        break;
+      case 'Home':
+        e.preventDefault();
+        setActiveIndex(0);
+        virtualizer.scrollToIndex(0, { align: 'start' });
+        break;
+      case 'End':
+        e.preventDefault();
+        setActiveIndex(data.length - 1);
+        virtualizer.scrollToIndex(data.length - 1, { align: 'end' });
+        break;
+      case 'Enter':
+      case ' ':
+        if (onRowClick) {
           e.preventDefault();
-          onRowClick(item);
+          const item = data[activeIndex];
+          if (item) onRowClick(item);
         }
-      },
-    [onRowClick],
-  );
+        break;
+    }
+  };
 
   return (
     <div className={tableStyles.wrapper}>
@@ -124,7 +164,10 @@ export function VirtualizedDataTable<T>({
         role="grid"
         aria-label={label}
         aria-rowcount={data.length}
+        aria-activedescendant={activeDescendantId}
         tabIndex={0}
+        onKeyDown={onRowClick ? handleGridKeyDown : undefined}
+        className={tableStyles.gridContainer}
         style={{
           overflow: 'auto',
           maxHeight: '70vh',
@@ -190,33 +233,58 @@ export function VirtualizedDataTable<T>({
             position: 'relative',
           }}
         >
-          {virtualItems.map((virtualRow) => {
-            const item = data[virtualRow.index];
-            if (item === undefined) return null;
-            const key = rowKey(item);
+            {virtualItems.map((virtualRow) => {
+              const item = data[virtualRow.index];
+              if (item === undefined) return null;
+              const key = rowKey(item);
+              const rowId = `virtual-grid-${label.replace(/\s+/g, '-')}-row-${String(virtualRow.index)}`;
 
-            return (
-              <div
-                key={key}
-                role="row"
-                aria-rowindex={virtualRow.index + 1}
-                style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  width: '100%',
-                  display: 'flex',
-                  transform: `translateY(${String(virtualRow.start)}px)`,
-                  borderBottom: '1px solid var(--color-border, #e2e8f0)',
-                  cursor: onRowClick ? 'pointer' : undefined,
-                }}
-                onClick={onRowClick ? handleRowClick(item) : undefined}
-                onKeyDown={onRowClick ? handleRowKeyDown(item) : undefined}
-                tabIndex={onRowClick ? 0 : undefined}
-                aria-label={
-                  onRowClick ? `View ${label} ${key}` : undefined
-                }
-              >
+              return (
+                <div
+                  key={key}
+                  id={rowId}
+                  role="row"
+                  aria-rowindex={virtualRow.index + 1}
+                  aria-selected={virtualRow.index === activeIndex}
+                  tabIndex={onRowClick ? -1 : undefined}
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    display: 'flex',
+                    transform: `translateY(${String(virtualRow.start)}px)`,
+                    borderBottom: '1px solid var(--color-border, #e2e8f0)',
+                    cursor: onRowClick ? 'pointer' : undefined,
+                    background:
+                      virtualRow.index === activeIndex
+                        ? 'var(--color-bg-active, #f1f5f9)'
+                        : undefined,
+                  }}
+                  onClick={
+                    onRowClick
+                      ? () => {
+                          onRowClick(item);
+                        }
+                      : undefined
+                  }
+                  onKeyDown={
+                    onRowClick
+                      ? (e: React.KeyboardEvent<HTMLDivElement>) => {
+                          if (
+                            e.key === 'Enter' ||
+                            e.key === ' '
+                          ) {
+                            e.preventDefault();
+                            onRowClick(item);
+                          }
+                        }
+                      : undefined
+                  }
+                  aria-label={
+                    onRowClick ? `View ${label} ${key}` : undefined
+                  }
+                >
                 {columns.map((col) => {
                   return (
                     <div

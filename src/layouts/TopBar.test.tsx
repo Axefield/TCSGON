@@ -43,20 +43,44 @@ describe('TopBar', () => {
     );
   }
 
+  function createAuthedWrapper(): (props: { children: ReactNode }) => ReactElement {
+    const alice = { id: asUserId('1'), email: 'a@b.com', name: 'Alice' };
+    const store = createAuthStore({
+      kind: 'authenticated',
+      user: alice,
+      session: { id: asSessionId('sess-1'), token: 't'.repeat(20), expiresAt: '2027-01-01T00:00:00Z', user: alice },
+    });
+    return function AuthedWrapper({ children }: { children: ReactNode }): ReactElement {
+      return (
+        <ReduxProvider store={store}>
+          <QueryClientProvider client={queryClient}>
+            <ApiClientProvider client={testApiClient}>
+              <BrowserRouter>
+                {children}
+              </BrowserRouter>
+            </ApiClientProvider>
+          </QueryClientProvider>
+        </ReduxProvider>
+      );
+    };
+  }
+
   it('renders the title', () => {
     render(<TopBar title="Dashboard" />, { wrapper: Wrapper });
     expect(screen.getByRole('heading', { name: /dashboard/i })).toBeInTheDocument();
   });
 
-  it('renders menu button', () => {
-    render(<TopBar title="Dashboard" />, { wrapper: Wrapper });
+  it('renders menu button when authenticated', () => {
+    const AuthedWrapper = createAuthedWrapper();
+    render(<TopBar title="Dashboard" />, { wrapper: AuthedWrapper });
     const menuBtn = screen.getByRole('button', { name: /open navigation menu/i });
     expect(menuBtn).toBeInTheDocument();
   });
 
   it('calls onMenuClick when menu button clicked', () => {
+    const AuthedWrapper = createAuthedWrapper();
     const onMenuClick = vi.fn();
-    render(<TopBar title="Dashboard" onMenuClick={onMenuClick} />, { wrapper: Wrapper });
+    render(<TopBar title="Dashboard" onMenuClick={onMenuClick} />, { wrapper: AuthedWrapper });
     fireEvent.click(screen.getByRole('button', { name: /open navigation menu/i }));
     expect(onMenuClick).toHaveBeenCalledOnce();
   });
@@ -86,25 +110,7 @@ describe('TopBar', () => {
   });
 
   it('displays ProfileMenu avatar when authenticated', () => {
-    const alice = { id: asUserId('1'), email: 'a@b.com', name: 'Alice' };
-    const store = createAuthStore({
-      kind: 'authenticated',
-      user: alice,
-      session: { id: asSessionId('sess-1'), token: 't'.repeat(20), expiresAt: '2027-01-01T00:00:00Z', user: alice },
-    });
-    function AuthedWrapper({ children }: { children: ReactNode }): ReactElement {
-      return (
-        <ReduxProvider store={store}>
-          <QueryClientProvider client={queryClient}>
-            <ApiClientProvider client={testApiClient}>
-              <BrowserRouter>
-                {children}
-              </BrowserRouter>
-            </ApiClientProvider>
-          </QueryClientProvider>
-        </ReduxProvider>
-      );
-    }
+    const AuthedWrapper = createAuthedWrapper();
     render(<TopBar title="Dashboard" />, { wrapper: AuthedWrapper });
     // ProfileMenu shows the user's initial as the avatar
     expect(screen.getByText('A')).toBeInTheDocument();

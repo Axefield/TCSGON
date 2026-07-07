@@ -10,11 +10,25 @@ import { Provider as ReduxProvider } from 'react-redux';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { describe, expect, it } from 'vitest';
 
+import { authActions } from '@/features/auth/slice/authSlice';
 import { ApiClientProvider } from '@/shared/api/ApiClientContext';
 import { createApiClient } from '@/shared/api/client';
+import { asSessionId, asUserId } from '@/shared/types/brand';
 import { store as appStore } from '@/store';
 
 import { AppShell } from './AppShell';
+
+/** A minimal valid session for tests that need an authenticated user. */
+const TEST_SESSION = {
+  id: asSessionId('session-test-1'),
+  user: {
+    id: asUserId('user-test-1'),
+    name: 'Test User',
+    email: 'test@example.com',
+  },
+  token: 'test-token-00000000000000000000',
+  expiresAt: '2030-01-01T00:00:00.000Z',
+};
 
 const testApiClient = createApiClient({ baseUrl: 'http://test.local' });
 const queryClient = new QueryClient({
@@ -68,8 +82,12 @@ describe('AppShell', () => {
     expect(screen.getByLabelText('Error notifications')).toBeInTheDocument();
   });
 
-  it('renders sidebar aside element', () => {
+  it('renders sidebar aside element when authenticated', () => {
+    // Log in so the sidebar renders.
+    appStore.dispatch(authActions.loginFulfilled(TEST_SESSION));
     renderInShell(<div>Content</div>);
     expect(screen.getByRole('complementary')).toBeInTheDocument();
+    // Reset auth state for other tests.
+    appStore.dispatch(authActions.logout());
   });
 });

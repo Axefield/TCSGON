@@ -25,8 +25,6 @@ import {
   useCallback,
 } from 'react';
 
-import { VirtualizedDataTable } from '@/shared/components/VirtualizedDataTable';
-
 import styles from './DataTable.module.css';
 
 export interface DataTableColumn<T> {
@@ -49,14 +47,6 @@ export interface DataTableProps<T> {
   readonly onRowClick?: (item: T) => void;
   readonly rowKey: (item: T) => string;
   readonly label: string;
-  /**
-   * Enable virtualized rendering for large datasets.
-   * When `true` and `data.length > 50`, rows are rendered via
-   * `@tanstack/react-virtual` to keep the DOM lean. Below the
-   * threshold the standard table rendering is used.
-   * @default false
-   */
-  readonly virtualized?: boolean;
 }
 
 const LOADING_ROW_COUNT = 5;
@@ -99,7 +89,6 @@ export function DataTable<T>({
   onRowClick,
   rowKey,
   label,
-  virtualized = false,
 }: DataTableProps<T>): ReactElement {
   const hasData = data.length > 0;
   const showBody = !isLoading && hasData;
@@ -131,22 +120,6 @@ export function DataTable<T>({
       },
     [onRowClick],
   );
-
-  // Virtualized rendering for large datasets — takes over the entire table.
-  if (virtualized && data.length > 50 && !isLoading) {
-    return (
-      <VirtualizedDataTable
-        columns={columns}
-        data={data}
-        rowKey={rowKey}
-        onRowClick={onRowClick}
-        label={label}
-        onSort={onSort}
-        sortKey={sortKey}
-        sortOrder={sortOrder}
-      />
-    );
-  }
 
   return (
     <div className={styles.wrapper}>
