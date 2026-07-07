@@ -5,6 +5,7 @@ export { ToastRegion } from './ToastRegion';
 export { EmptyState } from './EmptyState';
 export { ErrorDisplay } from './ErrorDisplay';
 export { DataTable } from './DataTable';
+export type { DataTableColumn, DataTableProps } from './DataTable';
 export { Pagination } from './Pagination';
 export { ConfirmDialog } from './ConfirmDialog';
 export { Modal } from './Modal';

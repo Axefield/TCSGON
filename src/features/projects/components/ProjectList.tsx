@@ -1,7 +1,8 @@
-import { type ReactElement } from 'react';
+import { type ReactElement, useMemo } from 'react';
 
 import type { Project, ProjectStatus } from '@/features/projects/types';
 import { Badge, DataTable, Pagination } from '@/shared/components';
+import type { DataTableColumn } from '@/shared/components';
 
 import styles from './ProjectList.module.css';
 
@@ -54,44 +55,53 @@ export function ProjectList({
   onOpen,
   emptyState,
 }: ProjectListProps): ReactElement {
+  // Memoize the columns array so it has a stable reference between renders.
+  // The column definitions are static (no closure over changing state) — they
+  // only depend on the helper functions `badgeVariant` and `formatDate`,
+  // which are module-level. Empty deps array is correct.
+  const columns = useMemo<ReadonlyArray<DataTableColumn<Project>>>(
+    () => [
+      {
+        key: 'name',
+        label: 'Project',
+        sortable: true,
+        render: (project) => (
+          <div className={styles.primaryCell}>
+            <strong>{project.name}</strong>
+            <span className={styles.meta}>Lead: {project.leadName}</span>
+          </div>
+        ),
+      },
+      {
+        key: 'status',
+        label: 'Status',
+        sortable: true,
+        render: (project) => (
+          <Badge variant={badgeVariant(project.status)}>
+            {statusLabels[project.status]}
+          </Badge>
+        ),
+      },
+      {
+        key: 'memberCount',
+        label: 'Members',
+        align: 'right',
+        render: (project) => String(project.memberCount),
+      },
+      {
+        key: 'updatedAt',
+        label: 'Updated',
+        sortable: true,
+        render: (project) => formatDate(project.updatedAt),
+      },
+    ],
+    [],
+  );
+
   return (
     <div className={styles.wrapper}>
       <DataTable
-        columns={[
-          {
-            key: 'name',
-            label: 'Project',
-            sortable: true,
-            render: (project) => (
-              <div className={styles.primaryCell}>
-                <strong>{project.name}</strong>
-                <span className={styles.meta}>Lead: {project.leadName}</span>
-              </div>
-            ),
-          },
-          {
-            key: 'status',
-            label: 'Status',
-            sortable: true,
-            render: (project) => (
-              <Badge variant={badgeVariant(project.status)}>
-                {statusLabels[project.status]}
-              </Badge>
-            ),
-          },
-          {
-            key: 'memberCount',
-            label: 'Members',
-            align: 'right',
-            render: (project) => String(project.memberCount),
-          },
-          {
-            key: 'updatedAt',
-            label: 'Updated',
-            sortable: true,
-            render: (project) => formatDate(project.updatedAt),
-          },
-        ]}
+        columns={columns}
         data={projects}
         sortKey={sortKey}
         sortOrder={sortOrder}
