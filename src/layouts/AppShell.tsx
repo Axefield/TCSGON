@@ -43,6 +43,7 @@ import { Outlet, useLocation } from 'react-router-dom';
 import { SessionCheck } from '@/features/auth/components/SessionCheck';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import { ToastRegion } from '@/shared/components/ToastRegion';
+import { useTheme } from '@/shared/hooks/useTheme';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { selectSidebar, toggleSidebar } from '@/store/slices/uiSlice';
 
@@ -95,6 +96,7 @@ const PAGE_TITLES: Record<string, string> = {
 export function AppShell(): ReactElement {
   const { user } = useAuth();
   const { pathname } = useLocation();
+  const { theme, toggle: toggleTheme } = useTheme();
   const sidebar = useAppSelector(selectSidebar);
   const dispatch = useAppDispatch();
   const isSidebarOpen = sidebar === 'open' || sidebar === 'pinned';
@@ -126,8 +128,10 @@ export function AppShell(): ReactElement {
         <div className={styles.mainArea}>
           <TopBar
             title={pageTitle}
+            theme={theme}
             isSidebarOpen={isSidebarOpen}
             onMenuClick={() => dispatch(toggleSidebar())}
+            onThemeToggle={toggleTheme}
           />
           <main id="main-content" tabIndex={-1} className={styles.content}>
             <Outlet />
