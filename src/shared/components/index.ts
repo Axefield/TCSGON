@@ -30,5 +30,7 @@ export { Avatar } from './Avatar';
 export type { AvatarProps } from './Avatar';
 export { Badge } from './Badge';
 export type { BadgeProps } from './Badge';
+export { OptimizedImage } from './OptimizedImage';
+export type { OptimizedImageProps } from './OptimizedImage';
 export { Radio } from './Radio';
 export type { RadioProps, RadioGroupProps } from './Radio';
