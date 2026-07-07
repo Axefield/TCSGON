@@ -81,7 +81,7 @@ export function useProjects(params: ProjectListParams): UseProjectsResult {
     queryFn: async ({ signal }) => {
       const result = await apiClient.request({
         method: 'GET',
-        path: '/projects',
+        path: '/api/projects',
         params: toQueryParams(normalized),
         signal,
         schema: ProjectListResponseSchema,
@@ -111,7 +111,7 @@ export function useProject(id: ProjectId): UseProjectResult {
     queryFn: async ({ signal }) => {
       const result = await apiClient.request({
         method: 'GET',
-        path: `/projects/${id}`,
+        path: `/api/projects/${id}`,
         signal,
         schema: ProjectSchema,
       });
@@ -142,7 +142,7 @@ export function useCreateProject(): UseMutationResult<Project, ApiError, Project
       const payload = ProjectInputSchema.parse(input);
       const result = await apiClient.request({
         method: 'POST',
-        path: '/projects',
+        path: '/api/projects',
         body: payload,
         schema: ProjectSchema,
       });

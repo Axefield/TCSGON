@@ -106,6 +106,7 @@ export interface UseSessionResult {
 export function useLogin(): UseLoginResult {
   const apiClient = useApiClient();
   const dispatch = useAppDispatch();
+  const queryClient = useQueryClient();
 
   const login = useMutation<Session, Error, LoginInput>({
     mutationFn: async (input: LoginInput): Promise<Session> => {
@@ -121,10 +122,16 @@ export function useLogin(): UseLoginResult {
     },
     onMutate: (): void => {
       dispatch(authActions.loginRequested());
+      // Cancel any in-flight anonymous session check so a stale 401
+      // response doesn't revert Redux after login completes.
+      void queryClient.cancelQueries({ queryKey: authKeys.session() });
     },
     onSuccess: (session: Session): void => {
       dispatch(authActions.loginFulfilled(session));
       saveAuth(session);
+      // Refetch the session query with the new token so server state
+      // is synced into Redux via the rehydrate effect.
+      queryClient.invalidateQueries({ queryKey: authKeys.session() });
     },
     onError: (error: Error): void => {
       // RQv5 passes the thrown value to onError; guard against non-Error.
@@ -149,6 +156,7 @@ export function useLogin(): UseLoginResult {
 export function useSignup(): UseSignupResult {
   const apiClient = useApiClient();
   const dispatch = useAppDispatch();
+  const queryClient = useQueryClient();
 
   const signup = useMutation<Session, Error, SignupInput>({
     mutationFn: async (input: SignupInput): Promise<Session> => {
@@ -164,10 +172,12 @@ export function useSignup(): UseSignupResult {
     },
     onMutate: (): void => {
       dispatch(authActions.loginRequested());
+      void queryClient.cancelQueries({ queryKey: authKeys.session() });
     },
     onSuccess: (session: Session): void => {
       dispatch(authActions.loginFulfilled(session));
       saveAuth(session);
+      queryClient.invalidateQueries({ queryKey: authKeys.session() });
     },
     onError: (error: Error): void => {
       const message = error instanceof ApiError

@@ -84,7 +84,7 @@ export function useProfileQuery(): UseProfileResult {
     queryFn: async ({ signal }): Promise<Profile> => {
       const result = await apiClient.request<void, Profile>({
         method: 'GET',
-        path: '/users/me',
+        path: '/api/users/me',
         schema: ProfileResponseSchema,
         signal,
       });
@@ -123,7 +123,7 @@ export function useUpdateProfile(): UseUpdateProfileResult {
     mutationFn: async (input: UpdateProfileInput): Promise<User> => {
       const result = await apiClient.request<UpdateProfileInput, User>({
         method: 'PUT',
-        path: '/users/me',
+        path: '/api/users/me',
         body: input,
         schema: ProfileResponseSchema.pick({ id: true, name: true, email: true, avatarUrl: true }),
       });
@@ -155,7 +155,7 @@ export function useChangePassword(): UseChangePasswordResult {
     mutationFn: async (input: ChangePasswordInput): Promise<ChangePasswordResponse> => {
       const result = await apiClient.request<ChangePasswordInput, ChangePasswordResponse>({
         method: 'PUT',
-        path: '/users/me/password',
+        path: '/api/users/me/password',
         body: input,
         schema: ChangePasswordResponseSchema,
       });
@@ -198,7 +198,7 @@ export function useNotificationPreferences(): UseNotificationPreferencesResult {
     queryFn: async ({ signal }): Promise<NotificationPreferences> => {
       const result = await apiClient.request<void, NotificationPreferences>({
         method: 'GET',
-        path: '/users/me/notification-preferences',
+        path: '/api/users/me/notification-preferences',
         schema: NotificationPreferencesSchema,
         signal,
       });
@@ -232,7 +232,7 @@ export function useUpdateNotificationPreferences(): UseUpdateNotificationPrefere
     mutationFn: async (input: UpdateNotificationPreferencesInput): Promise<NotificationPreferences> => {
       const result = await apiClient.request<UpdateNotificationPreferencesInput, NotificationPreferences>({
         method: 'PUT',
-        path: '/users/me/notification-preferences',
+        path: '/api/users/me/notification-preferences',
         body: input,
         schema: NotificationPreferencesSchema,
       });

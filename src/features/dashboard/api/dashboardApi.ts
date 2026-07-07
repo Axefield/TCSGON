@@ -79,7 +79,7 @@ export function useDashboardStats(): UseDashboardStatsResult {
     queryFn: async ({ signal }) => {
       const result = await apiClient.request({
         method: 'GET',
-        path: '/dashboard/stats',
+        path: '/api/dashboard/stats',
         signal,
         schema: DashboardStatsSchema,
       });
