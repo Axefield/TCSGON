@@ -32,5 +32,7 @@ export { Badge } from './Badge';
 export type { BadgeProps } from './Badge';
 export { OptimizedImage } from './OptimizedImage';
 export type { OptimizedImageProps } from './OptimizedImage';
+export { VirtualizedDataTable } from './VirtualizedDataTable';
+export type { VirtualizedDataTableProps } from './VirtualizedDataTable';
 export { Radio } from './Radio';
 export type { RadioProps, RadioGroupProps } from './Radio';
