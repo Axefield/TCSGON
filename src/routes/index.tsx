@@ -32,6 +32,7 @@
 
 import { createBrowserRouter, type RouteObject } from 'react-router-dom';
 
+import { LandingPage } from '@/features/landing/pages/LandingPage';
 import { AppShell } from '@/layouts/AppShell';
 
 import { RedirectIfAuth } from './RedirectIfAuth';
@@ -132,7 +133,7 @@ const routes: RouteObject[] = [
       },
       {
         index: true,
-        lazy: () => import('@/features/landing/pages/LandingPage').then((m) => ({ Component: m.LandingPage })),
+        element: <LandingPage />,
       },
       {
         path: '*',

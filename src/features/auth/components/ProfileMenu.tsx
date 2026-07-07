@@ -179,7 +179,7 @@ export function ProfileMenu({
         aria-controls={MENU_ID}
         className={styles.trigger}
       >
-        <Avatar src={user.avatarUrl ?? undefined} alt={user.name} name={user.name} size="sm" />
+        <Avatar src={user.avatarUrl ?? undefined} alt={user.name} name={user.name} size="sm" loading="eager" />
         <span className={styles.name}>{user.name}</span>
       </button>
 
