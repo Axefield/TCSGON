@@ -67,7 +67,7 @@ export function TopBar({
             ☰
           </Button>
         ) : null}
-        <h1 className={styles.title}>{title}</h1>
+        <span className={styles.title}>{title}</span>
       </div>
 
       <div className={styles.right}>

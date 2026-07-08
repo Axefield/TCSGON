@@ -67,7 +67,7 @@ describe('TopBar', () => {
 
   it('renders the title', () => {
     render(<TopBar title="Dashboard" />, { wrapper: Wrapper });
-    expect(screen.getByRole('heading', { name: /dashboard/i })).toBeInTheDocument();
+    expect(screen.getByText(/dashboard/i)).toBeInTheDocument();
   });
 
   it('renders menu button when authenticated', () => {
