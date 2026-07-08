@@ -1,14 +1,69 @@
 import { describe, it, expect, beforeEach } from 'vitest';
+import { rm } from 'node:fs/promises';
 import request from 'supertest';
 import app from '../../app.js';
 import { prisma } from '../../lib/prisma.js';
 import { createAuthenticatedUser } from '../../test-utils.js';
 
 beforeEach(async () => {
+  await rm('uploads/avatars', { recursive: true, force: true });
   await prisma.notificationPreference.deleteMany();
   await prisma.passwordResetToken.deleteMany();
   await prisma.session.deleteMany();
   await prisma.user.deleteMany();
+});
+
+describe('POST /api/users/me/avatar', () => {
+  it('uploads avatar image and updates profile avatarUrl', async () => {
+    const { token } = await createAuthenticatedUser();
+
+    const res = await request(app)
+      .post('/api/users/me/avatar')
+      .set('Authorization', `Bearer ${token}`)
+      .attach('avatar', Buffer.from('fake-png-data'), {
+        filename: 'avatar.png',
+        contentType: 'image/png',
+      })
+      .expect(200);
+
+    expect(res.body.avatarUrl).toMatch(/^\/uploads\/avatars\/.+\.png$/);
+  });
+
+  it('returns 400 when avatar file is missing', async () => {
+    const { token } = await createAuthenticatedUser();
+
+    const res = await request(app)
+      .post('/api/users/me/avatar')
+      .set('Authorization', `Bearer ${token}`)
+      .expect(400);
+
+    expect(res.body.error.message).toBe('Avatar file is required.');
+  });
+
+  it('returns 400 for unsupported avatar file type', async () => {
+    const { token } = await createAuthenticatedUser();
+
+    const res = await request(app)
+      .post('/api/users/me/avatar')
+      .set('Authorization', `Bearer ${token}`)
+      .attach('avatar', Buffer.from('plain text'), {
+        filename: 'avatar.txt',
+        contentType: 'text/plain',
+      })
+      .expect(400);
+
+    expect(res.body.error.message).toMatch(/PNG, JPEG, WebP, or AVIF/);
+  });
+
+  it('returns 401 without auth', async () => {
+    await request(app)
+      .post('/api/users/me/avatar')
+      .attach('avatar', Buffer.from('fake-png-data'), {
+        filename: 'avatar.png',
+        contentType: 'image/png',
+      })
+      .expect(401);
+  });
 });
 
 describe('GET /api/users/me', () => {

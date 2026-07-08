@@ -156,7 +156,9 @@ export function createApiClient(
       const init: RequestInit = {
         method: config.method,
         headers,
-        ...(config.body !== undefined ? { body: JSON.stringify(config.body) } : {}),
+        ...(config.body !== undefined
+          ? { body: config.body instanceof FormData ? config.body : JSON.stringify(config.body) }
+          : {}),
       };
 
       let lastError: ApiError | null = null;

@@ -138,22 +138,6 @@ Output:
 
 ## Deployment
 
-### Using Docker Compose (full stack)
-
-```bash
-# Build and start all services
-docker compose up --build -d
-
-# View logs
-docker compose logs -f
-
-# Stop
-docker compose down
-
-# Reset database
-docker compose down -v
-```
-
 ### Manual deployment (server)
 
 ```bash
@@ -232,10 +216,8 @@ Ensure `DATABASE_URL` is set in `server/.env` or environment.
 - `:5242` — PostgreSQL
 
 ### Tests fail with DB connection error
-Ensure PostgreSQL is running on `localhost:5242`. Start with Docker:
-```bash
-docker run -d --name tcsgon-postgres -e POSTGRES_PASSWORD=Axefield5242 -p 5242:5432 postgres:17-alpine
-```
+Ensure PostgreSQL is running on `localhost:5242` and that the `tcsgon_test`
+database exists. Then rerun migrations for the server test database.
 
 ### Windows-specific
 - Use `pnpm test:run` instead of `pnpm test` (watch mode has issues on some Windows terminals)

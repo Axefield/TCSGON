@@ -774,7 +774,7 @@ lighthouse-ci            # CWV pass
 | Coverage drops | CI blocks merge; PR comment with diff report |
 | Design system inconsistency | `shared/components/` with canonical tests; no feature-specific UI primitives |
 | Token / secret leak | CSP, `.env` gitignored, `secrets/**` denied in every tool config |
-| Postgres not running on :5242 | `psql -p 5242` check in server startup; Docker Compose fallback documented |
+| Postgres not running on :5242 | `psql -p 5242` check in server startup; document local PostgreSQL setup |
 | Prisma schema drift between machines | `prisma migrate dev` auto-detects drift; document workflow |
 | Server + client port conflicts | `strictPort: true` on Vite; Express on 3001; documented in onboarding |
 

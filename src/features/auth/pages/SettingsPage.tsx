@@ -20,7 +20,7 @@
  *    and `aria-describedby` for descriptions
  */
 import { zodResolver } from '@hookform/resolvers/zod';
-import { type ChangeEventHandler, type ReactElement, useCallback, useMemo, useRef } from 'react';
+import { type ChangeEventHandler, type ReactElement, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { Avatar, Button, ErrorDisplay, Input, Spinner } from '@/shared/components';
@@ -41,12 +41,14 @@ import {
   useProfileQuery,
   useUpdateNotificationPreferences,
   useUpdateProfile,
+  useUploadAvatar,
 } from '../api/userApi';
 
 import styles from './SettingsPage.module.css';
 
 export function SettingsPage(): ReactElement {
   const toast = useToast();
+  const [avatarPreviewUrl, setAvatarPreviewUrl] = useState<string | null>(null);
 
   // ── Profile query ─────────────────────────────────────────────
   const { profile, isLoading, isError, error, refetch } = useProfileQuery();
@@ -62,6 +64,7 @@ export function SettingsPage(): ReactElement {
 
   // ── Mutations ──────────────────────────────────────────────────
   const { updateProfile } = useUpdateProfile();
+  const { uploadAvatar } = useUploadAvatar();
   const { changePassword } = useChangePassword();
   const { updatePreferences } = useUpdateNotificationPreferences();
 
@@ -73,7 +76,6 @@ export function SettingsPage(): ReactElement {
     setError: setProfileError,
     reset: resetProfileForm,
     getValues: getProfileValues,
-    watch: watchProfile,
     formState: {
       errors: profileErrors,
       isSubmitting: isProfileSubmitting,
@@ -85,13 +87,20 @@ export function SettingsPage(): ReactElement {
       () => ({
         name: profile?.name ?? '',
         email: profile?.email ?? '',
-        avatarUrl: profile?.avatarUrl ?? null,
       }),
-      [profile?.name, profile?.email, profile?.avatarUrl],
+      [profile?.name, profile?.email],
     ),
   });
 
-  const currentAvatarUrl = watchProfile('avatarUrl');
+  const currentAvatarUrl = avatarPreviewUrl ?? profile?.avatarUrl ?? null;
+
+  useEffect(() => {
+    return () => {
+      if (avatarPreviewUrl) {
+        URL.revokeObjectURL(avatarPreviewUrl);
+      }
+    };
+  }, [avatarPreviewUrl]);
 
   const onProfileSubmit = handleProfileSubmit(async (data) => {
     // Strip unchanged fields
@@ -102,10 +111,6 @@ export function SettingsPage(): ReactElement {
     if (data.email !== profile?.email && data.email !== undefined) {
       payload.email = data.email;
     }
-    if (data.avatarUrl !== profile?.avatarUrl && data.avatarUrl !== undefined) {
-      payload.avatarUrl = data.avatarUrl;
-    }
-
     // Nothing to update
     if (Object.keys(payload).length === 0) {
       return;
@@ -125,6 +130,43 @@ export function SettingsPage(): ReactElement {
       },
     });
   });
+
+  const handleAvatarChange = useCallback<ChangeEventHandler<HTMLInputElement>>(
+    (event) => {
+      const file = event.currentTarget.files?.[0];
+      event.currentTarget.value = '';
+      if (!file) return;
+
+      const allowedTypes = new Set(['image/png', 'image/jpeg', 'image/webp', 'image/avif']);
+      if (!allowedTypes.has(file.type)) {
+        toast.error('Avatar must be a PNG, JPEG, WebP, or AVIF image.');
+        return;
+      }
+
+      if (file.size > 2 * 1024 * 1024) {
+        toast.error('Avatar must be 2 MB or smaller.');
+        return;
+      }
+
+      const previewUrl = URL.createObjectURL(file);
+      setAvatarPreviewUrl((previous) => {
+        if (previous) URL.revokeObjectURL(previous);
+        return previewUrl;
+      });
+
+      uploadAvatar.mutate(file, {
+        onSuccess: () => {
+          toast.success('Avatar updated');
+        },
+        onError: (err) => {
+          URL.revokeObjectURL(previewUrl);
+          setAvatarPreviewUrl(null);
+          toast.error(err instanceof Error ? err.message : 'Failed to upload avatar.');
+        },
+      });
+    },
+    [toast, uploadAvatar],
+  );
 
   // ── Notification toggle handler ───────────────────────────────
   // Single handler keyed by `name` attribute — each toggle input
@@ -238,7 +280,7 @@ export function SettingsPage(): ReactElement {
             />
           </div>
 
-          {/* ── Avatar URL ──────────────────────────────── */}
+          {/* ── Avatar upload ────────────────────────────── */}
           <div className={styles.field}>
             <div className={styles.avatarRow}>
               <Avatar
@@ -247,15 +289,26 @@ export function SettingsPage(): ReactElement {
                 name={profile?.name ?? undefined}
                 size="xl"
               />
-              <Input
-                id="settings-avatar-url"
-                label="Avatar URL"
-                type="url"
-                autoComplete="url"
-                placeholder="https://example.com/avatar.jpg"
-                error={profileErrors.avatarUrl?.message}
-                {...registerProfile('avatarUrl')}
-              />
+              <div className={styles.avatarUploadControls}>
+                <label className={styles.label} htmlFor="settings-avatar-file">
+                  Avatar image
+                </label>
+                <input
+                  id="settings-avatar-file"
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp,image/avif"
+                  className={styles.fileInput}
+                  onChange={handleAvatarChange}
+                  aria-describedby="settings-avatar-help"
+                  disabled={uploadAvatar.isPending}
+                />
+                <p id="settings-avatar-help" className={styles.helpText}>
+                  Upload a PNG, JPEG, WebP, or AVIF image up to 2 MB.
+                </p>
+                {uploadAvatar.isPending ? (
+                  <p className={styles.uploadStatus} role="status">Uploading avatar…</p>
+                ) : null}
+              </div>
             </div>
           </div>
 

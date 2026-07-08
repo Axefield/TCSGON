@@ -12,8 +12,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **CI/CD pipeline**: GitHub Actions workflow (`.github/workflows/ci.yml`) with 4 parallel
   jobs — Client (lint, typecheck, test, build, budget check), Server (test with PostgreSQL
   service), E2E (Playwright), A11Y (axe-core audit).
-- **Server Dockerfile**: multi-stage production build for the Express server.
-- **Docker Compose**: full-stack local deployment (PostgreSQL 17 + server).
 - **Runbook**: `docs/runbook.md` — daily operations for dev, test, build, deploy, DB.
 - **Onboarding guide**: `docs/onboarding.md` — 30-minute setup guide covering clone,
   deps, AI agents, project structure, and first PR workflow.

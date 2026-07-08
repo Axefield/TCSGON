@@ -300,7 +300,7 @@ export type A11yRuleId = string & { [A11yRuleIdBrand]: never }
 | Coverage threshold blocks valid PR | Low | Medium | Start at 80/75/80 — achievable based on Phase 5 data |
 | CI time exceeds 5 min | Low | Medium | Shard across 4 (unit) + 12 (E2E) runners, cache aggressively |
 | Lighthouse false negatives | Low | Medium | Median of 3 runs, desktop preset |
-| New a11y tests fail in CI but pass locally | Medium | Medium | Pin Playwright browser versions, use Docker |
+| New a11y tests fail in CI but pass locally | Medium | Medium | Pin Playwright browser versions and use the same browser channel locally/CI |
 | A11y manual audit deferred indefinitely | High | High | Hard gate: manual audit must pass before Phase 7 starts |
 
 ---

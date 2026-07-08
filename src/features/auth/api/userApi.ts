@@ -61,6 +61,10 @@ export interface UseUpdateProfileResult {
   readonly updateProfile: UseMutationResult<User, Error, UpdateProfileInput>;
 }
 
+export interface UseUploadAvatarResult {
+  readonly uploadAvatar: UseMutationResult<User, Error, File>;
+}
+
 export interface UseChangePasswordResult {
   readonly changePassword: UseMutationResult<ChangePasswordResponse, Error, ChangePasswordInput>;
 }
@@ -140,6 +144,41 @@ export function useUpdateProfile(): UseUpdateProfileResult {
   });
 
   return { updateProfile };
+}
+
+/**
+ * Upload avatar image.
+ *
+ * Sends a multipart form-data payload to the server. On success, the returned
+ * user is synced into Redux immediately so profile menus and avatars update
+ * without a full refresh.
+ */
+export function useUploadAvatar(): UseUploadAvatarResult {
+  const apiClient = useApiClient();
+  const dispatch = useAppDispatch();
+  const queryClient = useQueryClient();
+
+  const uploadAvatar = useMutation<User, Error, File>({
+    mutationFn: async (file: File): Promise<User> => {
+      const body = new FormData();
+      body.set('avatar', file);
+
+      const result = await apiClient.request<FormData, User>({
+        method: 'POST',
+        path: '/api/users/me/avatar',
+        body,
+        schema: ProfileResponseSchema,
+      });
+      if (!result.ok) throw result.error;
+      return result.data;
+    },
+    onSuccess: (user: User): void => {
+      dispatch(authActions.updateProfile({ user }));
+      void queryClient.invalidateQueries({ queryKey: userKeys.profile() });
+    },
+  });
+
+  return { uploadAvatar };
 }
 
 /**

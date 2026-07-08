@@ -29,21 +29,11 @@ This installs all workspace dependencies (client + server) from the frozen lockf
 
 ## 2. Database Setup (5 min)
 
-**Option A: Local PostgreSQL**
-
 ```bash
 # Create the database
 createdb tcsgon
 
 # Apply migrations + seed
-pnpm --filter tcsgon-server exec prisma migrate dev
-pnpm --filter tcsgon-server exec prisma db seed
-```
-
-**Option B: Docker**
-
-```bash
-docker compose up -d postgres
 pnpm --filter tcsgon-server exec prisma migrate dev
 pnpm --filter tcsgon-server exec prisma db seed
 ```
