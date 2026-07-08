@@ -13,7 +13,9 @@ export default defineConfig({
     testTimeout: 10_000,
     hookTimeout: 15_000,
     env: {
-      DATABASE_URL: 'postgresql://postgres:Axefield5242@localhost:5242/tcsgon_test',
+      // Respect CI's DATABASE_URL (e.g. port 5432 from GitHub Actions PostgreSQL service),
+      // fall back to local development defaults.
+      DATABASE_URL: process.env.DATABASE_URL ?? 'postgresql://postgres:Axefield5242@localhost:5242/tcsgon_test',
       NODE_ENV: 'test',
       BCRYPT_COST: '4',
       SESSION_EXPIRY_HOURS: '1',
