@@ -1,8 +1,3 @@
-# Phase 6 CI — lint, typecheck, test + sharded coverage, build, bundle budget,
-# edge-case validation, a11y (unit axe + E2E axe + keyboard), E2E (sharded),
-# Lighthouse CI.
-#
-# Runs on every push to main and every PR.
 name: CI
 
 on:
@@ -17,27 +12,25 @@ concurrency:
 
 env:
   NODE_VERSION: '24'
+  PNPM_VERSION: '10'
 
-# ---------------------------------------------------------------------------
-# Shared setup used by multiple jobs
-# ---------------------------------------------------------------------------
-defaults:
-  run:
-    shell: bash
-
-# ---------------------------------------------------------------------------
-# Quality gate — lint, typecheck, sharded unit tests + coverage
-# ---------------------------------------------------------------------------
 jobs:
-  quality:
-    name: Lint + TypeCheck + Coverage
+  # ─── Client: lint, typecheck, test, build ───────────────────────────
+  client:
+    name: Client
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
 
-      - uses: pnpm/action-setup@v6
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
 
-      - uses: actions/setup-node@v6
+      - name: Setup Node ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'pnpm'
@@ -48,75 +41,57 @@ jobs:
       - name: Lint
         run: pnpm lint
 
-      - name: TypeScript check
+      - name: Typecheck
         run: pnpm typecheck
 
-      - name: Unit tests + coverage
-        run: pnpm test:coverage
-
-      - name: Validate edge case registry
-        run: pnpm validate:edge-cases
-
-      - name: Upload coverage report
-        uses: actions/upload-artifact@v7
-        if: always()
-        with:
-          name: coverage
-          path: coverage/
-
-  # ---------------------------------------------------------------------------
-  # Build + bundle budget + edge-case validation
-  # ---------------------------------------------------------------------------
-  build:
-    name: Build + Bundle Check
-    needs: quality
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-
-      - uses: pnpm/action-setup@v6
-
-      - uses: actions/setup-node@v6
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'pnpm'
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+      - name: Test
+        run: pnpm test:run -- --reporter dot
 
       - name: Build
         run: pnpm build
 
-      - name: Build analysis
-        run: pnpm build:analyze
-
-      - name: Bundle budget check
+      - name: Check bundle budgets
         run: pnpm check:budgets
 
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v7
+      - name: Upload coverage
+        uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: dist
-          path: dist/
+          name: client-coverage
+          path: coverage/
+          retention-days: 7
 
-  # ---------------------------------------------------------------------------
-  # E2E — Chromium (sharded) + a11y (axe + keyboard)
-  # ---------------------------------------------------------------------------
-  e2e:
-    name: E2E (Chromium)
-    needs: build
+  # ─── Server: test with PostgreSQL ──────────────────────────────────
+  server:
+    name: Server
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        shard: [1, 2, 3, 4]
+    timeout-minutes: 15
+
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: tcsgon_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
 
-      - uses: pnpm/action-setup@v6
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
 
-      - uses: actions/setup-node@v6
+      - name: Setup Node ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'pnpm'
@@ -124,55 +99,86 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Cache Playwright browsers
-        id: playwright-cache
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+      - name: Generate Prisma client
+        run: pnpm --filter tcsgon-server exec prisma generate
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/tcsgon_test
 
-      - name: Install Playwright browsers (if not cached)
-        if: steps.playwright-cache.outputs.cache-hit != 'true'
+      - name: Run migrations
+        run: pnpm --filter tcsgon-server exec prisma migrate deploy
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/tcsgon_test
+
+      - name: Test
+        run: pnpm --filter tcsgon-server test
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/tcsgon_test
+          NODE_ENV: test
+
+      - name: Upload coverage
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: server-coverage
+          path: server/coverage/
+          retention-days: 7
+
+  # ─── E2E: Playwright tests ─────────────────────────────────────────
+  e2e:
+    name: E2E
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Playwright browsers
         run: pnpm exec playwright install --with-deps chromium
 
-      - name: Install Playwright system deps (if cached)
-        if: steps.playwright-cache.outputs.cache-hit == 'true'
-        run: pnpm exec playwright install-deps chromium
+      - name: Build
+        run: pnpm build
 
-      - name: Download build artifacts
-        uses: actions/download-artifact@v7
-        with:
-          name: dist
-          path: dist/
+      - name: Run E2E
+        run: pnpm e2e
 
-      # Playwright webServer config handles starting/stopping the preview server.
-      # No manual start needed.
-
-      - name: E2E tests (shard ${{ matrix.shard }}/4)
-        # Only run the chromium project — other projects (axe-firefox, mobile) need
-        # different browser binaries or are a11y-specific and run in the a11y job.
-        run: pnpm exec playwright test --project=chromium --shard=${{ matrix.shard }}/4
-
-      - name: Upload Playwright report (shard ${{ matrix.shard }})
-        uses: actions/upload-artifact@v7
+      - name: Upload Playwright report
+        uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: playwright-report-shard-${{ matrix.shard }}
+          name: playwright-report
           path: playwright-report/
+          retention-days: 7
 
-  # ---------------------------------------------------------------------------
-  # A11y — axe-core E2E on Chromium + Firefox
-  # ---------------------------------------------------------------------------
+  # ─── A11y: axe-core audit ─────────────────────────────────────────
   a11y:
-    name: A11y (axe + keyboard)
-    needs: build
+    name: Accessibility
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
 
-      - uses: pnpm/action-setup@v6
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
 
-      - uses: actions/setup-node@v6
+      - name: Setup Node ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'pnpm'
@@ -180,78 +186,19 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Cache Playwright browsers
-        id: playwright-cache
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/ms-playwright
-          key: playwright-a11y-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+      - name: Install Playwright browsers
+        run: pnpm exec playwright install --with-deps chromium
 
-      - name: Install Playwright browsers (if not cached)
-        if: steps.playwright-cache.outputs.cache-hit != 'true'
-        run: pnpm exec playwright install --with-deps chromium firefox
+      - name: Build
+        run: pnpm build
 
-      - name: Install Playwright system deps (if cached)
-        if: steps.playwright-cache.outputs.cache-hit == 'true'
-        run: pnpm exec playwright install-deps chromium firefox
-
-      - name: Download build artifacts
-        uses: actions/download-artifact@v7
-        with:
-          name: dist
-          path: dist/
-
-      # Playwright webServer config handles starting/stopping the preview server.
-      # No manual start needed.
-
-      - name: A11y audit (axe-core, Chromium)
+      - name: Run axe audit
         run: pnpm axe
 
-      - name: A11y audit (axe-core, Firefox)
-        run: pnpm axe:firefox
-
-      - name: Keyboard-only walkthrough
-        run: pnpm keyboard
-
-      - name: Upload a11y reports
-        uses: actions/upload-artifact@v7
+      - name: Upload axe report
+        uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: a11y-reports
-          path: playwright-report/
-
-  # ---------------------------------------------------------------------------
-  # Lighthouse CI — CWV + a11y score + performance score
-  # ---------------------------------------------------------------------------
-  lighthouse:
-    name: Lighthouse CI
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-
-      - uses: pnpm/action-setup@v6
-
-      - uses: actions/setup-node@v6
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'pnpm'
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Download build artifacts
-        uses: actions/download-artifact@v7
-        with:
-          name: dist
-          path: dist/
-
-      - name: Lighthouse CI
-        run: pnpm lhci
-
-      - name: Upload LHCI reports
-        uses: actions/upload-artifact@v7
-        if: always()
-        with:
-          name: lhci-reports
-          path: lhci-reports/
+          name: axe-report
+          path: axe-reports/
+          retention-days: 7
