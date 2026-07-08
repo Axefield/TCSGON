@@ -13,7 +13,7 @@
  */
 import { type ReactElement } from 'react';
 
-import type { ToastEntry } from '@/shared/types/toast';
+import { type ToastEntry } from '@/shared/types/toast';
 
 import { Button } from './Button';
 import styles from './Toast.module.css';

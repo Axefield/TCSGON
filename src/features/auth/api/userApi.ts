@@ -61,6 +61,10 @@ export interface UseUpdateProfileResult {
   readonly updateProfile: UseMutationResult<User, Error, UpdateProfileInput>;
 }
 
+export interface UseUploadAvatarResult {
+  readonly uploadAvatar: UseMutationResult<User, Error, File>;
+}
+
 export interface UseChangePasswordResult {
   readonly changePassword: UseMutationResult<ChangePasswordResponse, Error, ChangePasswordInput>;
 }
@@ -84,7 +88,7 @@ export function useProfileQuery(): UseProfileResult {
     queryFn: async ({ signal }): Promise<Profile> => {
       const result = await apiClient.request<void, Profile>({
         method: 'GET',
-        path: '/users/me',
+        path: '/api/users/me',
         schema: ProfileResponseSchema,
         signal,
       });
@@ -123,7 +127,7 @@ export function useUpdateProfile(): UseUpdateProfileResult {
     mutationFn: async (input: UpdateProfileInput): Promise<User> => {
       const result = await apiClient.request<UpdateProfileInput, User>({
         method: 'PUT',
-        path: '/users/me',
+        path: '/api/users/me',
         body: input,
         schema: ProfileResponseSchema.pick({ id: true, name: true, email: true, avatarUrl: true }),
       });
@@ -143,6 +147,41 @@ export function useUpdateProfile(): UseUpdateProfileResult {
 }
 
 /**
+ * Upload avatar image.
+ *
+ * Sends a multipart form-data payload to the server. On success, the returned
+ * user is synced into Redux immediately so profile menus and avatars update
+ * without a full refresh.
+ */
+export function useUploadAvatar(): UseUploadAvatarResult {
+  const apiClient = useApiClient();
+  const dispatch = useAppDispatch();
+  const queryClient = useQueryClient();
+
+  const uploadAvatar = useMutation<User, Error, File>({
+    mutationFn: async (file: File): Promise<User> => {
+      const body = new FormData();
+      body.set('avatar', file);
+
+      const result = await apiClient.request<FormData, User>({
+        method: 'POST',
+        path: '/api/users/me/avatar',
+        body,
+        schema: ProfileResponseSchema,
+      });
+      if (!result.ok) throw result.error;
+      return result.data;
+    },
+    onSuccess: (user: User): void => {
+      dispatch(authActions.updateProfile({ user }));
+      void queryClient.invalidateQueries({ queryKey: userKeys.profile() });
+    },
+  });
+
+  return { uploadAvatar };
+}
+
+/**
  * Change password.
  *
  * One-shot mutation — no Redux state changes. On success the component
@@ -155,7 +194,7 @@ export function useChangePassword(): UseChangePasswordResult {
     mutationFn: async (input: ChangePasswordInput): Promise<ChangePasswordResponse> => {
       const result = await apiClient.request<ChangePasswordInput, ChangePasswordResponse>({
         method: 'PUT',
-        path: '/users/me/password',
+        path: '/api/users/me/password',
         body: input,
         schema: ChangePasswordResponseSchema,
       });
@@ -198,7 +237,7 @@ export function useNotificationPreferences(): UseNotificationPreferencesResult {
     queryFn: async ({ signal }): Promise<NotificationPreferences> => {
       const result = await apiClient.request<void, NotificationPreferences>({
         method: 'GET',
-        path: '/users/me/notification-preferences',
+        path: '/api/users/me/notification-preferences',
         schema: NotificationPreferencesSchema,
         signal,
       });
@@ -232,7 +271,7 @@ export function useUpdateNotificationPreferences(): UseUpdateNotificationPrefere
     mutationFn: async (input: UpdateNotificationPreferencesInput): Promise<NotificationPreferences> => {
       const result = await apiClient.request<UpdateNotificationPreferencesInput, NotificationPreferences>({
         method: 'PUT',
-        path: '/users/me/notification-preferences',
+        path: '/api/users/me/notification-preferences',
         body: input,
         schema: NotificationPreferencesSchema,
       });

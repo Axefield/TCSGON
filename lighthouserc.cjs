@@ -44,7 +44,9 @@ const config = {
         // Disabled rules (not applicable to SPA with SSR-free Vite)
         'uses-responsive-images': 'off',
         'offscreen-images': 'off',
-        'unused-css-rules': 'off',
+
+        // Phase 8: re-enable with generous threshold (10% unused allowed)
+        'unused-css-rules': ['warn', { maxNumericValue: 10 }],
 
         // Lighthouse recommended assertions that don't apply to this project:
         'robots-txt': 'off',                       // No robots.txt for dev/preview

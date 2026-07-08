@@ -6,7 +6,7 @@
  *
  * @see docs/plans/phase-2-data-and-features.md §7.1
  */
-import { type ReactElement } from 'react';
+import { type ReactElement, useMemo } from 'react';
 
 
 import { DashboardSkeleton } from '@/features/dashboard/components/DashboardSkeleton';
@@ -40,6 +40,9 @@ function buildStatItems(
 export function DashboardPage(): ReactElement {
   const { stats, isLoading, isError, error, refetch } = useDashboard();
 
+  // Hooks must be called unconditionally, before any early return.
+  const statItems = useMemo(() => buildStatItems(stats), [stats]);
+
   if (isLoading) {
     return <DashboardSkeleton />;
   }
@@ -52,8 +55,6 @@ export function DashboardPage(): ReactElement {
       </section>
     );
   }
-
-  const statItems = buildStatItems(stats);
 
   return (
     <section className={styles.page}>

@@ -17,6 +17,10 @@ app.use(cors({ origin: config.corsOrigin, credentials: true }));
 // 2. JSON body parser
 app.use(express.json());
 
+// 2b. Static user-uploaded assets. In production this path should be backed
+// by persistent storage (volume, S3/R2, etc.); Docker Compose mounts a volume.
+app.use('/uploads', express.static('uploads'));
+
 // 3. Request logger (simple, dev-only)
 if (!config.isProduction) {
   app.use((req, _res, next) => {

@@ -19,6 +19,8 @@ body {
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   font-family: var(--font-sans, system-ui, sans-serif);
+  background-color: var(--color-bg, #ffffff);
+  color: var(--color-fg, #0f172a);
 }
 
 img,

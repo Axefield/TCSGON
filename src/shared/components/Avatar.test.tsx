@@ -152,4 +152,55 @@ describe('Avatar', () => {
     expect(document.querySelector('img')).toBeNull();
     expect(screen.getByRole('img')).toHaveAttribute('aria-label', 'User');
   });
+
+  // ─── Responsive image props (Phase 8) ───────────────────────────
+
+  it('passes srcSet prop to <img> element', () => {
+    const srcSet = '/photo.jpg?w=320 320w, /photo.jpg?w=640 640w';
+    render(<Avatar alt="User" src="/photo.jpg" srcSet={srcSet} />);
+    const img = document.querySelector('img')!;
+    expect(img).toHaveAttribute('srcset', srcSet);
+  });
+
+  it('passes sizes prop to <img> element', () => {
+    const sizes = '(max-width: 640px) 100vw, 48px';
+    render(<Avatar alt="User" src="/photo.jpg" sizes={sizes} />);
+    const img = document.querySelector('img')!;
+    expect(img).toHaveAttribute('sizes', sizes);
+  });
+
+  it('passes loading="lazy" by default to <img> element', () => {
+    render(<Avatar alt="User" src="/photo.jpg" />);
+    const img = document.querySelector('img')!;
+    expect(img).toHaveAttribute('loading', 'lazy');
+  });
+
+  it('passes loading="eager" when explicitly set', () => {
+    render(<Avatar alt="User" src="/photo.jpg" loading="eager" />);
+    const img = document.querySelector('img')!;
+    expect(img).toHaveAttribute('loading', 'eager');
+  });
+
+  it('does not set srcset attribute when srcSet prop is undefined', () => {
+    render(<Avatar alt="User" src="/photo.jpg" />);
+    const img = document.querySelector('img')!;
+    expect(img).not.toHaveAttribute('srcset');
+  });
+
+  it('does not set sizes attribute when sizes prop is undefined', () => {
+    render(<Avatar alt="User" src="/photo.jpg" />);
+    const img = document.querySelector('img')!;
+    expect(img).not.toHaveAttribute('sizes');
+  });
+
+  it('passes both srcSet and sizes together for responsive images', () => {
+    const srcSet = '/photo.jpg?w=320 320w, /photo.jpg?w=640 640w';
+    const sizes = '(max-width: 640px) 100vw, 48px';
+    render(
+      <Avatar alt="User" src="/photo.jpg" srcSet={srcSet} sizes={sizes} />,
+    );
+    const img = document.querySelector('img')!;
+    expect(img).toHaveAttribute('srcset', srcSet);
+    expect(img).toHaveAttribute('sizes', sizes);
+  });
 });

@@ -9,6 +9,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **CI/CD pipeline**: GitHub Actions workflow (`.github/workflows/ci.yml`) with 4 parallel
+  jobs — Client (lint, typecheck, test, build, budget check), Server (test with PostgreSQL
+  service), E2E (Playwright), A11Y (axe-core audit).
+- **Runbook**: `docs/runbook.md` — daily operations for dev, test, build, deploy, DB.
+- **Onboarding guide**: `docs/onboarding.md` — 30-minute setup guide covering clone,
+  deps, AI agents, project structure, and first PR workflow.
+- **Component library docs**: `src/shared/components/__README__.md` — usage guide for all
+  17+ design system components with API tables and accessibility notes.
+- **ADRs**: `docs/adr/0002-state-management.md` (Redux + React Query split),
+  `0003-typescript-strict.md` (strict mode decisions),
+  `0004-routing-strategy.md` (lazy routes + auth guards).
+- **Login race condition fix**: cancel in-flight anonymous session query before login
+  mutations (`queryClient.cancelQueries`) to prevent stale 401 from reverting Redux;
+  refetch session with new token on success (`invalidateQueries`).
+
 - **Edge case registry**: `docs/edge-cases/registry.json` with 69 structured entries across
   auth, dashboard, projects, and shared features (Zod-validated schema v1.0).
 - **Edge case validation script**: `scripts/validate-edge-cases.ts` — validates registry
@@ -54,23 +69,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **API paths**: fixed missing `/api` prefix in `dashboardApi.ts`, `projectsApi.ts`,
+  `userApi.ts` — requests were hitting Vite dev server (HTML) instead of Express.
+- **Prisma config**: migrated from deprecated `package.json#prisma` to
+  `server/prisma.config.ts` using `defineConfig`.
 - `PasswordStrengthIndicator`: Zod schema type arguments hardened from `any` to
   `z.ZodTypeDef | unknown`.
 - **Lighthouse CI config** (`lighthouserc.cjs`): added `/` and `/settings` routes;
   upgraded CWV assertions from `warn` to `error`; added INP and score thresholds;
   removed unused `projects` route.
-- **CI workflow** (`.github/workflows/ci.yml`): E2E sharded across 4 parallel runners;
-  Playwright browsers cached via `actions/cache@v4`; dedicated a11y job runs axe on
-  Chromium + Firefox plus keyboard walkthrough; Lighthouse CI enabled (was `if: false`);
-  build artifacts downloaded from build job to avoid redundant rebuilds.
 - **Package scripts**: added `validate:edge-cases`, `check:budgets` scripts.
 - **Test utilities**: removed unused `preloadedState` field from `RenderWithProvidersOptions`
   interface and `render.tsx` wrapper. No consumer existed.
 - **App.test.tsx**: mocks `@/routes` module to avoid jsdom AbortSignal incompatibility
   with MSW interceptor when testing `createAppRouter` default branch.
-
-### Changed
-
 - **Keyboard E2E spec**: focus-trap detection with element-identity comparison, skip-link verification
   (`A[href="#main-content"]`), expanded focusable selector (added `select`, `textarea`).
 - **Axe tests**: SettingsPage, DashboardPage, ProjectListPage, and ToastRegion now audit populated

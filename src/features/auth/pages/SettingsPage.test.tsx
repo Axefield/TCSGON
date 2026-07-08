@@ -279,17 +279,47 @@ describe('SettingsPage', () => {
     ).toBeInTheDocument();
   });
 
-  // ── Phase 5: Avatar URL field ──────────────────────────────────
+  // ── Avatar upload ───────────────────────────────────────────────
 
-  it('renders avatar URL input field', async () => {
+  it('renders avatar file upload field', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(
       buildFetchResponse(PROFILE_RESPONSE),
     );
     render(<Wrapper />);
 
     expect(
-      await screen.findByLabelText(/avatar url/i),
+      await screen.findByLabelText(/avatar image/i),
     ).toBeInTheDocument();
+  });
+
+  it('uploads avatar image when a file is selected', async () => {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch');
+    fetchSpy
+      .mockResolvedValueOnce(buildFetchResponse(PROFILE_RESPONSE))
+      .mockResolvedValueOnce(buildFetchResponse(NOTIFICATION_PREFS_RESPONSE))
+      .mockResolvedValueOnce(buildFetchResponse({
+        ...PROFILE_RESPONSE,
+        avatarUrl: '/uploads/avatars/user-001.png',
+      }));
+    const createObjectUrl = vi.fn(() => 'blob:avatar-preview');
+    const revokeObjectUrl = vi.fn(() => undefined);
+    Object.defineProperty(URL, 'createObjectURL', { configurable: true, value: createObjectUrl });
+    Object.defineProperty(URL, 'revokeObjectURL', { configurable: true, value: revokeObjectUrl });
+
+    const user = userEvent.setup();
+    render(<Wrapper />);
+    const input = await screen.findByLabelText(/avatar image/i);
+
+    const file = new File(['avatar-bytes'], 'avatar.png', { type: 'image/png' });
+    await user.upload(input, file);
+
+    await waitFor(() => {
+      expect(fetchSpy).toHaveBeenCalledWith(
+        expect.stringContaining('/api/users/me/avatar'),
+        expect.objectContaining({ body: expect.any(FormData) }),
+      );
+    });
+    expect(createObjectUrl).toHaveBeenCalledWith(file);
   });
 
   it('shows avatar initials fallback when no avatar URL', async () => {
@@ -315,8 +345,8 @@ describe('SettingsPage', () => {
 
     render(<Wrapper />);
 
-    // Wait for avatar URL field to appear
-    await screen.findByLabelText(/avatar url/i);
+    // Wait for avatar file field to appear
+    await screen.findByLabelText(/avatar image/i);
 
     // Avatar renders an internal <img> element
     const img = document.querySelector('img[src="https://example.com/broken.jpg"]') as HTMLImageElement;

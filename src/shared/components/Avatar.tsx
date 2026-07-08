@@ -23,6 +23,20 @@ export interface AvatarProps {
   readonly src?: string | undefined;
 
   /**
+   * Responsive `srcset` attribute for the avatar image. Use `buildSrcSet`
+   * from `@/shared/utils/image` to generate. When provided, the browser
+   * selects the best image size for the current viewport.
+   */
+  readonly srcSet?: string | undefined;
+
+  /**
+   * `sizes` attribute for the avatar image. Required when `srcSet` is used.
+   * Describes the image's display width at different viewport sizes.
+   * Example: `'(max-width: 640px) 100vw, 48px'`.
+   */
+  readonly sizes?: string | undefined;
+
+  /**
    * Alt text for the image. REQUIRED for accessibility even when using
    * initials fallback. Describes who the avatar represents.
    */
@@ -38,6 +52,14 @@ export interface AvatarProps {
   /** Size variant. Default: 'md' */
   readonly size?: 'sm' | 'md' | 'lg' | 'xl';
 
+  /**
+   * Loading strategy for the image.
+   * - `'lazy'` (default): defers loading until near viewport.
+   * - `'eager'`: loads immediately. Use for above-the-fold avatars (e.g.,
+   *   the primary user avatar in the top bar) to avoid LCP regression.
+   */
+  readonly loading?: 'lazy' | 'eager';
+
   readonly className?: string;
 }
 
@@ -52,9 +74,12 @@ function getInitials(name: string): string {
 
 export function Avatar({
   src,
+  srcSet,
+  sizes,
   alt,
   name,
   size = 'md',
+  loading = 'lazy',
   className,
 }: AvatarProps) {
   const [imgError, setImgError] = useState(false);
@@ -76,7 +101,10 @@ export function Avatar({
         <img
           key={src}
           src={src}
+          srcSet={srcSet}
+          sizes={sizes}
           alt={alt}
+          loading={loading}
           className={styles.image}
           onError={() => { setImgError(true); }}
           onLoad={() => { setImgError(false); }}

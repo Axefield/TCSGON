@@ -22,6 +22,7 @@
 import {
   type ReactElement,
   type ReactNode,
+  useCallback,
 } from 'react';
 
 import styles from './DataTable.module.css';
@@ -94,11 +95,31 @@ export function DataTable<T>({
   const showEmpty = !isLoading && !hasData;
   const showSkeleton = isLoading;
 
-  const handleSort = (key: string): void => {
-    if (!onSort) return;
-    const newOrder = sortKey === key && sortOrder === 'asc' ? 'desc' : 'asc';
-    onSort(key, newOrder);
-  };
+  const handleSort = useCallback(
+    (key: string): void => {
+      if (!onSort) return;
+      const newOrder = sortKey === key && sortOrder === 'asc' ? 'desc' : 'asc';
+      onSort(key, newOrder);
+    },
+    [onSort, sortKey, sortOrder],
+  );
+
+  const handleRowClick = useCallback(
+    (item: T) => () => onRowClick?.(item),
+    [onRowClick],
+  );
+
+  const handleRowKeyDown = useCallback(
+    (item: T) =>
+      (e: React.KeyboardEvent<HTMLTableRowElement>): void => {
+        if (!onRowClick) return;
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onRowClick(item);
+        }
+      },
+    [onRowClick],
+  );
 
   return (
     <div className={styles.wrapper}>
@@ -150,21 +171,13 @@ export function DataTable<T>({
           {showBody
             ? data.map((item) => {
                 const key = rowKey(item);
+
                 return (
                   <tr
                     key={key}
                     className={`${styles.row} ${onRowClick ? styles.clickable : ''}`}
-                    onClick={() => onRowClick?.(item)}
-                    onKeyDown={
-                      onRowClick
-                        ? (e) => {
-                            if (e.key === 'Enter' || e.key === ' ') {
-                              e.preventDefault();
-                              onRowClick(item);
-                            }
-                          }
-                        : undefined
-                    }
+                    onClick={onRowClick ? handleRowClick(item) : undefined}
+                    onKeyDown={onRowClick ? handleRowKeyDown(item) : undefined}
                     tabIndex={onRowClick ? 0 : undefined}
                     role={onRowClick ? 'button' : undefined}
                     aria-label={onRowClick ? `View ${label} ${key}` : undefined}

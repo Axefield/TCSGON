@@ -667,7 +667,7 @@ pnpm start              # node dist/index.js
 
 | Risk | Severity | Mitigation |
 |---|---|---|
-| Postgres not installed/running | High | Document first-time setup clearly. `docker compose up -d` fallback option for reproducibility. |
+| Postgres not installed/running | High | Document first-time setup clearly with local PostgreSQL prerequisites. |
 | Prisma migration conflicts between dev machines | Medium | Use `prisma migrate dev` (auto-detects drift). Document migration workflow. |
 | bcrypt native module compilation fails on Windows | Medium | Use `bcryptjs` (pure JS, slower but no native deps) as fallback. |
 | Express 5 API differences from Express 4 | Low | Pin `express@5.0.0` version. Document if any API differences affect middleware. |

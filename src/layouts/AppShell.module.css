@@ -6,10 +6,6 @@
   overflow: hidden;
 }
 
-.sidebar {
-  flex-shrink: 0;
-}
-
 .mainArea {
   flex: 1;
   display: flex;
@@ -31,31 +27,4 @@
 /* <main> receives focus after skip-link — no visible focus ring */
 .content:focus {
   outline: none;
-}
-
-/* Mobile: sidebar becomes overlay at < 768px */
-@media (max-width: 767px) {
-  .shell {
-    flex-direction: column;
-  }
-
-  .sidebar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    z-index: 200;
-    transform: translateX(-100%);
-    transition: transform var(--motion-base, 200ms) var(--motion-ease-standard, ease);
-  }
-
-  .sidebar[data-expanded='true'] {
-    transform: translateX(0);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .sidebar {
-    transition: none;
-  }
 }

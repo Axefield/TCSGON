@@ -47,7 +47,9 @@ export interface ApiClient {
   setBaseUrl(url: string): void;
 }
 
-const DEFAULT_BASE_URL = '/api';
+// All request paths already include the `/api` prefix (e.g. `/api/auth/session`).
+// Keep the base URL empty to avoid a duplicate `/api/api/…` when concatenating.
+const DEFAULT_BASE_URL = '';
 const DEFAULT_TIMEOUT_MS = 15_000;
 const MAX_RETRIES = 3;
 
@@ -154,7 +156,9 @@ export function createApiClient(
       const init: RequestInit = {
         method: config.method,
         headers,
-        ...(config.body !== undefined ? { body: JSON.stringify(config.body) } : {}),
+        ...(config.body !== undefined
+          ? { body: config.body instanceof FormData ? config.body : JSON.stringify(config.body) }
+          : {}),
       };
 
       let lastError: ApiError | null = null;

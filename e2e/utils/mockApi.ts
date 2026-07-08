@@ -228,6 +228,9 @@ export async function setupMockApi(page: Page, options: MockApiOptions = {}): Pr
       });
       return;
     }
+    // After successful login, mark session as seeded so subsequent
+    // session checks return 200 instead of 401.
+    seedSession = true;
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
@@ -270,6 +273,9 @@ export async function setupMockApi(page: Page, options: MockApiOptions = {}): Pr
       });
       return;
     }
+    // After successful signup, mark session as seeded so subsequent
+    // session checks return 200 instead of 401.
+    seedSession = true;
     await route.fulfill({
       status: 201,
       contentType: 'application/json',

@@ -57,15 +57,17 @@ export function TopBar({
   return (
     <header className={styles.topBar}>
       <div className={styles.left}>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={effectiveMenuClick}
-          aria-label={isSidebarOpen ? 'Close navigation menu' : 'Open navigation menu'}
-        >
-          ☰
-        </Button>
-        <h1 className={styles.title}>{title}</h1>
+        {user ? (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={effectiveMenuClick}
+            aria-label={isSidebarOpen ? 'Close navigation menu' : 'Open navigation menu'}
+          >
+            ☰
+          </Button>
+        ) : null}
+        <span className={styles.title}>{title}</span>
       </div>
 
       <div className={styles.right}>
