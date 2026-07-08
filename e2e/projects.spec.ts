@@ -34,8 +34,8 @@ test.describe('Projects @smoke @a11y', () => {
     // Click first row to navigate to detail
     await rows.first().click();
 
-    // Should land on detail page (page has two h1 elements: site title + page heading)
-    await expect(page.getByRole('heading', { level: 1, name: /project portfolio/i })).toBeVisible();
+    // Should land on detail page — heading is the first mock project's name
+    await expect(page.getByRole('heading', { level: 1, name: /mobile app redesign/i })).toBeVisible();
   });
 
   test('creates a new project', async ({ page }) => {

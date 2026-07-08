@@ -175,7 +175,7 @@ export function useUpdateProject(): UseMutationResult<
       const payload = ProjectInputSchema.parse(input);
       const result = await apiClient.request({
         method: 'PUT',
-        path: `/projects/${id}`,
+        path: `/api/projects/${id}`,
         body: payload,
         schema: ProjectSchema,
       });
@@ -205,7 +205,7 @@ export function useDeleteProject(): UseMutationResult<void, ApiError, ProjectId>
     mutationFn: async (id: ProjectId) => {
       const result = await apiClient.request<void, void>({
         method: 'DELETE',
-        path: `/projects/${id}`,
+        path: `/api/projects/${id}`,
       });
 
       if (!result.ok) {
