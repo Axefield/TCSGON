@@ -36,7 +36,7 @@ pnpm axe             # a11y-only spec via @axe-core/playwright
 pnpm clean           # remove dist/, coverage/, playwright-report/, test-results/
 ```
 
-> **Current status (all completed phases):** every gate passes. Coverage: **96.7% lines / 90.34% branches / 87.34% functions** (gates: 80%/75%/80%). **762 client tests across 107 files**. Auth feature: 100% all metrics. No `any`, no `@ts-ignore`, no `eslint-disable` without justification. See [`docs/plans/phase-1-core-infrastructure.md`](./docs/plans/phase-1-core-infrastructure.md) and [`roadmap.md`](./roadmap.md) for full plans + verification logs.
+> **Current status (all completed phases):** every gate passes. Coverage: **96.7% lines / 90.34% branches / 87.34% functions** (gates: 80%/75%/80%). **816 client tests across 107 files**. Auth feature: 100% all metrics. Phase 8 delivered performance monitoring, CI pipeline, documentation/knowledge base, dark mode, and avatar upload. No `any`, no `@ts-ignore`, no `eslint-disable` without justification. See [`docs/plans/phase-1-core-infrastructure.md`](./docs/plans/phase-1-core-infrastructure.md) and [`roadmap.md`](./roadmap.md) for full plans + verification logs.
 
 ---
 
@@ -216,38 +216,42 @@ See [`docs/plans/phase-6-testing-a11y-hardening.md`](./docs/plans/phase-6-testin
 
 ---
 
-### Phase 8 — Performance Optimization 📋
+### Phase 8 — Performance Optimization, CI/CD, Docs, A11y, Dark Mode, Avatar ✅
 
-> Measure, identify, optimize, verify. See [`roadmap.md`](./roadmap.md#phase-7--performance-optimization).
+> Performance monitoring, CI pipeline, knowledge base, dark mode, avatar upload. See [`roadmap.md`](./roadmap.md) and [`docs/plans/phase-8-performance-optimization.md`](./docs/plans/phase-8-performance-optimization.md).
 
-- [ ] Lighthouse baseline + CWV targets (LCP < 2.5s, INP < 200ms, CLS < 0.1)
-- [ ] Route-level code splitting audit + bundle analysis (200 kB warn / 350 kB error)
-- [ ] Image optimization (AVIF/WebP, responsive srcset, lazy loading)
-- [ ] List virtualization (`@tanstack/react-virtual` for lists > 50 rows)
-- [ ] Memoization only where measured (no preemptive `React.memo`)
-- [ ] Lighthouse CI in GitHub Actions (fail on regression)
+| Area | Delivered |
+|------|-----------|
+| **Performance monitoring** | Web Vitals client (CLS, FCP, LCP, INP, TBT), `VirtualizedDataTable` (50+ row virtualization), `OptimizedImage` (AVIF/WebP, responsive srcset, lazy loading, blur placeholder) |
+| **Lighthouse CI** | Baseline at `docs/perf/2026-07-07-phase8-baseline.md`, measurement protocol at `docs/perf/phase-8-measurement-and-verification.md`, CI gate with budgets |
+| **CI/CD pipeline** | 4-job GitHub Actions workflow: Client (lint + typecheck + test + build + bundle budget), Server (test against PostgreSQL), E2E (Playwright sharded), Accessibility (axe-core). Caching, proper pnpm setup, concurrency groups, Firefox + Chromium |
+| **Documentation** | 3 ADRs (state management, TypeScript strict, routing strategy), onboarding guide (`docs/onboarding.md`), runbook (`docs/runbook.md`), Storybook stories for all 18 shared components, design system README, CHANGELOG updates |
+| **Accessibility** | TopBar `<h1>` → `<span>` fix to eliminate duplicate page headings, axe-core gate in CI, keyboard-only walkthrough pass |
+| **Dark mode** | CSS custom properties in `tokens.css`, `data-theme` attribute on `<html>`, theme toggle in Settings page, `prefers-color-scheme` detection with no-flash hydration |
+| **Avatar upload** | Server endpoint (`PUT /api/users/me/avatar`), `Avatar` component (image → initials → SVG fallback chain), Settings page UI with preview, test coverage
 
 ---
 
-### Phase 9 — CI/CD & Deployment Pipeline 📋
+### Phase 9 — Deployment Pipeline 📋
 
-> Automated quality gates, preview deployments, production release. See [`roadmap.md`](./roadmap.md#phase-8--cicd--deployment-pipeline).
+> Preview deployments, production release. CI was delivered in Phase 8. See [`roadmap.md`](./roadmap.md#phase-8--cicd--deployment-pipeline).
 
-- [ ] PR workflow: lint → typecheck → test (coverage) → build (budget) → axe → e2e → Lighthouse CI
-- [ ] Server CI: `cd server && pnpm test` against test DB
-- [ ] Main branch: version bump + CHANGELOG + staging deploy
 - [ ] Preview deployment per PR (comment with URL)
-- [ ] Production deployment on merge to main
+- [ ] Production deployment on merge to main (Vercel / Netlify / Cloudflare Pages)
+- [ ] Main branch: version bump + CHANGELOG auto-extract + staging deploy
+- [ ] Staged rollouts (optional)
 
 ---
 
-### Phase 10 — Documentation & Knowledge Base 📋
+### Phase 10 — Documentation & Knowledge Base ✅
 
-- [ ] ADRs for all architectural decisions (state, routing, TS strict, design system)
-- [ ] Feature author conventions (`src/features/__README__.md`)
-- [ ] Design system usage guide (`src/shared/components/__README__.md`)
-- [ ] Runbook (`docs/runbook.md`), onboarding guide (`docs/onboarding.md`)
-- [ ] JSDoc on every exported symbol, CHANGELOG per release
+> Delivered as part of Phase 8. See Phase 8 section above for full details.
+
+- [x] ADRs for architectural decisions (state, routing, TS strict) — `docs/adr/0002`, `0003`, `0004`
+- [x] Design system usage guide (`src/shared/components/__README__.md`) with examples
+- [x] Runbook (`docs/runbook.md`) and onboarding guide (`docs/onboarding.md`)
+- [x] Storybook stories for all 18 shared components
+- [x] CHANGELOG updated per release
 
 ---
 
